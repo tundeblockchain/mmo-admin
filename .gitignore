@@ -19,6 +19,12 @@ dist-ssr
 .env.development
 .env.production
 
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+*-service-account*.json
+serviceAccountKey*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
