@@ -344,3 +344,26 @@ export type AnyCatalogData =
   | ElementCatalogData
   | ResonanceCatalogData
   | CombatConstantsCatalogData;
+
+export type CatalogEntityData =
+  | ClassDefinition[]
+  | SkillDefinition[]
+  | StatusDefinition[]
+  | ElementDefinition[]
+  | ResonanceDefinition[]
+  | CombatConstantsData;
+
+export interface PublishCatalogRequest {
+  data: CatalogEntityData;
+  releaseNotes?: string;
+}
+
+export interface PublishedCatalogResponse {
+  catalogType: CatalogType;
+  version: number;
+  status: 'published';
+  createdAt: string;
+  publishedAt: string;
+  createdBy: string;
+  releaseNotes?: string;
+}

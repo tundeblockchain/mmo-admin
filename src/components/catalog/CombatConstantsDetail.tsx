@@ -23,12 +23,40 @@ interface CombatConstantsDetailProps {
   error: Error | null;
 }
 
-function formatValue(value: unknown): string {
+const PERCENT_FIELDS = new Set([
+  'baseCritChance',
+  'maxLuckCritBonus',
+  'criticalDamageMultiplier',
+  'armorReductionPerPoint',
+  'maxArmorReduction',
+  'blockDamageReduction',
+  'damageMultiplier',
+  'healingMultiplier',
+  'durationMultiplier',
+  'staggerMultiplier',
+  'globalDamageMultiplier',
+  'globalHealingMultiplier',
+  'ccDurationMultiplier',
+  'executeThresholdModifier',
+  'softCapPenalty',
+  'baseDodgeChance',
+  'maxDodgeChance',
+  'outOfCombatHpRegen',
+  'outOfCombatResourceRegen',
+  'maxAccuracyBonus',
+  'baseHitChance',
+  'bonusPercent',
+]);
+
+function formatValue(value: unknown, key?: string): string {
   if (typeof value === 'number') {
-    if (value < 1 && value > 0) {
+    if (key && PERCENT_FIELDS.has(key)) {
       return `${(value * 100).toFixed(0)}%`;
     }
-    return value.toString();
+    if (Number.isInteger(value)) {
+      return value.toString();
+    }
+    return value.toFixed(3).replace(/\.?0+$/, '');
   }
   if (typeof value === 'boolean') {
     return value ? 'Yes' : 'No';
@@ -64,7 +92,7 @@ function renderObject(obj: Record<string, unknown>, depth = 0): React.ReactNode 
               <TableCell component="th" scope="row" sx={{ textTransform: 'capitalize' }}>
                 {formattedKey}
               </TableCell>
-              <TableCell align="right">{formatValue(value)}</TableCell>
+              <TableCell align="right">{formatValue(value, key)}</TableCell>
             </TableRow>
           );
         })}
