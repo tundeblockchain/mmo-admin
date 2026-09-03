@@ -26,6 +26,7 @@ interface VersionPickerProps {
   onVersionChange: (version: number) => void;
   isLoading?: boolean;
   error?: Error | null;
+  disabled?: boolean;
 }
 
 export function VersionPicker({
@@ -35,6 +36,7 @@ export function VersionPicker({
   onVersionChange,
   isLoading = false,
   error = null,
+  disabled = false,
 }: VersionPickerProps) {
   const typeVersions = versions.filter((v) => v.catalogType === catalogType);
   const sortedVersions = [...typeVersions].sort((a, b) => b.version - a.version);
@@ -72,7 +74,7 @@ export function VersionPicker({
   }
 
   return (
-    <FormControl sx={{ minWidth: 200 }} size="small">
+    <FormControl sx={{ minWidth: 200 }} size="small" disabled={disabled}>
       <InputLabel id={`version-picker-${catalogType}-label`}>
         {CATALOG_TYPE_LABELS[catalogType]} Version
       </InputLabel>
@@ -82,6 +84,7 @@ export function VersionPicker({
         value={selectedVersion ?? ''}
         label={`${CATALOG_TYPE_LABELS[catalogType]} Version`}
         onChange={handleChange}
+        disabled={disabled}
       >
         {sortedVersions.map((v) => (
           <MenuItem key={v.version} value={v.version}>
