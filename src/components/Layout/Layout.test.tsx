@@ -1,10 +1,21 @@
-import { describe, expect, it } from 'vitest';
-import { screen } from '@testing-library/react';
+import { describe, expect, it, beforeEach } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {
+  mockUser,
+  mockSignOut,
+  setMockAuthState,
+  resetMockAuth,
+} from '../../test/mocks/firebase-auth';
 import { render } from '../../test/test-utils';
 import { Layout } from './Layout';
 
 describe('Layout', () => {
+  beforeEach(() => {
+    resetMockAuth();
+    setMockAuthState(mockUser);
+  });
+
   it('renders the app bar with title', () => {
     render(<Layout />);
 
@@ -41,5 +52,41 @@ describe('Layout', () => {
 
     const main = screen.getByRole('main');
     expect(main).toBeInTheDocument();
+  });
+
+  it('shows user avatar when authenticated', () => {
+    render(<Layout />);
+
+    expect(
+      screen.getByRole('button', { name: /account menu/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens account menu when avatar is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Layout />);
+
+    const avatarButton = screen.getByRole('button', { name: /account menu/i });
+    await user.click(avatarButton);
+
+    expect(screen.getByText(mockUser.displayName!)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /sign out/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('calls signOut when sign out button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Layout />);
+
+    const avatarButton = screen.getByRole('button', { name: /account menu/i });
+    await user.click(avatarButton);
+
+    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    await user.click(signOutButton);
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalledTimes(1);
+    });
   });
 });

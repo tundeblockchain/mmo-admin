@@ -50,6 +50,14 @@ Create a `.env.local` file for local development (this file is gitignored):
 ```env
 # API base URL (optional, defaults to empty string)
 VITE_API_BASE_URL=https://your-api-url.example.com
+
+# Firebase Configuration (required for authentication)
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 ```
 
 ### Required Environment Variables for Deployment
@@ -59,6 +67,44 @@ Configure these in your deployment platform (e.g., Netlify):
 | Variable | Description |
 |----------|-------------|
 | `VITE_API_BASE_URL` | Base URL for the backend API |
+| `VITE_FIREBASE_API_KEY` | Firebase Web API key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase Auth domain (e.g., `project.firebaseapp.com`) |
+| `VITE_FIREBASE_PROJECT_ID` | Firebase project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket (e.g., `project.appspot.com`) |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase Cloud Messaging sender ID |
+| `VITE_FIREBASE_APP_ID` | Firebase App ID |
+
+### Firebase Setup
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Google sign-in under Authentication > Sign-in method
+3. Add your domain to the authorized domains list
+4. Copy the Firebase config values from Project Settings > General > Your apps
+
+**Important:** These are public client-side configuration values (not secrets). The Firebase API key only identifies your project and is safe to include in client-side code. Never commit `.env` files, service account keys, or Firebase Admin SDK credentials to the repository.
+
+## Authentication
+
+This application uses Firebase Authentication with Google sign-in. All admin routes are protected and require authentication.
+
+### Getting ID Tokens for API Calls
+
+After authentication, you can obtain a JWT ID token for API authorization:
+
+```typescript
+import { getIdToken } from './auth';
+
+async function makeApiCall() {
+  const token = await getIdToken();
+  if (token) {
+    const response = await fetch('/api/endpoint', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+```
 
 **Note:** All `VITE_` prefixed variables are exposed to the client. Do not store secrets or private keys in these variables.
 

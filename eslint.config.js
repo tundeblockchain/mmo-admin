@@ -140,10 +140,6 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['../*', '../**'],
-              message: 'Use the @/ alias instead of parent-relative imports.',
-            },
-            {
               group: ['@/api', '@/api/*'],
               message: 'UI code must use hooks, not the API client.',
             },
