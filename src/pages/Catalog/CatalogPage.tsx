@@ -7,12 +7,16 @@ import { ClassDetail } from '../../components/catalog/ClassDetail';
 import { ClassEditor } from '../../components/catalog/ClassEditor';
 import { SkillList } from '../../components/catalog/SkillList';
 import { SkillDetail } from '../../components/catalog/SkillDetail';
+import { SkillEditor } from '../../components/catalog/SkillEditor';
 import { StatusList } from '../../components/catalog/StatusList';
 import { StatusDetail } from '../../components/catalog/StatusDetail';
+import { StatusEditor } from '../../components/catalog/StatusEditor';
 import { ElementList } from '../../components/catalog/ElementList';
 import { ElementDetail } from '../../components/catalog/ElementDetail';
+import { ElementEditor } from '../../components/catalog/ElementEditor';
 import { ResonanceList } from '../../components/catalog/ResonanceList';
 import { ResonanceDetail } from '../../components/catalog/ResonanceDetail';
+import { ResonanceEditor } from '../../components/catalog/ResonanceEditor';
 import { CombatConstantsDetail } from '../../components/catalog/CombatConstantsDetail';
 import { CombatConstantsEditor } from '../../components/catalog/CombatConstantsEditor';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
@@ -204,6 +208,54 @@ export function CatalogPage() {
     [draft, selectedType],
   );
 
+  const handleUpdateSkillEntity = useCallback(
+    (updated: SkillDefinition) => {
+      if (!draft || selectedType !== 'skill') return;
+      const skills = draft.data as SkillDefinition[];
+      const updatedSkills = skills.map((s) =>
+        s.skillId === updated.skillId ? updated : s,
+      );
+      updateDraft('skill', updatedSkills);
+    },
+    [draft, selectedType],
+  );
+
+  const handleUpdateStatusEntity = useCallback(
+    (updated: StatusDefinition) => {
+      if (!draft || selectedType !== 'status') return;
+      const statuses = draft.data as StatusDefinition[];
+      const updatedStatuses = statuses.map((s) =>
+        s.statusId === updated.statusId ? updated : s,
+      );
+      updateDraft('status', updatedStatuses);
+    },
+    [draft, selectedType],
+  );
+
+  const handleUpdateElementEntity = useCallback(
+    (updated: ElementDefinition) => {
+      if (!draft || selectedType !== 'element') return;
+      const elements = draft.data as ElementDefinition[];
+      const updatedElements = elements.map((e) =>
+        e.elementId === updated.elementId ? updated : e,
+      );
+      updateDraft('element', updatedElements);
+    },
+    [draft, selectedType],
+  );
+
+  const handleUpdateResonanceEntity = useCallback(
+    (updated: ResonanceDefinition) => {
+      if (!draft || selectedType !== 'resonance') return;
+      const resonances = draft.data as ResonanceDefinition[];
+      const updatedResonances = resonances.map((r) =>
+        r.resonanceId === updated.resonanceId ? updated : r,
+      );
+      updateDraft('resonance', updatedResonances);
+    },
+    [draft, selectedType],
+  );
+
   const allVersions = versionData?.versions ?? [];
   const currentVersion = versions[selectedType];
 
@@ -281,6 +333,31 @@ export function CatalogPage() {
           ? (draft.data as SkillDefinition[])
           : skillQuery.data?.data;
         const selectedSkill = skills?.find((s) => s.skillId === selectedEntityId) ?? null;
+
+        if (draft && selectedSkill) {
+          return (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper sx={{ maxHeight: 'calc(100vh - 320px)', overflow: 'auto' }}>
+                  <SkillList
+                    skills={skills}
+                    selectedSkillId={selectedEntityId}
+                    onSelectSkill={handleSelectEntity}
+                    isLoading={false}
+                    error={null}
+                  />
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <SkillEditor
+                  skillData={selectedSkill}
+                  onUpdate={handleUpdateSkillEntity}
+                />
+              </Grid>
+            </Grid>
+          );
+        }
+
         return (
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -306,6 +383,31 @@ export function CatalogPage() {
           ? (draft.data as StatusDefinition[])
           : statusQuery.data?.data;
         const selectedStatus = statuses?.find((s) => s.statusId === selectedEntityId) ?? null;
+
+        if (draft && selectedStatus) {
+          return (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper sx={{ maxHeight: 'calc(100vh - 320px)', overflow: 'auto' }}>
+                  <StatusList
+                    statuses={statuses}
+                    selectedStatusId={selectedEntityId}
+                    onSelectStatus={handleSelectEntity}
+                    isLoading={false}
+                    error={null}
+                  />
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <StatusEditor
+                  statusData={selectedStatus}
+                  onUpdate={handleUpdateStatusEntity}
+                />
+              </Grid>
+            </Grid>
+          );
+        }
+
         return (
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -331,6 +433,31 @@ export function CatalogPage() {
           ? (draft.data as ElementDefinition[])
           : elementQuery.data?.data;
         const selectedElement = elements?.find((e) => e.elementId === selectedEntityId) ?? null;
+
+        if (draft && selectedElement) {
+          return (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper sx={{ maxHeight: 'calc(100vh - 320px)', overflow: 'auto' }}>
+                  <ElementList
+                    elements={elements}
+                    selectedElementId={selectedEntityId}
+                    onSelectElement={handleSelectEntity}
+                    isLoading={false}
+                    error={null}
+                  />
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <ElementEditor
+                  elementData={selectedElement}
+                  onUpdate={handleUpdateElementEntity}
+                />
+              </Grid>
+            </Grid>
+          );
+        }
+
         return (
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -357,6 +484,31 @@ export function CatalogPage() {
           : resonanceQuery.data?.data;
         const selectedResonance =
           resonances?.find((r) => r.resonanceId === selectedEntityId) ?? null;
+
+        if (draft && selectedResonance) {
+          return (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper sx={{ maxHeight: 'calc(100vh - 320px)', overflow: 'auto' }}>
+                  <ResonanceList
+                    resonances={resonances}
+                    selectedResonanceId={selectedEntityId}
+                    onSelectResonance={handleSelectEntity}
+                    isLoading={false}
+                    error={null}
+                  />
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, md: 8 }}>
+                <ResonanceEditor
+                  resonanceData={selectedResonance}
+                  onUpdate={handleUpdateResonanceEntity}
+                />
+              </Grid>
+            </Grid>
+          );
+        }
+
         return (
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 4 }}>
