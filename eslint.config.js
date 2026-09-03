@@ -55,6 +55,7 @@ export default tseslint.config(
   },
   {
     files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/test/**'],
     plugins: {
       '@typescript-eslint': tseslint.plugin,
     },
@@ -82,8 +83,29 @@ export default tseslint.config(
     },
   },
   {
+    files: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/test/**/*.{ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
+    },
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        project: './tsconfig.test.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/api/client.ts'],
+    ignores: ['src/api/client.ts', 'src/**/*.test.ts', 'src/**/*.test.tsx', 'src/test/**'],
     languageOptions: {
       parser: tseslint.parser,
     },
