@@ -26,7 +26,6 @@ export function usePublishCatalog(): UsePublishCatalogResult {
       publishCatalog(catalogType, request),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.catalog.versions() });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.catalog.latestVersions() });
     },
   });
 
