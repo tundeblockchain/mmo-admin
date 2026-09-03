@@ -1,0 +1,482 @@
+---
+description: React frontend engineering standards for components, hooks, testing, accessibility, and maintainability
+globs: src/**/*.{ts,tsx,js,jsx}
+alwaysApply: true
+---
+
+# React Frontend Engineering Rules
+
+You are working in a production frontend React codebase.
+
+Follow the existing project architecture, conventions, package manager, TypeScript configuration, linting rules, testing framework, and styling approach. Do not introduce a new library or architectural pattern unless the task requires it and the benefit clearly outweighs the added complexity.
+
+## Core priorities
+
+Prioritize, in order:
+
+1. Correctness.
+2. User experience.
+3. Accessibility.
+4. Simplicity and readability.
+5. Testability.
+6. Maintainability.
+7. Performance based on evidence, not speculation.
+
+Prefer the smallest complete change that solves the requested problem.
+
+Do not rewrite unrelated code.
+
+## Before making changes
+
+Before editing:
+
+* Inspect nearby components, hooks, tests, utilities, and styles.
+* Identify existing conventions and reuse them.
+* Check whether the requested behavior already exists elsewhere.
+* Determine the correct ownership of state and business logic.
+* Look for edge cases, loading states, empty states, and error states.
+* Check existing test commands in `package.json`.
+
+When requirements are ambiguous, choose the most conservative implementation consistent with the existing product behavior.
+
+## TypeScript
+
+Use TypeScript unless the existing file is intentionally JavaScript.
+
+* Do not use `any` unless interacting with genuinely untyped external data and no safer boundary type is practical.
+* Prefer `unknown` over `any`, then narrow it safely.
+* Define explicit types for component props, API responses, shared state, and public utility functions.
+* Prefer discriminated unions for state with distinct modes.
+* Avoid unsafe type assertions.
+* Do not use non-null assertions unless the invariant is obvious and documented.
+* Reuse domain types rather than creating near-duplicate types.
+* Keep types close to their usage unless they are shared across features.
+* Ensure switch statements over unions are exhaustive where practical.
+
+Do not hide type errors with casts, `@ts-ignore`, or disabled lint rules. Fix the underlying issue.
+
+## React components
+
+Write functional components and hooks.
+
+* Keep components focused on one clear responsibility.
+* Prefer composition over large configurable components.
+* Split components when they contain independently meaningful behavior, substantial branches, or reusable UI.
+* Do not split components merely to reduce line count.
+* Keep feature-specific components near their feature.
+* Use clear, domain-oriented names.
+* Avoid deeply nested JSX.
+* Extract complex conditions into well-named variables.
+* Prefer explicit JSX over clever abstractions.
+* Use semantic HTML before adding ARIA attributes.
+* Do not create wrapper elements without a layout or semantic purpose.
+* Preserve existing public component APIs unless changing them is part of the task.
+
+Use named exports unless the surrounding codebase consistently uses default exports.
+
+## State management
+
+Keep state as local as possible.
+
+* Do not store values that can be derived from props or existing state.
+* Calculate inexpensive derived values during rendering.
+* Use `useMemo` only for demonstrably expensive calculations or when stable identity is required by an API.
+* Do not use `useMemo` as a default.
+* Do not duplicate server state in local component state.
+* Lift state only when multiple components genuinely need the same source of truth.
+* Prefer a reducer when several state variables form one state machine or are updated together.
+* Model loading, success, empty, and error states explicitly.
+* Avoid boolean combinations that permit impossible states.
+* Do not mirror props into state without a concrete reason.
+
+Prefer:
+
+```tsx
+const selectedItem = items.find((item) => item.id === selectedId) ?? null;
+```
+
+Avoid:
+
+```tsx
+const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
+useEffect(() => {
+  setSelectedItem(
+    items.find((item) => item.id === selectedId) ?? null,
+  );
+}, [items, selectedId]);
+```
+
+## Do not use `useEffect`
+
+`useEffect` and `useLayoutEffect` are banned. ESLint rejects both the named import and `React.useEffect`.
+
+Use these replacements instead:
+
+1. Calculate the value during render.
+2. Adjust a ref during render when a value must be remembered without rendering it.
+3. Handle the work in the event handler that caused it.
+4. Move shared state to the appropriate owner.
+5. Reset a subtree with a React `key`.
+6. Use a reducer for coordinated transitions.
+7. Use `useSyncExternalStore` for browser APIs, subscriptions, sockets, and other external stores.
+8. Use the project’s existing data-fetching abstraction.
+9. Use a callback ref when the work must run after a specific element mounts.
+
+Do not use `useEffect` for:
+
+* Deriving state from props.
+* Transforming data for rendering.
+* Responding to a button click or form submission.
+* Keeping two pieces of React state synchronized.
+* Initializing state that can be supplied to `useState`.
+* Calling a parent callback solely because local state changed.
+* Resetting state when a key-based reset or better component boundary would work.
+* Chaining application workflows through state changes.
+* Fetching data when the project already uses a query library or dedicated data layer.
+* Logging, analytics, or other observational side effects that can run during render or in the handler that produced the data.
+
+## Event handlers
+
+Put interaction-specific logic in event handlers.
+
+Examples include:
+
+* Form submission.
+* Button-triggered API mutations.
+* Notifications caused by a user action.
+* Navigation caused by an action.
+* Updating several related pieces of state after one interaction.
+
+Use descriptive names such as:
+
+* `handleSubmit`
+* `handleDelete`
+* `handleSearchChange`
+* `handleDialogClose`
+
+Do not use effects to infer which user action occurred.
+
+## Custom hooks
+
+Create a custom hook when it provides a meaningful reusable abstraction, not merely to move code out of a component.
+
+A custom hook should:
+
+* Have a focused purpose.
+* Expose a small, declarative API.
+* Hide synchronization details where useful.
+* Follow the Rules of Hooks.
+* Avoid returning an unnecessarily large object.
+* Avoid mixing unrelated concerns.
+
+Test custom hooks through the behavior they enable. Direct hook tests are appropriate when the hook contains substantial reusable logic that is awkward to exercise through a component.
+
+## Data fetching and mutations
+
+Use the project’s existing data-fetching solution.
+
+* Do not introduce raw `fetch` calls if the project has an API client or query layer.
+* Keep request construction and response parsing outside presentational components.
+* Validate or narrow untrusted external data at system boundaries.
+* Represent loading, error, empty, and success states.
+* Prevent stale requests from overwriting newer results.
+* Do not swallow errors.
+* Show user-safe error messages.
+* Do not expose sensitive server details in the UI.
+* Disable or guard repeated destructive submissions where appropriate.
+* Prefer optimistic updates only when rollback behavior is clear and tested.
+
+Do not create an effect-based request waterfall when requests can run concurrently.
+
+## Forms
+
+* Use semantic `<form>` behavior.
+* Associate every field with a visible label unless the design has an accessible equivalent.
+* Validate at the appropriate boundary.
+* Preserve user input after recoverable errors.
+* Display errors near the relevant field and provide an accessible summary when appropriate.
+* Prevent duplicate submission.
+* Use the project’s existing form library if one is already established.
+* Keep validation rules reusable and independently testable.
+* Do not rely solely on placeholder text as a label.
+
+## Accessibility
+
+Accessibility is a requirement, not an optional enhancement.
+
+* Prefer native semantic elements such as `button`, `a`, `input`, `label`, `nav`, `main`, and `dialog`.
+* Do not use a clickable `div` when a button or link is appropriate.
+* Ensure all interactive controls are keyboard accessible.
+* Preserve visible focus indicators.
+* Provide accessible names for controls.
+* Associate validation messages with fields.
+* Use alt text that communicates the image’s purpose; use empty alt text for decorative images.
+* Ensure dialogs manage focus and have accessible names.
+* Announce important asynchronous status changes when necessary.
+* Do not add ARIA attributes that duplicate or conflict with native semantics.
+* Do not encode meaning using color alone.
+
+Accessibility problems discovered in code being changed should be fixed when they are directly related and reasonably scoped.
+
+## Styling and responsive UI
+
+Follow the project’s existing styling system.
+
+* Reuse existing tokens, components, spacing, typography, and breakpoints.
+* Avoid arbitrary values when a design token exists.
+* Do not introduce a second styling framework.
+* Keep responsive behavior intentional.
+* Design for narrow and wide viewports.
+* Avoid fixed dimensions that break text zoom or localization.
+* Prevent unexpected layout shift where practical.
+* Preserve content readability with long text and user-generated content.
+* Do not use inline styles unless values are truly dynamic or the project convention requires them.
+
+## Performance
+
+Do not optimize without evidence.
+
+First prefer:
+
+* Correct state ownership.
+* Avoiding unnecessary effects and redundant state.
+* Avoiding request waterfalls.
+* Rendering only the data needed.
+* Appropriate code splitting at route or feature boundaries.
+* Efficient list keys.
+* Avoiding expensive work during every render.
+
+Use `React.memo`, `useMemo`, and `useCallback` only when:
+
+* Profiling identifies a meaningful problem,
+* stable identity is required by a dependency or memoized child, or
+* the existing architecture consistently relies on it.
+
+Do not add memoization mechanically. Memoization adds complexity and can be ineffective when dependencies change every render.
+
+Never use an array index as a key when items can be reordered, inserted, or deleted.
+
+## Error handling
+
+* Handle expected failure states explicitly.
+* Do not leave rejected promises unhandled.
+* Do not catch errors only to ignore them.
+* Log through the project’s existing logging or monitoring utility.
+* Keep user-facing messages actionable and non-technical.
+* Use error boundaries at meaningful UI boundaries when appropriate.
+* Preserve enough context for debugging without leaking secrets or personal data.
+
+## Security
+
+* Treat all external data and user input as untrusted.
+* Do not use `dangerouslySetInnerHTML` unless content is sanitized through an established trusted mechanism.
+* Do not place secrets in frontend code.
+* Do not log access tokens, passwords, or sensitive personal data.
+* Do not construct unsafe URLs from unchecked input.
+* Use existing authentication and authorization utilities.
+* Remember that hiding a UI control is not authorization.
+
+## Unit and component tests
+
+Every behavior change must include tests unless:
+
+* The change is purely visual and the project has no appropriate visual test system, or
+* The existing test infrastructure cannot cover it reasonably.
+
+When omitting tests, explain why in the final response.
+
+Use the project’s existing test runner. Prefer React Testing Library for component behavior and `user-event` for interactions when available.
+
+Tests should resemble how users use the interface.
+
+Prefer queries in this order:
+
+1. `getByRole` or `findByRole` with an accessible name.
+2. `getByLabelText` for form controls.
+3. Visible text queries.
+4. Other semantic queries.
+5. `getByTestId` only when no user-facing semantic query is practical.
+
+Do not query by:
+
+* CSS class names.
+* DOM hierarchy.
+* React component internals.
+* Private state.
+* Implementation-specific selectors.
+
+Test observable behavior, not implementation details.
+
+Include relevant coverage for:
+
+* The primary success path.
+* User interactions.
+* Conditional rendering.
+* Validation and error states.
+* Loading and empty states.
+* Permission or disabled states.
+* Important edge cases.
+* Regressions fixed by the change.
+
+For bug fixes, add a regression test that fails before the fix and passes afterward.
+
+Prefer:
+
+```tsx
+render(<LoginForm onSubmit={onSubmit} />);
+
+await user.type(
+  screen.getByRole('textbox', { name: /email/i }),
+  'person@example.com',
+);
+
+await user.click(
+  screen.getByRole('button', { name: /sign in/i }),
+);
+
+expect(onSubmit).toHaveBeenCalledWith({
+  email: 'person@example.com',
+});
+```
+
+Avoid:
+
+```tsx
+const input = container.querySelector('.email-input');
+fireEvent.change(input!, {
+  target: { value: 'person@example.com' },
+});
+```
+
+## Test quality
+
+Tests must be:
+
+* Deterministic.
+* Independent.
+* Focused on one coherent behavior.
+* Clear about setup, action, and expected outcome.
+* Free from arbitrary sleeps and timing assumptions.
+* Resistant to harmless refactors.
+* Fast enough for routine local execution.
+
+Additional rules:
+
+* Prefer `userEvent.setup()` over low-level `fireEvent` for realistic interactions.
+* Use `findBy...` for elements that appear asynchronously.
+* Use `queryBy...` when asserting absence.
+* Do not wrap every assertion in `waitFor`.
+* Do not place multiple unrelated assertions inside one `waitFor`.
+* Avoid snapshots for behavior-rich components.
+* Use snapshots only for stable, deliberate output where the snapshot remains easy to review.
+* Mock at external boundaries, not internal implementation details.
+* Prefer Mock Service Worker or the project’s existing network mocking layer for API behavior.
+* Restore mocks and fake timers after each test.
+* Do not weaken assertions merely to make a failing test pass.
+* Avoid excessive mocking that causes tests to validate the mocks rather than the product.
+
+## Pure logic tests
+
+Extract complex business rules, transformations, validation, and formatting into pure functions when doing so improves clarity.
+
+For pure functions:
+
+* Test representative inputs.
+* Test boundaries and invalid inputs.
+* Avoid React rendering when no React behavior is involved.
+* Keep test cases table-driven where it improves readability.
+
+## End-to-end tests
+
+Add or update end-to-end tests for critical cross-page workflows when the project has an established E2E framework.
+
+Do not replace focused unit and component tests with E2E tests alone.
+
+Prioritize E2E coverage for:
+
+* Authentication.
+* Checkout or payment flows.
+* Data-loss-sensitive operations.
+* Critical creation and editing workflows.
+* Routing and integration behavior that unit tests cannot validate reliably.
+
+Use resilient, accessible selectors rather than styling selectors.
+
+## Code quality
+
+* Use clear names instead of explanatory comments.
+* Add comments for intent, constraints, or non-obvious tradeoffs—not to narrate the code.
+* Remove dead code and unused imports introduced or exposed by the change.
+* Avoid premature abstractions.
+* Avoid single-use helper layers that make behavior harder to trace.
+* Keep functions small enough to understand, but do not fragment straightforward logic.
+* Use early returns to reduce nesting.
+* Do not mutate props or shared state.
+* Prefer immutable array and object operations.
+* Do not silently change existing behavior outside the requested scope.
+
+## Dependencies
+
+Before adding a dependency:
+
+* Check whether the project already has equivalent functionality.
+* Consider whether a small local implementation is clearer.
+* Check bundle impact for browser code.
+* Prefer actively maintained, typed, focused packages.
+* Avoid dependencies for trivial utilities.
+
+Do not modify lockfiles manually.
+
+## Validation after changes
+
+After implementing a change, run the relevant available checks:
+
+1. Targeted tests for changed behavior.
+2. The related test suite.
+3. Type checking.
+4. Linting.
+5. Formatting checks.
+6. A production build when the change affects build configuration, routing, or bundling.
+
+Use the commands defined by the repository rather than inventing alternatives.
+
+Do not claim checks passed unless they were actually run successfully.
+
+If a command cannot be run, state:
+
+* Which command was not run.
+* Why it could not be run.
+* What risk remains.
+
+## Final response
+
+Summarize:
+
+* What changed.
+* Important implementation decisions.
+* Tests added or updated.
+* Commands run and their results.
+* Any remaining limitations or follow-up risks.
+
+Keep the summary concise and factual.
+
+## Prohibited behavior
+
+Do not:
+
+* Use `useEffect` or `useLayoutEffect`.
+* Disable hook lint rules to force an implementation.
+* Use synchronous state-setting effects for derived values.
+* Introduce `any` to bypass typing work.
+* Create inaccessible custom controls when native controls work.
+* Test private implementation details.
+* remove or weaken tests just to make CI pass.
+* Add dependencies without justification.
+* Perform broad refactors during a focused task.
+* Claim validation that was not performed.
+* Leave placeholder code, commented-out implementations, or unresolved TODOs unless explicitly requested.
+
+Github:
+* Raise a PR once a change has been implemented
+
