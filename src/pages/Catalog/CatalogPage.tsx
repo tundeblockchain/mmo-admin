@@ -1,4 +1,5 @@
 import { Alert, Box, Paper, Snackbar, Typography } from '@mui/material';
+import { AccountNotice } from '../../components/account/AccountNotice';
 import { CatalogTypeNav } from '../../components/catalog/CatalogTypeNav';
 import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
@@ -16,6 +17,8 @@ export function CatalogPage() {
       <Typography variant="h4" component="h2" gutterBottom>
         Catalog
       </Typography>
+
+      <AccountNotice />
 
       <CatalogTypeNav
         selectedType={workspace.selectedType}
@@ -74,6 +77,7 @@ export function CatalogPage() {
           onOpenPublish={workspace.handleOpenPublish}
           isCreatingDraft={false}
           hasValidationErrors={workspace.hasValidationErrors}
+          canPublish={workspace.canPublish}
         />
       )}
 

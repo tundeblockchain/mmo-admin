@@ -6,6 +6,11 @@ export const mockAdminUser: CurrentUser = {
   accountType: 'admin',
 };
 
+export const mockPlayerUser: CurrentUser = {
+  uid: 'test-uid-123',
+  accountType: 'player',
+};
+
 export const userHandlers = [
   http.post('*/users/me', ({ request }) => {
     const authHeader = request.headers.get('Authorization');
