@@ -63,9 +63,10 @@ describe('EditorAccordion', () => {
     );
 
     const trigger = screen.getByRole('button', { name: 'Coefficients' });
-    expect(screen.queryByText('Hidden until opened')).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await user.click(trigger);
-    expect(screen.getByText('Hidden until opened')).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Hidden until opened')).toBeVisible();
   });
 });
 

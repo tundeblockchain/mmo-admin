@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { mockClassCatalog } from './mocks/catalog-fixtures';
 
-export const mockClassData = mockClassCatalog.data;
+export const mockClassData = [mockClassCatalog.data[0]];
 
 export function publishDialogDefaultProps() {
   return {

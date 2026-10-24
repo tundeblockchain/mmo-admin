@@ -90,7 +90,7 @@ describe('CatalogEntityList', () => {
         onAdd={vi.fn()}
         onRequestDelete={onRequestDelete}
         groupBy={(item) => item.group}
-        renderSecondary={(item) => item.group}
+        renderSecondary={(item) => `${item.name} role`}
       />,
     );
 
