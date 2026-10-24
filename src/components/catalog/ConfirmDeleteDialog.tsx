@@ -13,6 +13,7 @@ interface ConfirmDeleteDialogProps {
   description: string;
   onCancel: () => void;
   onConfirm: () => void;
+  confirmLabel?: string;
 }
 
 export function ConfirmDeleteDialog({
@@ -21,6 +22,7 @@ export function ConfirmDeleteDialog({
   description,
   onCancel,
   onConfirm,
+  confirmLabel = 'Delete',
 }: ConfirmDeleteDialogProps) {
   return (
     <Dialog
@@ -38,7 +40,7 @@ export function ConfirmDeleteDialog({
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
         <Button onClick={onConfirm} color="error" variant="contained">
-          Delete
+          {confirmLabel}
         </Button>
       </DialogActions>
     </Dialog>

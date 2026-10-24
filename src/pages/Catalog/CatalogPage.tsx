@@ -22,6 +22,7 @@ import { CombatConstantsEditor } from '../../components/catalog/CombatConstantsE
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
 import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
+import { StaleDraftWarning } from '../../components/catalog/StaleDraftWarning';
 import { useCatalogVersions } from '../../hooks/useCatalogVersions';
 import {
   useClassCatalog,
@@ -32,12 +33,14 @@ import {
   useCombatConstantsCatalog,
 } from '../../hooks/useCatalogData';
 import {
-  useDraft,
+  useDraftStore,
   useCreateDraft,
   useDiscardDraft,
   updateDraft,
+  restorePersistedDraft,
 } from '../../hooks/useDraftCatalog';
 import { usePublishCatalog } from '../../hooks/usePublishCatalog';
+import { latestPublishedVersion } from '../../lib/catalogVersions';
 import {
   createDefaultClass,
   createDefaultSkill,
@@ -121,8 +124,11 @@ export function CatalogPage() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [successSnackbar, setSuccessSnackbar] = useState<string | null>(null);
+  const [dismissedRestoreNoticeId, setDismissedRestoreNoticeId] = useState<string | null>(null);
+  const [dismissedStaleWarningId, setDismissedStaleWarningId] = useState<string | null>(null);
 
   const {
     data: versionData,
@@ -130,16 +136,21 @@ export function CatalogPage() {
     error: versionsError,
   } = useCatalogVersions();
 
-  const classQuery = useClassCatalog(versions.class);
-  const skillQuery = useSkillCatalog(versions.skill);
-  const statusQuery = useStatusCatalog(versions.status);
-  const elementQuery = useElementCatalog(versions.element);
-  const resonanceQuery = useResonanceCatalog(versions.resonance);
-  const combatConstantsQuery = useCombatConstantsCatalog(versions['combat-constants']);
-
-  const draft = useDraft(selectedType);
+  const drafts = useDraftStore();
+  const draft = drafts[selectedType];
   const createDraft = useCreateDraft();
   const discardDraft = useDiscardDraft();
+
+  const classQuery = useClassCatalog(drafts.class?.sourceVersion ?? versions.class);
+  const skillQuery = useSkillCatalog(drafts.skill?.sourceVersion ?? versions.skill);
+  const statusQuery = useStatusCatalog(drafts.status?.sourceVersion ?? versions.status);
+  const elementQuery = useElementCatalog(drafts.element?.sourceVersion ?? versions.element);
+  const resonanceQuery = useResonanceCatalog(
+    drafts.resonance?.sourceVersion ?? versions.resonance,
+  );
+  const combatConstantsQuery = useCombatConstantsCatalog(
+    drafts['combat-constants']?.sourceVersion ?? versions['combat-constants'],
+  );
   const {
     publish,
     isPending: isPublishing,
@@ -162,6 +173,7 @@ export function CatalogPage() {
     setVersions((prev) => ({ ...prev, [type]: version }));
     setSelectedEntityId(null);
     setSelectedIndex(null);
+    restorePersistedDraft(type, version);
   }, []);
 
   const handleSelectEntity = useCallback((id: string, index: number) => {
@@ -210,12 +222,24 @@ export function CatalogPage() {
     createDraft,
   ]);
 
-  const handleDiscardDraft = useCallback(() => {
+  const handleRequestDiscard = useCallback(() => {
+    setDiscardConfirmOpen(true);
+  }, []);
+
+  const handleCancelDiscard = useCallback(() => {
+    setDiscardConfirmOpen(false);
+  }, []);
+
+  const handleConfirmDiscard = useCallback(() => {
+    if (draft && versions[selectedType] === null) {
+      setVersions((prev) => ({ ...prev, [selectedType]: draft.sourceVersion }));
+    }
     discardDraft(selectedType);
     setSelectedEntityId(null);
     setSelectedIndex(null);
     setPendingDelete(null);
-  }, [selectedType, discardDraft]);
+    setDiscardConfirmOpen(false);
+  }, [draft, selectedType, versions, discardDraft]);
 
   const handleOpenPublish = useCallback(() => {
     resetPublishError();
@@ -239,6 +263,10 @@ export function CatalogPage() {
       });
 
       setPublishDialogOpen(false);
+      setVersions((prev) => ({
+        ...prev,
+        [selectedType]: prev[selectedType] ?? draft.sourceVersion,
+      }));
       discardDraft(selectedType);
       setSelectedEntityId(null);
       setSelectedIndex(null);
@@ -425,7 +453,16 @@ export function CatalogPage() {
   }, [draft, pendingDelete, selectedType]);
 
   const allVersions = versionData?.versions ?? [];
-  const currentVersion = versions[selectedType];
+  const currentVersion = draft?.sourceVersion ?? versions[selectedType];
+  const latestVersion = latestPublishedVersion(allVersions, selectedType);
+  const draftIdentity = draft ? `${draft.catalogType}:${draft.sourceVersion}` : null;
+  const showRestoreNotice =
+    draft?.wasRestored === true && draftIdentity !== dismissedRestoreNoticeId;
+  const showStaleBaseWarning =
+    draft !== null &&
+    latestVersion !== null &&
+    draft.sourceVersion !== latestVersion &&
+    draftIdentity !== dismissedStaleWarningId;
   const hasInvalidIds = draft ? draftHasInvalidIds(draft.data, selectedType) : false;
 
   const getOriginalData = (): CatalogEntityData | undefined => {
@@ -506,7 +543,7 @@ export function CatalogPage() {
                   selectedClassId={selectedEntityId}
                   selectedIndex={selectedIndex}
                   onSelectClass={handleSelectEntity}
-                  isLoading={classQuery.isPending && currentVersion !== null}
+                    isLoading={classQuery.isPending && currentVersion !== null && !draft}
                   error={classQuery.error}
                   {...draftListProps}
                 />
@@ -794,7 +831,7 @@ export function CatalogPage() {
         return (
           <CombatConstantsDetail
             data={data}
-            isLoading={combatConstantsQuery.isPending && currentVersion !== null}
+            isLoading={combatConstantsQuery.isPending && currentVersion !== null && !draft}
             error={combatConstantsQuery.error}
           />
         );
@@ -829,6 +866,27 @@ export function CatalogPage() {
         )}
       </Box>
 
+      {showRestoreNotice && (
+        <Alert
+          severity="info"
+          role="status"
+          aria-label="Restored unsaved draft"
+          sx={{ mb: 2 }}
+          onClose={() => setDismissedRestoreNoticeId(draftIdentity)}
+        >
+          Restored unsaved draft
+        </Alert>
+      )}
+
+      {showStaleBaseWarning && draft && latestVersion !== null && (
+        <StaleDraftWarning
+          sourceVersion={draft.sourceVersion}
+          latestVersion={latestVersion}
+          onKeepEditing={() => setDismissedStaleWarningId(draftIdentity)}
+          onDiscard={handleRequestDiscard}
+        />
+      )}
+
       {currentVersion !== null && (
         <DraftToolbar
           catalogType={selectedType}
@@ -837,7 +895,7 @@ export function CatalogPage() {
           isDraftDirty={draft?.isDirty ?? false}
           draftSourceVersion={draft?.sourceVersion ?? null}
           onCreateDraft={handleCreateDraft}
-          onDiscardDraft={handleDiscardDraft}
+          onDiscardDraft={handleRequestDiscard}
           onOpenPublish={handleOpenPublish}
           isCreatingDraft={false}
           hasValidationErrors={hasInvalidIds}
@@ -880,6 +938,17 @@ export function CatalogPage() {
           description={`Delete "${pendingDelete.displayName || 'this entry'}" from this draft? This only affects the working copy.`}
           onCancel={handleCancelDelete}
           onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {discardConfirmOpen && (
+        <ConfirmDeleteDialog
+          open
+          title="Discard draft?"
+          description="Discard this draft and revert to the published source version? Unsaved changes will be removed from this browser."
+          confirmLabel="Discard"
+          onCancel={handleCancelDiscard}
+          onConfirm={handleConfirmDiscard}
         />
       )}
 
