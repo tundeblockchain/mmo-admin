@@ -5,10 +5,9 @@ import { server } from '../../test/mocks/server';
 import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { enterClassDraft } from '../../test/draftEditingTestUtils';
+import { setupSignedInAuth } from '../../test/signedInAuth';
 
-vi.mock('../../auth', () => ({
-  getIdToken: vi.fn().mockResolvedValue('mock-firebase-jwt-token'),
-}));
+setupSignedInAuth();
 
 describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   beforeEach(() => {

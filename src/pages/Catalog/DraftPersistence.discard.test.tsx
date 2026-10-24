@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, userEvent, within } from '../../test/test-utils';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/mocks/server';
@@ -6,10 +6,9 @@ import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { draftStorageKey } from '../../lib/draftPersistence';
 import { seedClassDraft } from '../../test/draftPersistenceTestUtils';
+import { setupSignedInAuth } from '../../test/signedInAuth';
 
-vi.mock('../../auth', () => ({
-  getIdToken: vi.fn().mockResolvedValue('mock-firebase-jwt-token'),
-}));
+setupSignedInAuth();
 
 describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
   beforeEach(() => {
