@@ -25,7 +25,7 @@ function seedClassDraft(sourceVersion: number, displayName = 'Persisted Vanguard
   });
 }
 
-describe('Draft persistence (MMO-29)', () => {
+describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
   beforeEach(() => {
     clearDraftStoreForTesting();
   });

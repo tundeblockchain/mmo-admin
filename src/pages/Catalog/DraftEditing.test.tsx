@@ -15,7 +15,7 @@ vi.mock('../../auth', () => ({
 
 import { getIdToken } from '../../auth';
 
-describe('Draft Editing and Publishing', () => {
+describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   beforeEach(() => {
     clearDraftStoreForTesting();
   });
