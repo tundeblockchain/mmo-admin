@@ -113,12 +113,16 @@ describe('publishCatalog', () => {
     expect(capturedReleaseNotes).toBe('Test release notes');
   });
 
-  it('throws error when not authenticated', async () => {
+  it('surfaces 401 when not authenticated', async () => {
     vi.mocked(getIdToken).mockResolvedValue(null);
 
-    await expect(
-      publishCatalog('class', { data: mockClassData }),
-    ).rejects.toThrow('Authentication required to publish catalog');
+    try {
+      await publishCatalog('class', { data: mockClassData });
+      expect.fail('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(401);
+    }
   });
 
   it('handles 401 unauthenticated error', async () => {

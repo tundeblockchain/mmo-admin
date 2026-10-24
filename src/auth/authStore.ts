@@ -37,10 +37,10 @@ export function getAuthServerSnapshot(): AuthState {
   return { status: 'loading' };
 }
 
-export async function getIdToken(): Promise<string | null> {
+export async function getIdToken(forceRefresh = false): Promise<string | null> {
   const state = currentAuthState;
   if (state.status === 'authenticated') {
-    return state.user.getIdToken();
+    return state.user.getIdToken(forceRefresh);
   }
   return null;
 }
