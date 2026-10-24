@@ -1,18 +1,5 @@
 import { useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Chip,
-  Divider,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  type SelectChangeEvent,
-} from '@mui/material';
+import { Box, Chip, Divider, Grid, TextField, Typography } from '@mui/material';
 import {
   CLASS_ROLES,
   PRIMARY_RESOURCES,
@@ -21,6 +8,7 @@ import {
 } from '../../lib/catalogSchema';
 import type { FieldErrors } from '../../lib/catalogValidation';
 import type { ClassDefinition, ClassRole, PrimaryResource, ResonanceId } from '../../types/catalog';
+import { CatalogEditorLayout, IdentityFields, SelectField } from '../form';
 
 interface ClassEditorProps {
   classData: ClassDefinition;
@@ -29,40 +17,34 @@ interface ClassEditorProps {
   fieldErrors?: FieldErrors;
 }
 
+const PRIMARY_STATS = [
+  { key: 'strength' as const, label: 'Strength' },
+  { key: 'finesse' as const, label: 'Finesse' },
+  { key: 'vitality' as const, label: 'Vitality' },
+  { key: 'intellect' as const, label: 'Intellect' },
+  { key: 'precision' as const, label: 'Precision' },
+  { key: 'luck' as const, label: 'Luck' },
+  { key: 'tech' as const, label: 'Tech' },
+];
+
+const DERIVED_STATS = [
+  { key: 'hp' as const, label: 'HP' },
+  { key: 'resourcePool' as const, label: 'Resource Pool' },
+  { key: 'armor' as const, label: 'Armor' },
+  { key: 'attackPower' as const, label: 'Attack Power' },
+  { key: 'spellPower' as const, label: 'Spell Power' },
+  { key: 'movementSpeed' as const, label: 'Movement Speed' },
+];
+
 export function ClassEditor({
   classData,
   onUpdate,
   idError = null,
   fieldErrors = {},
 }: ClassEditorProps) {
-  const handleTextChange = useCallback(
-    (field: keyof ClassDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdate({ ...classData, [field]: event.target.value });
-    },
-    [classData, onUpdate],
-  );
-
-  const handleResourceChange = useCallback(
-    (event: SelectChangeEvent<string>) => {
-      onUpdate({ ...classData, primaryResource: event.target.value as PrimaryResource });
-    },
-    [classData, onUpdate],
-  );
-
-  const handleResonanceChange = useCallback(
-    (event: SelectChangeEvent<string>) => {
-      onUpdate({ ...classData, resonance: event.target.value as ResonanceId });
-    },
-    [classData, onUpdate],
-  );
-
-  const handleSecondaryResourceChange = useCallback(
-    (event: SelectChangeEvent<string>) => {
-      const next = event.target.value;
-      onUpdate({
-        ...classData,
-        secondaryResource: next === '' ? undefined : next,
-      });
+  const handleFieldChange = useCallback(
+    (field: keyof ClassDefinition, value: ClassDefinition[keyof ClassDefinition]) => {
+      onUpdate({ ...classData, [field]: value });
     },
     [classData, onUpdate],
   );
@@ -70,7 +52,7 @@ export function ClassEditor({
   const handleRoleToggle = useCallback(
     (role: ClassRole) => {
       const roles = classData.roles.includes(role)
-        ? classData.roles.filter((r) => r !== role)
+        ? classData.roles.filter((item) => item !== role)
         : [...classData.roles, role];
       onUpdate({ ...classData, roles });
     },
@@ -89,121 +71,61 @@ export function ClassEditor({
     [classData, onUpdate],
   );
 
-  const { startingStats } = classData;
-  const primaryStats = [
-    { key: 'strength' as const, label: 'Strength' },
-    { key: 'finesse' as const, label: 'Finesse' },
-    { key: 'vitality' as const, label: 'Vitality' },
-    { key: 'intellect' as const, label: 'Intellect' },
-    { key: 'precision' as const, label: 'Precision' },
-    { key: 'luck' as const, label: 'Luck' },
-    { key: 'tech' as const, label: 'Tech' },
-  ];
-
-  const derivedStats = [
-    { key: 'hp' as const, label: 'HP' },
-    { key: 'resourcePool' as const, label: 'Resource Pool' },
-    { key: 'armor' as const, label: 'Armor' },
-    { key: 'attackPower' as const, label: 'Attack Power' },
-    { key: 'spellPower' as const, label: 'Spell Power' },
-    { key: 'movementSpeed' as const, label: 'Movement Speed' },
-  ];
+  const secondaryOptions = (
+    classData.secondaryResource &&
+    !SECONDARY_RESOURCES.includes(
+      classData.secondaryResource as (typeof SECONDARY_RESOURCES)[number],
+    )
+      ? [...SECONDARY_RESOURCES, classData.secondaryResource]
+      : SECONDARY_RESOURCES
+  ) as readonly string[];
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Class Editor
-      </Typography>
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          label="Class ID"
-          value={classData.classId}
-          onChange={handleTextChange('classId')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-          error={idError !== null}
-          helperText={idError ?? 'Unique identifier for this class (e.g. vanguard).'}
-        />
-        <TextField
-          label="Display Name"
-          value={classData.displayName}
-          onChange={handleTextChange('displayName')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          label="Description"
-          value={classData.description}
-          onChange={handleTextChange('description')}
-          fullWidth
-          multiline
-          rows={2}
-          size="small"
-          sx={{ mb: 2 }}
-        />
+    <CatalogEditorLayout title="Class Editor">
+      <IdentityFields
+        idLabel="Class ID"
+        idValue={classData.classId}
+        onIdChange={(value) => handleFieldChange('classId', value)}
+        idError={idError}
+        idHelperText="Unique identifier for this class (e.g. vanguard)."
+        nameValue={classData.displayName}
+        onNameChange={(value) => handleFieldChange('displayName', value)}
+        descriptionValue={classData.description}
+        onDescriptionChange={(value) => handleFieldChange('description', value)}
+      >
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="class-primary-resource-label">Primary Resource</InputLabel>
-              <Select
-                labelId="class-primary-resource-label"
-                value={classData.primaryResource}
-                label="Primary Resource"
-                onChange={handleResourceChange}
-              >
-                {PRIMARY_RESOURCES.map((resource) => (
-                  <MenuItem key={resource} value={resource}>
-                    {resource}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SelectField
+              label="Primary Resource"
+              labelId="class-primary-resource-label"
+              value={classData.primaryResource}
+              onChange={(value) => handleFieldChange('primaryResource', value as PrimaryResource)}
+              options={PRIMARY_RESOURCES}
+            />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="class-secondary-resource-label">Secondary Resource</InputLabel>
-              <Select
-                labelId="class-secondary-resource-label"
-                value={classData.secondaryResource ?? ''}
-                label="Secondary Resource"
-                onChange={handleSecondaryResourceChange}
-              >
-                <MenuItem value="">None</MenuItem>
-                {(classData.secondaryResource &&
-                !SECONDARY_RESOURCES.includes(
-                  classData.secondaryResource as (typeof SECONDARY_RESOURCES)[number],
-                )
-                  ? [...SECONDARY_RESOURCES, classData.secondaryResource]
-                  : SECONDARY_RESOURCES
-                ).map((resource) => (
-                  <MenuItem key={resource} value={resource}>
-                    {resource}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SelectField
+              label="Secondary Resource"
+              labelId="class-secondary-resource-label"
+              value={classData.secondaryResource ?? ''}
+              onChange={(value) =>
+                handleFieldChange('secondaryResource', value === '' ? undefined : value)
+              }
+              options={secondaryOptions}
+              includeEmpty
+            />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="class-resonance-label">Resonance</InputLabel>
-              <Select
-                labelId="class-resonance-label"
-                value={classData.resonance}
-                label="Resonance"
-                onChange={handleResonanceChange}
-              >
-                {RESONANCE_IDS.map((resonance) => (
-                  <MenuItem key={resonance} value={resonance}>
-                    {resonance}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SelectField
+              label="Resonance"
+              labelId="class-resonance-label"
+              value={classData.resonance}
+              onChange={(value) => handleFieldChange('resonance', value as ResonanceId)}
+              options={RESONANCE_IDS}
+            />
           </Grid>
         </Grid>
-      </Box>
+      </IdentityFields>
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle2" gutterBottom>
@@ -234,12 +156,12 @@ export function ClassEditor({
             Primary Stats
           </Typography>
           <Grid container spacing={1}>
-            {primaryStats.map((stat) => (
+            {PRIMARY_STATS.map((stat) => (
               <Grid size={6} key={stat.key}>
                 <TextField
                   label={stat.label}
                   type="number"
-                  value={startingStats[stat.key]}
+                  value={classData.startingStats[stat.key]}
                   onChange={handleStatChange(stat.key)}
                   size="small"
                   fullWidth
@@ -256,12 +178,12 @@ export function ClassEditor({
             Derived Stats
           </Typography>
           <Grid container spacing={1}>
-            {derivedStats.map((stat) => (
+            {DERIVED_STATS.map((stat) => (
               <Grid size={6} key={stat.key}>
                 <TextField
                   label={stat.label}
                   type="number"
-                  value={startingStats[stat.key]}
+                  value={classData.startingStats[stat.key]}
                   onChange={handleStatChange(stat.key)}
                   size="small"
                   fullWidth
@@ -274,6 +196,6 @@ export function ClassEditor({
           </Grid>
         </Grid>
       </Grid>
-    </Paper>
+    </CatalogEditorLayout>
   );
 }

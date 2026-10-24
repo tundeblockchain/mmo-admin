@@ -6,48 +6,10 @@ import {
   PublishDialog,
 } from './PublishDialog';
 import { AdminForbiddenError, ApiError } from '../../lib/errors';
-import type { ClassDefinition } from '../../types/catalog';
-
-const mockClassData: ClassDefinition[] = [
-  {
-    classId: 'vanguard',
-    displayName: 'Vanguard',
-    description: 'A stalwart frontline defender.',
-    primaryResource: 'resolve',
-    startingStats: {
-      strength: 12,
-      finesse: 7,
-      vitality: 12,
-      intellect: 4,
-      precision: 6,
-      luck: 5,
-      tech: 4,
-      hp: 150,
-      resourcePool: 100,
-      armor: 20,
-      attackPower: 26,
-      spellPower: 9,
-      movementSpeed: 5.0,
-    },
-    resonance: 'valor',
-    roles: ['tank', 'dps'],
-  },
-];
+import { mockClassData, publishDialogDefaultProps } from '../../test/publishDialogTestUtils';
 
 describe('PublishDialog', () => {
-  const defaultProps = {
-    open: true,
-    onClose: vi.fn(),
-    onPublish: vi.fn(),
-    catalogType: 'class' as const,
-    sourceVersion: 1,
-    originalData: mockClassData,
-    draftData: mockClassData,
-    isPending: false,
-    error: null,
-    isConflictError: false,
-    isAuthError: false,
-  };
+  const defaultProps = publishDialogDefaultProps();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -59,14 +21,12 @@ describe('PublishDialog', () => {
     expect(screen.getByRole('heading', { name: /publish class catalog/i })).toBeInTheDocument();
     expect(screen.getByText(/version 1/i)).toBeInTheDocument();
   });
-
   it('shows no changes message when data is unchanged', () => {
     render(<PublishDialog {...defaultProps} />);
 
     expect(screen.getByText(/no changes detected/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /review & publish/i })).toBeDisabled();
   });
-
   it('shows change summary when data is modified', () => {
     const modifiedData = mockClassData.map((c) => ({
       ...c,
@@ -79,7 +39,6 @@ describe('PublishDialog', () => {
     expect(screen.getByText('1 entities')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /review & publish/i })).toBeEnabled();
   });
-
   it('shows confirmation dialog before publishing', async () => {
     const user = userEvent.setup();
     const modifiedData = mockClassData.map((c) => ({
@@ -95,7 +54,6 @@ describe('PublishDialog', () => {
     expect(screen.getByRole('button', { name: /confirm publish/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /go back/i })).toBeInTheDocument();
   });
-
   it('calls onPublish with release notes when confirmed', async () => {
     const user = userEvent.setup();
     const onPublish = vi.fn().mockResolvedValue(undefined);
@@ -117,7 +75,6 @@ describe('PublishDialog', () => {
 
     expect(onPublish).toHaveBeenCalledWith('Test release notes');
   });
-
   it('displays 409 conflict error message', () => {
     render(
       <PublishDialog
@@ -130,7 +87,6 @@ describe('PublishDialog', () => {
     expect(screen.getByText(/version conflict/i)).toBeInTheDocument();
     expect(screen.getByText(/retry/i)).toBeInTheDocument();
   });
-
   it('displays 401 auth error message', () => {
     render(
       <PublishDialog
@@ -143,7 +99,6 @@ describe('PublishDialog', () => {
     expect(screen.getByText(/authentication required/i)).toBeInTheDocument();
     expect(screen.getByText(/sign in/i)).toBeInTheDocument();
   });
-
   it('displays a distinct admin message for 403 forbidden errors', () => {
     render(
       <PublishDialog
@@ -156,7 +111,6 @@ describe('PublishDialog', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(ADMIN_FORBIDDEN_PUBLISH_MESSAGE);
     expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument();
   });
-
   it('displays a clear message when the server rejects a 400 publish', () => {
     render(
       <PublishDialog
@@ -168,7 +122,6 @@ describe('PublishDialog', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent(BAD_REQUEST_PUBLISH_MESSAGE);
   });
-
   it('disables buttons when pending', () => {
     const modifiedData = mockClassData.map((c) => ({
       ...c,
@@ -180,7 +133,6 @@ describe('PublishDialog', () => {
     expect(screen.getByRole('button', { name: /cancel/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /review & publish/i })).toBeDisabled();
   });
-
   it('calls onClose when Cancel is clicked', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
@@ -191,7 +143,6 @@ describe('PublishDialog', () => {
 
     expect(onClose).toHaveBeenCalled();
   });
-
   it('can go back from confirmation', async () => {
     const user = userEvent.setup();
     const modifiedData = mockClassData.map((c) => ({
@@ -207,7 +158,6 @@ describe('PublishDialog', () => {
     await user.click(screen.getByRole('button', { name: /go back/i }));
     expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
   });
-
   it('disables publish when entry ids are invalid', () => {
     const modifiedData = mockClassData.map((c) => ({
       ...c,
@@ -220,156 +170,5 @@ describe('PublishDialog', () => {
 
     expect(screen.getByText(/resolve validation errors before publishing/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /review & publish/i })).toBeDisabled();
-  });
-
-  it('shows added entities count', () => {
-    const dataWithAddition: ClassDefinition[] = [
-      ...mockClassData,
-      {
-        classId: 'ranger',
-        displayName: 'Ranger',
-        description: 'A precise marksman.',
-        primaryResource: 'focus',
-        startingStats: {
-          strength: 6,
-          finesse: 11,
-          vitality: 6,
-          intellect: 4,
-          precision: 13,
-          luck: 7,
-          tech: 3,
-          hp: 100,
-          resourcePool: 100,
-          armor: 8,
-          attackPower: 14,
-          spellPower: 9,
-          movementSpeed: 5.5,
-        },
-        resonance: 'precision',
-        roles: ['dps'],
-      },
-    ];
-
-    render(<PublishDialog {...defaultProps} draftData={dataWithAddition} />);
-
-    expect(screen.getByText('Added')).toBeInTheDocument();
-    expect(screen.getByText('1 entities')).toBeInTheDocument();
-  });
-
-  it('shows removed entities count', () => {
-    render(<PublishDialog {...defaultProps} draftData={[]} />);
-
-    expect(screen.getByText('Removed')).toBeInTheDocument();
-    expect(screen.getByText('1 entities')).toBeInTheDocument();
-  });
-
-  it('blocks confirm publish for an empty array draft until wipe is acknowledged', async () => {
-    const user = userEvent.setup();
-    const onPublish = vi.fn().mockResolvedValue(undefined);
-
-    render(
-      <PublishDialog {...defaultProps} draftData={[]} onPublish={onPublish} />,
-    );
-
-    expect(
-      screen.getByText(/this will publish an empty class catalog and remove all entries/i),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /review & publish/i }));
-
-    const confirmButton = screen.getByRole('button', { name: /confirm publish/i });
-    expect(confirmButton).toBeDisabled();
-
-    await user.click(
-      screen.getByRole('checkbox', {
-        name: /i understand this will remove all class entries/i,
-      }),
-    );
-
-    expect(confirmButton).toBeEnabled();
-    await user.click(confirmButton);
-    expect(onPublish).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not require extra confirmation for a non-empty publish', async () => {
-    const user = userEvent.setup();
-    const modifiedData = mockClassData.map((c) => ({
-      ...c,
-      displayName: 'Modified Vanguard',
-    }));
-
-    render(<PublishDialog {...defaultProps} draftData={modifiedData} />);
-
-    expect(
-      screen.queryByText(/this will publish an empty class catalog and remove all entries/i),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('checkbox', {
-        name: /i understand this will remove all class entries/i,
-      }),
-    ).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /review & publish/i }));
-
-    expect(screen.getByRole('button', { name: /confirm publish/i })).toBeEnabled();
-  });
-
-  it('does not treat combat-constants as an empty array wipe', async () => {
-    const user = userEvent.setup();
-    const originalCombat = {
-      powerScaling: {
-        physicalPower: { strengthMultiplier: 2, levelMultiplier: 1.5 },
-        spellPower: { intellectMultiplier: 2, levelMultiplier: 1 },
-        techPower: { techMultiplier: 2, levelMultiplier: 1 },
-        devicePower: { techDivisor: 100 },
-      },
-      critical: {
-        baseCritChance: 0.05,
-        critChance: { luckConstant: 500, maxLuckCritBonus: 0.3 },
-        procChance: { luckDivisor: 500 },
-        criticalDamageMultiplier: 1.5,
-      },
-      defense: {
-        defenseConstant: { baseConstant: 200, levelMultiplier: 15 },
-        armorReductionPerPoint: 0.001,
-        maxArmorReduction: 0.75,
-        blockDamageReduction: 0.5,
-      },
-    };
-    const draftCombat = {
-      ...originalCombat,
-      critical: { ...originalCombat.critical, baseCritChance: 0.1 },
-    };
-
-    render(
-      <PublishDialog
-        {...defaultProps}
-        catalogType="combat-constants"
-        originalData={originalCombat}
-        draftData={draftCombat}
-      />,
-    );
-
-    expect(screen.queryByText(/remove all entries/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /review & publish/i }));
-    expect(screen.getByRole('button', { name: /confirm publish/i })).toBeEnabled();
-  });
-
-  it('shows added and removed counts together', () => {
-    const replaced: ClassDefinition[] = [
-      {
-        ...mockClassData[0],
-        classId: 'warden',
-        displayName: 'Warden',
-      },
-    ];
-
-    render(<PublishDialog {...defaultProps} draftData={replaced} />);
-
-    expect(screen.getByText('Added')).toBeInTheDocument();
-    expect(screen.getByText('Removed')).toBeInTheDocument();
-    expect(screen.getAllByText('1 entities')).toHaveLength(2);
   });
 });

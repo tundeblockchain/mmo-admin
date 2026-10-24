@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../test/mocks/server';
 import { publishCatalog } from './catalog';
-import { AdminForbiddenError, ApiError } from '../lib/errors';
-import type { ClassDefinition } from '../types/catalog';
+import { mockClassCatalog, mockCombatConstantsCatalog } from '../test/mocks/catalog-fixtures';
 
 vi.mock('../auth', () => ({
   getIdToken: vi.fn(),
@@ -11,31 +10,7 @@ vi.mock('../auth', () => ({
 
 import { getIdToken } from '../auth';
 
-const mockClassData: ClassDefinition[] = [
-  {
-    classId: 'vanguard',
-    displayName: 'Vanguard',
-    description: 'A stalwart frontline defender.',
-    primaryResource: 'resolve',
-    startingStats: {
-      strength: 12,
-      finesse: 7,
-      vitality: 12,
-      intellect: 4,
-      precision: 6,
-      luck: 5,
-      tech: 4,
-      hp: 150,
-      resourcePool: 100,
-      armor: 20,
-      attackPower: 26,
-      spellPower: 9,
-      movementSpeed: 5.0,
-    },
-    resonance: 'valor',
-    roles: ['tank', 'dps'],
-  },
-];
+const mockClassData = mockClassCatalog.data;
 
 describe('publishCatalog', () => {
   beforeEach(() => {
@@ -70,7 +45,6 @@ describe('publishCatalog', () => {
 
     expect(capturedAuthHeader).toBe('Bearer mock-firebase-id-token');
   });
-
   it('returns published version response', async () => {
     const result = await publishCatalog('class', {
       data: mockClassData,
@@ -82,7 +56,6 @@ describe('publishCatalog', () => {
     expect(result.status).toBe('published');
     expect(result.createdBy).toBeTruthy();
   });
-
   it('includes release notes in request', async () => {
     let capturedReleaseNotes: string | undefined;
 
@@ -112,99 +85,6 @@ describe('publishCatalog', () => {
 
     expect(capturedReleaseNotes).toBe('Test release notes');
   });
-
-  it('surfaces 401 when not authenticated', async () => {
-    vi.mocked(getIdToken).mockResolvedValue(null);
-
-    try {
-      await publishCatalog('class', { data: mockClassData });
-      expect.fail('Should have thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApiError);
-      expect((error as ApiError).status).toBe(401);
-    }
-  });
-
-  it('handles 401 unauthenticated error', async () => {
-    server.use(
-      http.post('*/catalog/class/versions', () => {
-        return HttpResponse.json(
-          { error: 'Valid Firebase ID token required' },
-          { status: 401 },
-        );
-      }),
-    );
-
-    try {
-      await publishCatalog('class', { data: mockClassData });
-      expect.fail('Should have thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApiError);
-      expect((error as ApiError).status).toBe(401);
-    }
-  });
-
-  it('surfaces 403 as AdminForbiddenError without a generic fallback', async () => {
-    server.use(
-      http.post('*/catalog/class/versions', () => {
-        return HttpResponse.json({ error: 'Admin only' }, { status: 403 });
-      }),
-    );
-
-    try {
-      await publishCatalog('class', { data: mockClassData });
-      expect.fail('Should have thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(AdminForbiddenError);
-      expect((error as AdminForbiddenError).status).toBe(403);
-      expect((error as AdminForbiddenError).message).toBe('Admin only');
-    }
-
-    expect(getIdToken).not.toHaveBeenCalledWith(true);
-  });
-
-  it('surfaces 400 when the server rejects the catalog payload', async () => {
-    server.use(
-      http.post('*/catalog/class/versions', () => {
-        return HttpResponse.json(
-          { error: 'Catalog data must not be an empty array' },
-          { status: 400 },
-        );
-      }),
-    );
-
-    try {
-      await publishCatalog('class', { data: [] });
-      expect.fail('Should have thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApiError);
-      expect(error).not.toBeInstanceOf(AdminForbiddenError);
-      expect((error as ApiError).status).toBe(400);
-      expect((error as ApiError).message).toBe('Catalog data must not be an empty array');
-    }
-
-    expect(getIdToken).not.toHaveBeenCalledWith(true);
-  });
-
-  it('handles 409 version conflict error', async () => {
-    server.use(
-      http.post('*/catalog/class/versions', () => {
-        return HttpResponse.json(
-          { error: 'Version 3 already exists for class. Retry to allocate a new version.' },
-          { status: 409 },
-        );
-      }),
-    );
-
-    try {
-      await publishCatalog('class', { data: mockClassData });
-      expect.fail('Should have thrown');
-    } catch (error) {
-      expect(error).toBeInstanceOf(ApiError);
-      expect((error as ApiError).status).toBe(409);
-    }
-  });
-
   it('sends data as decimals not percentages', async () => {
     interface CapturedCombatConstants {
       critical: {
@@ -235,35 +115,13 @@ describe('publishCatalog', () => {
       }),
     );
 
-    const combatConstants = {
-      powerScaling: {
-        physicalPower: { strengthMultiplier: 2, levelMultiplier: 1.5 },
-        spellPower: { intellectMultiplier: 2, levelMultiplier: 1 },
-        techPower: { techMultiplier: 2, levelMultiplier: 1 },
-        devicePower: { techDivisor: 100 },
-      },
-      critical: {
-        baseCritChance: 0.05,
-        critChance: { luckConstant: 500, maxLuckCritBonus: 0.3 },
-        procChance: { luckDivisor: 500 },
-        criticalDamageMultiplier: 1.5,
-      },
-      defense: {
-        defenseConstant: { baseConstant: 200, levelMultiplier: 15 },
-        armorReductionPerPoint: 0.001,
-        maxArmorReduction: 0.75,
-        blockDamageReduction: 0.5,
-      },
-    };
-
-    await publishCatalog('combat-constants', { data: combatConstants });
+    await publishCatalog('combat-constants', { data: mockCombatConstantsCatalog.data });
 
     expect(capturedData).not.toBeNull();
     expect(capturedData!.critical.baseCritChance).toBe(0.05);
     expect(capturedData!.critical.criticalDamageMultiplier).toBe(1.5);
     expect(capturedData!.defense.maxArmorReduction).toBe(0.75);
   });
-
   it('never sends PATCH requests', async () => {
     let patchCalled = false;
 

@@ -1,16 +1,19 @@
 import type { CatalogType } from '../types/catalog';
+import {
+  CATALOG_TYPES,
+  DRAFT_SCHEMA_VERSION,
+  draftStorageKey,
+  isCatalogType,
+} from './draftKeys';
+import {
+  collectDraftStorageKeys,
+  parseDraftStorageKey,
+  readStorageItem,
+  removeStorageItem,
+  writeStorageItem,
+} from './draftStorage';
 
-export const DRAFT_STORAGE_PREFIX = 'mmo-admin:draft:';
-export const DRAFT_SCHEMA_VERSION = 1;
-
-export const CATALOG_TYPES: readonly CatalogType[] = [
-  'class',
-  'skill',
-  'combat-constants',
-  'status',
-  'element',
-  'resonance',
-] as const;
+export { CATALOG_TYPES, DRAFT_SCHEMA_VERSION, DRAFT_STORAGE_PREFIX, draftStorageKey, isCatalogType } from './draftKeys';
 
 export interface DraftWorkingCopy<T = unknown> {
   catalogType: CatalogType;
@@ -25,90 +28,8 @@ export interface PersistedDraftRecord<T = unknown> {
   draft: DraftWorkingCopy<T>;
 }
 
-export function draftStorageKey(
-  catalogType: CatalogType,
-  sourceVersion: number,
-): string {
-  return `${DRAFT_STORAGE_PREFIX}${catalogType}:${sourceVersion}`;
-}
-
-export function isCatalogType(value: unknown): value is CatalogType {
-  return (
-    typeof value === 'string' &&
-    (CATALOG_TYPES as readonly string[]).includes(value)
-  );
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
-}
-
-function parseDraftStorageKey(
-  key: string,
-): { catalogType: CatalogType; sourceVersion: number } | null {
-  if (!key.startsWith(DRAFT_STORAGE_PREFIX)) {
-    return null;
-  }
-
-  const rest = key.slice(DRAFT_STORAGE_PREFIX.length);
-  const separatorIndex = rest.lastIndexOf(':');
-  if (separatorIndex <= 0) {
-    return null;
-  }
-
-  const catalogType = rest.slice(0, separatorIndex);
-  const sourceVersion = Number(rest.slice(separatorIndex + 1));
-
-  if (
-    !isCatalogType(catalogType) ||
-    !Number.isInteger(sourceVersion) ||
-    sourceVersion < 1
-  ) {
-    return null;
-  }
-
-  return { catalogType, sourceVersion };
-}
-
-function readStorageItem(key: string): string | null {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
-function writeStorageItem(key: string, value: string): void {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // Quota, private mode, or disabled storage must not break editing.
-  }
-}
-
-function removeStorageItem(key: string): void {
-  try {
-    localStorage.removeItem(key);
-  } catch {
-    // Ignore storage failures when clearing a draft.
-  }
-}
-
-function collectDraftStorageKeys(): string[] {
-  const keys: string[] = [];
-
-  try {
-    for (let index = 0; index < localStorage.length; index += 1) {
-      const key = localStorage.key(index);
-      if (key?.startsWith(DRAFT_STORAGE_PREFIX)) {
-        keys.push(key);
-      }
-    }
-  } catch {
-    return [];
-  }
-
-  return keys;
 }
 
 function isDraftWorkingCopy(value: unknown): value is DraftWorkingCopy {
@@ -140,9 +61,7 @@ function isPersistedDraftRecord(value: unknown): value is PersistedDraftRecord {
   );
 }
 
-export function parsePersistedDraftRecord(
-  raw: string,
-): PersistedDraftRecord | null {
+export function parsePersistedDraftRecord(raw: string): PersistedDraftRecord | null {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!isPersistedDraftRecord(parsed)) {
@@ -177,9 +96,7 @@ export function readPersistedDraft(
   return record;
 }
 
-export function writePersistedDraft<T>(
-  workingCopy: DraftWorkingCopy<T>,
-): void {
+export function writePersistedDraft<T>(workingCopy: DraftWorkingCopy<T>): void {
   const record: PersistedDraftRecord<T> = {
     schemaVersion: DRAFT_SCHEMA_VERSION,
     savedAt: new Date().toISOString(),
@@ -192,10 +109,7 @@ export function writePersistedDraft<T>(
   );
 }
 
-export function clearPersistedDraft(
-  catalogType: CatalogType,
-  sourceVersion: number,
-): void {
+export function clearPersistedDraft(catalogType: CatalogType, sourceVersion: number): void {
   removeStorageItem(draftStorageKey(catalogType, sourceVersion));
 }
 
@@ -214,9 +128,7 @@ export function clearAllPersistedDrafts(): void {
   }
 }
 
-export function readLatestPersistedDraft(
-  catalogType: CatalogType,
-): PersistedDraftRecord | null {
+export function readLatestPersistedDraft(catalogType: CatalogType): PersistedDraftRecord | null {
   let latest: PersistedDraftRecord | null = null;
 
   for (const key of collectDraftStorageKeys()) {
@@ -238,9 +150,7 @@ export function readLatestPersistedDraft(
   return latest;
 }
 
-export function readAllPersistedDrafts(): Partial<
-  Record<CatalogType, PersistedDraftRecord>
-> {
+export function readAllPersistedDrafts(): Partial<Record<CatalogType, PersistedDraftRecord>> {
   const drafts: Partial<Record<CatalogType, PersistedDraftRecord>> = {};
 
   for (const catalogType of CATALOG_TYPES) {
