@@ -25,9 +25,14 @@ export const componentOverrides: ThemeOptions['components'] = {
   MuiDrawer: {
     styleOverrides: {
       paper: ({ theme }) => ({
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: theme.palette.sidebar.background,
+        color: theme.palette.text.primary,
         borderRight: `1px solid ${theme.palette.divider}`,
         backgroundImage: 'none',
+        borderRadius: theme.radii.none,
+        '& .MuiListItemIcon-root': {
+          color: theme.palette.text.secondary,
+        },
       }),
     },
   },
@@ -39,15 +44,45 @@ export const componentOverrides: ThemeOptions['components'] = {
       root: ({ theme }) => ({
         backgroundImage: 'none',
         border: `1px solid ${theme.palette.divider}`,
+        borderRadius: theme.radii.card,
+      }),
+    },
+  },
+  MuiCard: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        borderRadius: theme.radii.card,
+      }),
+    },
+  },
+  MuiDialog: {
+    styleOverrides: {
+      paper: ({ theme }) => ({
+        borderRadius: theme.radii.card,
       }),
     },
   },
   MuiButton: {
     styleOverrides: {
-      root: {
+      root: ({ theme }) => ({
         textTransform: 'none',
         fontWeight: 600,
-      },
+        borderRadius: theme.radii.control,
+      }),
+    },
+  },
+  MuiOutlinedInput: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        borderRadius: theme.radii.control,
+      }),
+    },
+  },
+  MuiChip: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        borderRadius: theme.radii.control,
+      }),
     },
   },
   MuiTab: {

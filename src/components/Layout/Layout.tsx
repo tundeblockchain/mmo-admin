@@ -107,6 +107,11 @@ export function Layout() {
 
       <Drawer
         variant="permanent"
+        slotProps={{
+          paper: {
+            'aria-label': 'Sidebar',
+          },
+        }}
         sx={{
           width: DRAWER_WIDTH,
           flexShrink: 0,

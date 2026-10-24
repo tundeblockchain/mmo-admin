@@ -1,5 +1,12 @@
 export { colors, schemeColors } from './colors';
-export type { BrandPalette, HeroPalette, SchemeColors, ThemeMode } from './colors';
+export type {
+  BrandPalette,
+  HeroPalette,
+  SchemeColors,
+  SidebarPalette,
+  ThemeMode,
+} from './colors';
+export { radii } from './radii';
 export { createAppTheme, theme } from './createAppTheme';
 export { ThemeModeProvider } from './ThemeModeProvider';
 export { ThemeToggle } from './ThemeToggle';

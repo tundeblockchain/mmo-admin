@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 import { colors, schemeColors, type ThemeMode } from './colors';
 import { componentOverrides } from './componentOverrides';
+import { radii } from './radii';
 import './palette.types';
 
 const fontFamily = [
@@ -24,6 +25,7 @@ export function createAppTheme(mode: ThemeMode) {
       secondary: scheme.secondary,
       navy: colors.navy,
       hero: scheme.hero,
+      sidebar: scheme.sidebar,
       background: scheme.background,
       text: scheme.text,
       divider: scheme.divider,
@@ -43,8 +45,9 @@ export function createAppTheme(mode: ThemeMode) {
       button: { fontWeight: 600 },
       subtitle1: { letterSpacing: '0.01em' },
     },
+    radii,
     shape: {
-      borderRadius: 12,
+      borderRadius: radii.card,
     },
     components: componentOverrides,
   });

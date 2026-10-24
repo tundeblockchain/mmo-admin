@@ -16,6 +16,10 @@ export interface HeroPalette {
   glow: string;
 }
 
+export interface SidebarPalette {
+  background: string;
+}
+
 export interface SchemeColors {
   background: {
     default: string;
@@ -29,11 +33,14 @@ export interface SchemeColors {
   primary: BrandPalette;
   secondary: BrandPalette;
   hero: HeroPalette;
+  sidebar: SidebarPalette;
 }
 
 const tokens = {
   white: '#FFFFFF',
   blue50: '#E8F2FF',
+  sidebarLight: '#E3F2FD',
+  sidebarDark: '#17324F',
   blue200: '#90CAF9',
   blue300: '#64B5F6',
   blue400: '#42A5F5',
@@ -116,6 +123,9 @@ export const colors = {
       glassBorder: tokens.glassBorderLight,
       glow: tokens.glowLight,
     },
+    sidebar: {
+      background: tokens.sidebarLight,
+    },
   } satisfies SchemeColors,
   dark: {
     background: {
@@ -146,6 +156,9 @@ export const colors = {
       glass: tokens.glassDark,
       glassBorder: tokens.glassBorderDark,
       glow: tokens.glowDark,
+    },
+    sidebar: {
+      background: tokens.sidebarDark,
     },
   } satisfies SchemeColors,
 } as const;
