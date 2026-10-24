@@ -18,13 +18,20 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /real-signin\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'real-auth',
+      testMatch: /real-signin\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: {
-    command: isCi
-      ? 'npm run preview -- --host 127.0.0.1 --port 4173'
-      : 'npm run build:e2e && npm run preview -- --host 127.0.0.1 --port 4173',
+    command:
+      isCi || process.env.E2E_SKIP_BUILD === '1'
+        ? 'npm run preview -- --host 127.0.0.1 --port 4173'
+        : `${process.env.E2E_REAL_AUTH === '1' ? 'npm run build:e2e:real' : 'npm run build:e2e'} && npm run preview -- --host 127.0.0.1 --port 4173`,
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !isCi,
     timeout: 120_000,

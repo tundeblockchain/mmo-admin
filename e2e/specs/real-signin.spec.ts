@@ -1,18 +1,17 @@
 import { test, expect } from '@playwright/test';
+import { missingRealAuthEnvNames, realAuthSkipMessage } from '../lib/realAuthEnv';
 
+const missing = missingRealAuthEnvNames();
 const email = process.env.E2E_TEST_EMAIL;
 const password = process.env.E2E_TEST_PASSWORD;
-const hasRealAuthCredentials = Boolean(email && password);
 
 test.describe('Real Firebase email/password sign-in', () => {
-  test.skip(
-    !hasRealAuthCredentials,
-    'Skipping real sign-in: E2E_TEST_EMAIL and E2E_TEST_PASSWORD are not set',
-  );
+  test.skip(missing.length > 0, realAuthSkipMessage(missing));
 
   test('signs in with Firebase email and password from the environment', async ({ page }) => {
-    if (!email || !password) {
-      test.skip(true, 'Skipping real sign-in: E2E_TEST_EMAIL and E2E_TEST_PASSWORD are not set');
+    const stillMissing = missingRealAuthEnvNames();
+    if (stillMissing.length > 0 || !email || !password) {
+      test.skip(true, realAuthSkipMessage(stillMissing));
       return;
     }
 

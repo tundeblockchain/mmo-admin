@@ -65,9 +65,6 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run test:e2e
-        env:
-          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
 
       - name: Upload Playwright report
         if: always()
@@ -82,5 +79,80 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
+          path: test-results/
+          if-no-files-found: ignore
+
+      - name: Check real sign-in secrets
+        id: real_auth
+        env:
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          E2E_FIREBASE_API_KEY: ${{ secrets.E2E_FIREBASE_API_KEY }}
+          E2E_FIREBASE_AUTH_DOMAIN: ${{ secrets.E2E_FIREBASE_AUTH_DOMAIN }}
+          E2E_FIREBASE_PROJECT_ID: ${{ secrets.E2E_FIREBASE_PROJECT_ID }}
+          E2E_FIREBASE_APP_ID: ${{ secrets.E2E_FIREBASE_APP_ID }}
+        run: |
+          set +x
+          missing=""
+          for name in E2E_TEST_EMAIL E2E_TEST_PASSWORD E2E_FIREBASE_API_KEY E2E_FIREBASE_AUTH_DOMAIN E2E_FIREBASE_PROJECT_ID E2E_FIREBASE_APP_ID; do
+            case "$name" in
+              E2E_TEST_EMAIL) value="$E2E_TEST_EMAIL" ;;
+              E2E_TEST_PASSWORD) value="$E2E_TEST_PASSWORD" ;;
+              E2E_FIREBASE_API_KEY) value="$E2E_FIREBASE_API_KEY" ;;
+              E2E_FIREBASE_AUTH_DOMAIN) value="$E2E_FIREBASE_AUTH_DOMAIN" ;;
+              E2E_FIREBASE_PROJECT_ID) value="$E2E_FIREBASE_PROJECT_ID" ;;
+              E2E_FIREBASE_APP_ID) value="$E2E_FIREBASE_APP_ID" ;;
+            esac
+            if [ -z "$value" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping real sign-in: required secrets are not set:$missing"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build real-auth E2E app
+        if: steps.real_auth.outputs.skip != 'true'
+        env:
+          E2E_FIREBASE_API_KEY: ${{ secrets.E2E_FIREBASE_API_KEY }}
+          E2E_FIREBASE_AUTH_DOMAIN: ${{ secrets.E2E_FIREBASE_AUTH_DOMAIN }}
+          E2E_FIREBASE_PROJECT_ID: ${{ secrets.E2E_FIREBASE_PROJECT_ID }}
+          E2E_FIREBASE_APP_ID: ${{ secrets.E2E_FIREBASE_APP_ID }}
+          E2E_FIREBASE_STORAGE_BUCKET: ${{ secrets.E2E_FIREBASE_STORAGE_BUCKET }}
+          E2E_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.E2E_FIREBASE_MESSAGING_SENDER_ID }}
+        run: |
+          set +x
+          npm run build:e2e:real
+
+      - name: Run real sign-in tests
+        if: steps.real_auth.outputs.skip != 'true'
+        env:
+          E2E_SKIP_BUILD: '1'
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+          E2E_FIREBASE_API_KEY: ${{ secrets.E2E_FIREBASE_API_KEY }}
+          E2E_FIREBASE_AUTH_DOMAIN: ${{ secrets.E2E_FIREBASE_AUTH_DOMAIN }}
+          E2E_FIREBASE_PROJECT_ID: ${{ secrets.E2E_FIREBASE_PROJECT_ID }}
+          E2E_FIREBASE_APP_ID: ${{ secrets.E2E_FIREBASE_APP_ID }}
+        run: |
+          set +x
+          npm run test:e2e:real
+
+      - name: Upload real-auth Playwright report
+        if: steps.real_auth.outputs.skip != 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-real-auth
+          path: playwright-report/
+          if-no-files-found: ignore
+
+      - name: Upload real-auth Playwright test results
+        if: steps.real_auth.outputs.skip != 'true' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-real-auth
           path: test-results/
           if-no-files-found: ignore
