@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "test": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:e2e": "vite build --mode e2e",
+    "build:e2e:real": "node e2e/scripts/build-real-auth.mjs",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:real": "E2E_REAL_AUTH=1 playwright test --project=real-auth",
+    "test:e2e:ui": "playwright test --ui --project=chromium"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -37,6 +42,7 @@
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@playwright/test": "^1.56.1",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.2.1",

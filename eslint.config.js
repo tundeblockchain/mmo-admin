@@ -51,7 +51,14 @@ const envSyntax = {
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'e2e/**',
+      'playwright-report/**',
+      'test-results/**',
+      'playwright.config.ts',
+    ],
   },
   {
     files: ['src/**/*.{ts,tsx}'],
