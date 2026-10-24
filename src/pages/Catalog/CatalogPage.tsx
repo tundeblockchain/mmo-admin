@@ -21,6 +21,7 @@ import { CombatConstantsDetail } from '../../components/catalog/CombatConstantsD
 import { CombatConstantsEditor } from '../../components/catalog/CombatConstantsEditor';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
+import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
 import { useCatalogVersions } from '../../hooks/useCatalogVersions';
 import {
   useClassCatalog,
@@ -37,6 +38,18 @@ import {
   updateDraft,
 } from '../../hooks/useDraftCatalog';
 import { usePublishCatalog } from '../../hooks/usePublishCatalog';
+import {
+  createDefaultClass,
+  createDefaultSkill,
+  createDefaultStatus,
+  createDefaultElement,
+  createDefaultResonance,
+} from '../../lib/catalogDefaults';
+import {
+  collectEntityIds,
+  draftHasInvalidIds,
+  getIdValidationMessage,
+} from '../../lib/catalogIds';
 import type {
   CatalogType,
   ClassDefinition,
@@ -57,6 +70,44 @@ interface VersionSelections {
   resonance: number | null;
 }
 
+interface PendingDelete {
+  index: number;
+  displayName: string;
+  kindLabel: string;
+}
+
+function entityKindLabel(type: CatalogType): string {
+  switch (type) {
+    case 'class':
+      return 'class';
+    case 'skill':
+      return 'skill';
+    case 'status':
+      return 'status';
+    case 'element':
+      return 'element';
+    case 'resonance':
+      return 'resonance';
+    case 'combat-constants':
+      return 'combat constants';
+  }
+}
+
+function selectByIndexOrId<T>(
+  items: T[] | undefined,
+  selectedIndex: number | null,
+  selectedId: string | null,
+  getId: (item: T) => string,
+): T | null {
+  if (!items) {
+    return null;
+  }
+  if (selectedIndex !== null) {
+    return items[selectedIndex] ?? null;
+  }
+  return items.find((item) => getId(item) === selectedId) ?? null;
+}
+
 export function CatalogPage() {
   const [selectedType, setSelectedType] = useState<CatalogType>('class');
   const [versions, setVersions] = useState<VersionSelections>({
@@ -68,6 +119,8 @@ export function CatalogPage() {
     resonance: null,
   });
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [successSnackbar, setSuccessSnackbar] = useState<string | null>(null);
 
@@ -99,15 +152,19 @@ export function CatalogPage() {
   const handleTypeChange = useCallback((type: CatalogType) => {
     setSelectedType(type);
     setSelectedEntityId(null);
+    setSelectedIndex(null);
+    setPendingDelete(null);
   }, []);
 
   const handleVersionChange = useCallback((type: CatalogType, version: number) => {
     setVersions((prev) => ({ ...prev, [type]: version }));
     setSelectedEntityId(null);
+    setSelectedIndex(null);
   }, []);
 
-  const handleSelectEntity = useCallback((id: string) => {
+  const handleSelectEntity = useCallback((id: string, index: number) => {
     setSelectedEntityId(id);
+    setSelectedIndex(index);
   }, []);
 
   const handleCreateDraft = useCallback(() => {
@@ -154,6 +211,8 @@ export function CatalogPage() {
   const handleDiscardDraft = useCallback(() => {
     discardDraft(selectedType);
     setSelectedEntityId(null);
+    setSelectedIndex(null);
+    setPendingDelete(null);
   }, [selectedType, discardDraft]);
 
   const handleOpenPublish = useCallback(() => {
@@ -179,6 +238,8 @@ export function CatalogPage() {
 
       setPublishDialogOpen(false);
       discardDraft(selectedType);
+      setSelectedEntityId(null);
+      setSelectedIndex(null);
       setSuccessSnackbar(`Published ${selectedType} v${result.version}`);
     },
     [draft, selectedType, publish, discardDraft],
@@ -190,14 +251,15 @@ export function CatalogPage() {
 
   const handleUpdateClassEntity = useCallback(
     (updated: ClassDefinition) => {
-      if (!draft || selectedType !== 'class') return;
+      if (!draft || selectedType !== 'class' || selectedIndex === null) return;
       const classes = draft.data as ClassDefinition[];
-      const updatedClasses = classes.map((c) =>
-        c.classId === updated.classId ? updated : c,
+      const updatedClasses = classes.map((item, index) =>
+        index === selectedIndex ? updated : item,
       );
       updateDraft('class', updatedClasses);
+      setSelectedEntityId(updated.classId);
     },
-    [draft, selectedType],
+    [draft, selectedType, selectedIndex],
   );
 
   const handleUpdateCombatConstants = useCallback(
@@ -210,54 +272,159 @@ export function CatalogPage() {
 
   const handleUpdateSkillEntity = useCallback(
     (updated: SkillDefinition) => {
-      if (!draft || selectedType !== 'skill') return;
+      if (!draft || selectedType !== 'skill' || selectedIndex === null) return;
       const skills = draft.data as SkillDefinition[];
-      const updatedSkills = skills.map((s) =>
-        s.skillId === updated.skillId ? updated : s,
+      const updatedSkills = skills.map((item, index) =>
+        index === selectedIndex ? updated : item,
       );
       updateDraft('skill', updatedSkills);
+      setSelectedEntityId(updated.skillId);
     },
-    [draft, selectedType],
+    [draft, selectedType, selectedIndex],
   );
 
   const handleUpdateStatusEntity = useCallback(
     (updated: StatusDefinition) => {
-      if (!draft || selectedType !== 'status') return;
+      if (!draft || selectedType !== 'status' || selectedIndex === null) return;
       const statuses = draft.data as StatusDefinition[];
-      const updatedStatuses = statuses.map((s) =>
-        s.statusId === updated.statusId ? updated : s,
+      const updatedStatuses = statuses.map((item, index) =>
+        index === selectedIndex ? updated : item,
       );
       updateDraft('status', updatedStatuses);
+      setSelectedEntityId(updated.statusId);
     },
-    [draft, selectedType],
+    [draft, selectedType, selectedIndex],
   );
 
   const handleUpdateElementEntity = useCallback(
     (updated: ElementDefinition) => {
-      if (!draft || selectedType !== 'element') return;
+      if (!draft || selectedType !== 'element' || selectedIndex === null) return;
       const elements = draft.data as ElementDefinition[];
-      const updatedElements = elements.map((e) =>
-        e.elementId === updated.elementId ? updated : e,
+      const updatedElements = elements.map((item, index) =>
+        index === selectedIndex ? updated : item,
       );
       updateDraft('element', updatedElements);
+      setSelectedEntityId(updated.elementId);
     },
-    [draft, selectedType],
+    [draft, selectedType, selectedIndex],
   );
 
   const handleUpdateResonanceEntity = useCallback(
     (updated: ResonanceDefinition) => {
-      if (!draft || selectedType !== 'resonance') return;
+      if (!draft || selectedType !== 'resonance' || selectedIndex === null) return;
       const resonances = draft.data as ResonanceDefinition[];
-      const updatedResonances = resonances.map((r) =>
-        r.resonanceId === updated.resonanceId ? updated : r,
+      const updatedResonances = resonances.map((item, index) =>
+        index === selectedIndex ? updated : item,
       );
       updateDraft('resonance', updatedResonances);
+      setSelectedEntityId(updated.resonanceId);
     },
-    [draft, selectedType],
+    [draft, selectedType, selectedIndex],
   );
+
+  const handleAddEntity = useCallback(() => {
+    if (!draft || selectedType === 'combat-constants') return;
+
+    switch (selectedType) {
+      case 'class': {
+        const next = [...(draft.data as ClassDefinition[]), createDefaultClass()];
+        updateDraft('class', next);
+        setSelectedIndex(next.length - 1);
+        setSelectedEntityId(next[next.length - 1].classId);
+        break;
+      }
+      case 'skill': {
+        const next = [...(draft.data as SkillDefinition[]), createDefaultSkill()];
+        updateDraft('skill', next);
+        setSelectedIndex(next.length - 1);
+        setSelectedEntityId(next[next.length - 1].skillId);
+        break;
+      }
+      case 'status': {
+        const next = [...(draft.data as StatusDefinition[]), createDefaultStatus()];
+        updateDraft('status', next);
+        setSelectedIndex(next.length - 1);
+        setSelectedEntityId(next[next.length - 1].statusId);
+        break;
+      }
+      case 'element': {
+        const next = [...(draft.data as ElementDefinition[]), createDefaultElement()];
+        updateDraft('element', next);
+        setSelectedIndex(next.length - 1);
+        setSelectedEntityId(next[next.length - 1].elementId);
+        break;
+      }
+      case 'resonance': {
+        const next = [...(draft.data as ResonanceDefinition[]), createDefaultResonance()];
+        updateDraft('resonance', next);
+        setSelectedIndex(next.length - 1);
+        setSelectedEntityId(next[next.length - 1].resonanceId);
+        break;
+      }
+    }
+  }, [draft, selectedType]);
+
+  const handleRequestDelete = useCallback(
+    (_id: string, index: number, displayName: string) => {
+      setPendingDelete({
+        index,
+        displayName,
+        kindLabel: entityKindLabel(selectedType),
+      });
+    },
+    [selectedType],
+  );
+
+  const handleCancelDelete = useCallback(() => {
+    setPendingDelete(null);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!draft || pendingDelete === null || selectedType === 'combat-constants') return;
+
+    const { index } = pendingDelete;
+
+    switch (selectedType) {
+      case 'class':
+        updateDraft(
+          'class',
+          (draft.data as ClassDefinition[]).filter((_, itemIndex) => itemIndex !== index),
+        );
+        break;
+      case 'skill':
+        updateDraft(
+          'skill',
+          (draft.data as SkillDefinition[]).filter((_, itemIndex) => itemIndex !== index),
+        );
+        break;
+      case 'status':
+        updateDraft(
+          'status',
+          (draft.data as StatusDefinition[]).filter((_, itemIndex) => itemIndex !== index),
+        );
+        break;
+      case 'element':
+        updateDraft(
+          'element',
+          (draft.data as ElementDefinition[]).filter((_, itemIndex) => itemIndex !== index),
+        );
+        break;
+      case 'resonance':
+        updateDraft(
+          'resonance',
+          (draft.data as ResonanceDefinition[]).filter((_, itemIndex) => itemIndex !== index),
+        );
+        break;
+    }
+
+    setSelectedEntityId(null);
+    setSelectedIndex(null);
+    setPendingDelete(null);
+  }, [draft, pendingDelete, selectedType]);
 
   const allVersions = versionData?.versions ?? [];
   const currentVersion = versions[selectedType];
+  const hasInvalidIds = draft ? draftHasInvalidIds(draft.data, selectedType) : false;
 
   const getOriginalData = (): CatalogEntityData | undefined => {
     switch (selectedType) {
@@ -276,13 +443,31 @@ export function CatalogPage() {
     }
   };
 
+  const draftListProps = draft
+    ? {
+        isDraft: true,
+        selectedIndex,
+        onAdd: handleAddEntity,
+        onRequestDelete: handleRequestDelete,
+      }
+    : {};
+
   const renderEntityContent = () => {
     switch (selectedType) {
       case 'class': {
         const classes = draft
           ? (draft.data as ClassDefinition[])
           : classQuery.data?.data;
-        const selectedClass = classes?.find((c) => c.classId === selectedEntityId) ?? null;
+        const selectedClass = selectByIndexOrId(
+          classes,
+          selectedIndex,
+          selectedEntityId,
+          (item) => item.classId,
+        );
+        const idError =
+          draft && selectedClass
+            ? getIdValidationMessage(selectedClass.classId, collectEntityIds(classes ?? [], 'class'))
+            : null;
 
         if (draft && selectedClass) {
           return (
@@ -295,6 +480,7 @@ export function CatalogPage() {
                     onSelectClass={handleSelectEntity}
                     isLoading={false}
                     error={null}
+                    {...draftListProps}
                   />
                 </Paper>
               </Grid>
@@ -302,6 +488,7 @@ export function CatalogPage() {
                 <ClassEditor
                   classData={selectedClass}
                   onUpdate={handleUpdateClassEntity}
+                  idError={idError}
                 />
               </Grid>
             </Grid>
@@ -315,9 +502,11 @@ export function CatalogPage() {
                 <ClassList
                   classes={classes}
                   selectedClassId={selectedEntityId}
+                  selectedIndex={selectedIndex}
                   onSelectClass={handleSelectEntity}
                   isLoading={classQuery.isPending && currentVersion !== null}
                   error={classQuery.error}
+                  {...draftListProps}
                 />
               </Paper>
             </Grid>
@@ -332,7 +521,16 @@ export function CatalogPage() {
         const skills = draft
           ? (draft.data as SkillDefinition[])
           : skillQuery.data?.data;
-        const selectedSkill = skills?.find((s) => s.skillId === selectedEntityId) ?? null;
+        const selectedSkill = selectByIndexOrId(
+          skills,
+          selectedIndex,
+          selectedEntityId,
+          (item) => item.skillId,
+        );
+        const idError =
+          draft && selectedSkill
+            ? getIdValidationMessage(selectedSkill.skillId, collectEntityIds(skills ?? [], 'skill'))
+            : null;
 
         if (draft && selectedSkill) {
           return (
@@ -345,6 +543,7 @@ export function CatalogPage() {
                     onSelectSkill={handleSelectEntity}
                     isLoading={false}
                     error={null}
+                    {...draftListProps}
                   />
                 </Paper>
               </Grid>
@@ -352,6 +551,7 @@ export function CatalogPage() {
                 <SkillEditor
                   skillData={selectedSkill}
                   onUpdate={handleUpdateSkillEntity}
+                  idError={idError}
                 />
               </Grid>
             </Grid>
@@ -365,9 +565,11 @@ export function CatalogPage() {
                 <SkillList
                   skills={skills}
                   selectedSkillId={selectedEntityId}
+                  selectedIndex={selectedIndex}
                   onSelectSkill={handleSelectEntity}
                   isLoading={skillQuery.isPending && currentVersion !== null && !draft}
                   error={draft ? null : skillQuery.error}
+                  {...draftListProps}
                 />
               </Paper>
             </Grid>
@@ -382,7 +584,19 @@ export function CatalogPage() {
         const statuses = draft
           ? (draft.data as StatusDefinition[])
           : statusQuery.data?.data;
-        const selectedStatus = statuses?.find((s) => s.statusId === selectedEntityId) ?? null;
+        const selectedStatus = selectByIndexOrId(
+          statuses,
+          selectedIndex,
+          selectedEntityId,
+          (item) => item.statusId,
+        );
+        const idError =
+          draft && selectedStatus
+            ? getIdValidationMessage(
+                selectedStatus.statusId,
+                collectEntityIds(statuses ?? [], 'status'),
+              )
+            : null;
 
         if (draft && selectedStatus) {
           return (
@@ -395,6 +609,7 @@ export function CatalogPage() {
                     onSelectStatus={handleSelectEntity}
                     isLoading={false}
                     error={null}
+                    {...draftListProps}
                   />
                 </Paper>
               </Grid>
@@ -402,6 +617,7 @@ export function CatalogPage() {
                 <StatusEditor
                   statusData={selectedStatus}
                   onUpdate={handleUpdateStatusEntity}
+                  idError={idError}
                 />
               </Grid>
             </Grid>
@@ -415,9 +631,11 @@ export function CatalogPage() {
                 <StatusList
                   statuses={statuses}
                   selectedStatusId={selectedEntityId}
+                  selectedIndex={selectedIndex}
                   onSelectStatus={handleSelectEntity}
                   isLoading={statusQuery.isPending && currentVersion !== null && !draft}
                   error={draft ? null : statusQuery.error}
+                  {...draftListProps}
                 />
               </Paper>
             </Grid>
@@ -432,7 +650,19 @@ export function CatalogPage() {
         const elements = draft
           ? (draft.data as ElementDefinition[])
           : elementQuery.data?.data;
-        const selectedElement = elements?.find((e) => e.elementId === selectedEntityId) ?? null;
+        const selectedElement = selectByIndexOrId(
+          elements,
+          selectedIndex,
+          selectedEntityId,
+          (item) => item.elementId,
+        );
+        const idError =
+          draft && selectedElement
+            ? getIdValidationMessage(
+                selectedElement.elementId,
+                collectEntityIds(elements ?? [], 'element'),
+              )
+            : null;
 
         if (draft && selectedElement) {
           return (
@@ -445,6 +675,7 @@ export function CatalogPage() {
                     onSelectElement={handleSelectEntity}
                     isLoading={false}
                     error={null}
+                    {...draftListProps}
                   />
                 </Paper>
               </Grid>
@@ -452,6 +683,7 @@ export function CatalogPage() {
                 <ElementEditor
                   elementData={selectedElement}
                   onUpdate={handleUpdateElementEntity}
+                  idError={idError}
                 />
               </Grid>
             </Grid>
@@ -465,9 +697,11 @@ export function CatalogPage() {
                 <ElementList
                   elements={elements}
                   selectedElementId={selectedEntityId}
+                  selectedIndex={selectedIndex}
                   onSelectElement={handleSelectEntity}
                   isLoading={elementQuery.isPending && currentVersion !== null && !draft}
                   error={draft ? null : elementQuery.error}
+                  {...draftListProps}
                 />
               </Paper>
             </Grid>
@@ -482,8 +716,19 @@ export function CatalogPage() {
         const resonances = draft
           ? (draft.data as ResonanceDefinition[])
           : resonanceQuery.data?.data;
-        const selectedResonance =
-          resonances?.find((r) => r.resonanceId === selectedEntityId) ?? null;
+        const selectedResonance = selectByIndexOrId(
+          resonances,
+          selectedIndex,
+          selectedEntityId,
+          (item) => item.resonanceId,
+        );
+        const idError =
+          draft && selectedResonance
+            ? getIdValidationMessage(
+                selectedResonance.resonanceId,
+                collectEntityIds(resonances ?? [], 'resonance'),
+              )
+            : null;
 
         if (draft && selectedResonance) {
           return (
@@ -496,6 +741,7 @@ export function CatalogPage() {
                     onSelectResonance={handleSelectEntity}
                     isLoading={false}
                     error={null}
+                    {...draftListProps}
                   />
                 </Paper>
               </Grid>
@@ -503,6 +749,7 @@ export function CatalogPage() {
                 <ResonanceEditor
                   resonanceData={selectedResonance}
                   onUpdate={handleUpdateResonanceEntity}
+                  idError={idError}
                 />
               </Grid>
             </Grid>
@@ -516,9 +763,11 @@ export function CatalogPage() {
                 <ResonanceList
                   resonances={resonances}
                   selectedResonanceId={selectedEntityId}
+                  selectedIndex={selectedIndex}
                   onSelectResonance={handleSelectEntity}
                   isLoading={resonanceQuery.isPending && currentVersion !== null && !draft}
                   error={draft ? null : resonanceQuery.error}
+                  {...draftListProps}
                 />
               </Paper>
             </Grid>
@@ -589,6 +838,7 @@ export function CatalogPage() {
           onDiscardDraft={handleDiscardDraft}
           onOpenPublish={handleOpenPublish}
           isCreatingDraft={false}
+          hasValidationErrors={hasInvalidIds}
         />
       )}
 
@@ -615,6 +865,17 @@ export function CatalogPage() {
           error={publishError}
           isConflictError={isConflictError}
           isAuthError={isAuthError}
+          hasValidationErrors={hasInvalidIds}
+        />
+      )}
+
+      {pendingDelete && (
+        <ConfirmDeleteDialog
+          open
+          title={`Delete ${pendingDelete.kindLabel}?`}
+          description={`Delete "${pendingDelete.displayName || 'this entry'}" from this draft? This only affects the working copy.`}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
         />
       )}
 

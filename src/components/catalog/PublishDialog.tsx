@@ -17,13 +17,7 @@ import {
   Chip,
 } from '@mui/material';
 import type { CatalogType, CatalogEntityData } from '../../types/catalog';
-
-interface DiffSummary {
-  added: number;
-  modified: number;
-  removed: number;
-  unchanged: number;
-}
+import { computeDiffSummary } from '../../lib/catalogDiff';
 
 interface PublishDialogProps {
   open: boolean;
@@ -37,79 +31,7 @@ interface PublishDialogProps {
   error: Error | null;
   isConflictError: boolean;
   isAuthError: boolean;
-}
-
-function getEntityId(entity: unknown, catalogType: CatalogType): string {
-  const e = entity as Record<string, unknown>;
-  switch (catalogType) {
-    case 'class':
-      return e.classId as string;
-    case 'skill':
-      return e.skillId as string;
-    case 'status':
-      return e.statusId as string;
-    case 'element':
-      return e.elementId as string;
-    case 'resonance':
-      return e.resonanceId as string;
-    case 'combat-constants':
-      return 'combat-constants';
-  }
-}
-
-function computeDiffSummary(
-  original: CatalogEntityData,
-  draft: CatalogEntityData,
-  catalogType: CatalogType,
-): DiffSummary {
-  if (catalogType === 'combat-constants') {
-    const isModified = JSON.stringify(original) !== JSON.stringify(draft);
-    return {
-      added: 0,
-      modified: isModified ? 1 : 0,
-      removed: 0,
-      unchanged: isModified ? 0 : 1,
-    };
-  }
-
-  const originalArray = original as unknown[];
-  const draftArray = draft as unknown[];
-
-  const originalMap = new Map<string, string>();
-  for (const item of originalArray) {
-    const id = getEntityId(item, catalogType);
-    originalMap.set(id, JSON.stringify(item));
-  }
-
-  const draftMap = new Map<string, string>();
-  for (const item of draftArray) {
-    const id = getEntityId(item, catalogType);
-    draftMap.set(id, JSON.stringify(item));
-  }
-
-  let added = 0;
-  let modified = 0;
-  let removed = 0;
-  let unchanged = 0;
-
-  for (const [id, json] of draftMap) {
-    const originalJson = originalMap.get(id);
-    if (!originalJson) {
-      added++;
-    } else if (originalJson !== json) {
-      modified++;
-    } else {
-      unchanged++;
-    }
-  }
-
-  for (const id of originalMap.keys()) {
-    if (!draftMap.has(id)) {
-      removed++;
-    }
-  }
-
-  return { added, modified, removed, unchanged };
+  hasValidationErrors?: boolean;
 }
 
 function formatCatalogType(type: CatalogType): string {
@@ -133,6 +55,7 @@ export function PublishDialog({
   error,
   isConflictError,
   isAuthError,
+  hasValidationErrors = false,
 }: PublishDialogProps) {
   const [releaseNotes, setReleaseNotes] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
@@ -246,6 +169,13 @@ export function PublishDialog({
           disabled={isPending}
         />
 
+        {hasValidationErrors && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            Resolve invalid entry IDs before publishing. Each ID must be non-empty and unique
+            within this draft.
+          </Alert>
+        )}
+
         {error && !showConfirm && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {isConflictError
@@ -276,7 +206,7 @@ export function PublishDialog({
           <Button
             onClick={handleRequestPublish}
             variant="contained"
-            disabled={isPending || !hasChanges}
+            disabled={isPending || !hasChanges || hasValidationErrors}
           >
             Review & Publish
           </Button>
@@ -289,7 +219,7 @@ export function PublishDialog({
               onClick={handleConfirmPublish}
               variant="contained"
               color="warning"
-              disabled={isPending}
+              disabled={isPending || hasValidationErrors}
               startIcon={isPending ? <CircularProgress size={16} /> : undefined}
             >
               {isPending ? 'Publishing...' : 'Confirm Publish'}

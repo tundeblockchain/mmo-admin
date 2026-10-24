@@ -178,6 +178,20 @@ describe('PublishDialog', () => {
     expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
   });
 
+  it('disables publish when entry ids are invalid', () => {
+    const modifiedData = mockClassData.map((c) => ({
+      ...c,
+      displayName: 'Modified Vanguard',
+    }));
+
+    render(
+      <PublishDialog {...defaultProps} draftData={modifiedData} hasValidationErrors />,
+    );
+
+    expect(screen.getByText(/resolve invalid entry ids/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /review & publish/i })).toBeDisabled();
+  });
+
   it('shows added entities count', () => {
     const dataWithAddition: ClassDefinition[] = [
       ...mockClassData,
@@ -209,6 +223,7 @@ describe('PublishDialog', () => {
     render(<PublishDialog {...defaultProps} draftData={dataWithAddition} />);
 
     expect(screen.getByText('Added')).toBeInTheDocument();
+    expect(screen.getByText('1 entities')).toBeInTheDocument();
   });
 
   it('shows removed entities count', () => {
@@ -216,5 +231,21 @@ describe('PublishDialog', () => {
 
     expect(screen.getByText('Removed')).toBeInTheDocument();
     expect(screen.getByText('1 entities')).toBeInTheDocument();
+  });
+
+  it('shows added and removed counts together', () => {
+    const replaced: ClassDefinition[] = [
+      {
+        ...mockClassData[0],
+        classId: 'warden',
+        displayName: 'Warden',
+      },
+    ];
+
+    render(<PublishDialog {...defaultProps} draftData={replaced} />);
+
+    expect(screen.getByText('Added')).toBeInTheDocument();
+    expect(screen.getByText('Removed')).toBeInTheDocument();
+    expect(screen.getAllByText('1 entities')).toHaveLength(2);
   });
 });

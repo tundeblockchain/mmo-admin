@@ -16,6 +16,7 @@ import type { ResonanceDefinition, ResonancePartyBonus } from '../../types/catal
 interface ResonanceEditorProps {
   resonanceData: ResonanceDefinition;
   onUpdate: (updated: ResonanceDefinition) => void;
+  idError?: string | null;
 }
 
 interface PercentFieldProps {
@@ -48,7 +49,7 @@ function PercentField({ label, value, onChange }: PercentFieldProps) {
   );
 }
 
-export function ResonanceEditor({ resonanceData, onUpdate }: ResonanceEditorProps) {
+export function ResonanceEditor({ resonanceData, onUpdate, idError = null }: ResonanceEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ResonanceDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...resonanceData, [field]: event.target.value });
@@ -78,6 +79,16 @@ export function ResonanceEditor({ resonanceData, onUpdate }: ResonanceEditorProp
       <Divider sx={{ my: 2 }} />
 
       <Box sx={{ mb: 3 }}>
+        <TextField
+          label="Resonance ID"
+          value={resonanceData.resonanceId}
+          onChange={handleTextChange('resonanceId')}
+          fullWidth
+          size="small"
+          sx={{ mb: 2 }}
+          error={idError !== null}
+          helperText={idError ?? 'Unique identifier for this resonance (e.g. valor).'}
+        />
         <TextField
           label="Display Name"
           value={resonanceData.displayName}

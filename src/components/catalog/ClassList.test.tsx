@@ -145,7 +145,7 @@ describe('ClassList', () => {
 
     await user.click(screen.getByText('Vanguard'));
 
-    expect(handleSelect).toHaveBeenCalledWith('vanguard');
+    expect(handleSelect).toHaveBeenCalledWith('vanguard', 0);
   });
 
   it('highlights selected class', () => {
@@ -161,5 +161,30 @@ describe('ClassList', () => {
 
     const vanguardButton = screen.getByRole('button', { name: /Vanguard/ });
     expect(vanguardButton).toHaveClass('Mui-selected');
+  });
+
+  it('shows add and delete controls in draft mode', async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    const onRequestDelete = vi.fn();
+
+    render(
+      <ClassList
+        classes={mockClasses}
+        selectedClassId={null}
+        onSelectClass={vi.fn()}
+        isLoading={false}
+        error={null}
+        isDraft
+        onAdd={onAdd}
+        onRequestDelete={onRequestDelete}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /add class/i }));
+    expect(onAdd).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: /delete vanguard/i }));
+    expect(onRequestDelete).toHaveBeenCalledWith('vanguard', 0, 'Vanguard');
   });
 });

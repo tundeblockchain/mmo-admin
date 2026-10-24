@@ -42,9 +42,9 @@ export interface ClassStartingStats extends PrimaryStats {
 }
 
 export type ClassRole = 'tank' | 'healer' | 'dps' | 'support';
-export type ClassId = 'vanguard' | 'ranger' | 'arcanist' | 'machinist' | 'warden' | 'shade';
+export type ClassId = string;
 export type PrimaryResource = 'resolve' | 'focus' | 'mana' | 'charge' | 'radiance' | 'momentum';
-export type ResonanceId = 'valor' | 'precision' | 'arcana' | 'innovation' | 'sanctuary' | 'subterfuge';
+export type ResonanceId = string;
 
 export interface ClassDefinition {
   classId: ClassId;
@@ -81,7 +81,7 @@ export interface ScalingVector {
   coefficient: number;
 }
 
-export type ElementId = 'physical' | 'fire' | 'ice' | 'lightning' | 'arcane' | 'nature' | 'shadow' | 'radiant';
+export type ElementId = string;
 
 export interface SkillCoefficients {
   basePower: number;

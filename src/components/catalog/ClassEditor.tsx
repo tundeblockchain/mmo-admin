@@ -18,13 +18,14 @@ import type { ClassDefinition, ClassRole, PrimaryResource, ResonanceId } from '.
 interface ClassEditorProps {
   classData: ClassDefinition;
   onUpdate: (updated: ClassDefinition) => void;
+  idError?: string | null;
 }
 
 const ROLES: ClassRole[] = ['tank', 'healer', 'dps', 'support'];
 const RESOURCES: PrimaryResource[] = ['resolve', 'focus', 'mana', 'charge', 'radiance', 'momentum'];
 const RESONANCES: ResonanceId[] = ['valor', 'precision', 'arcana', 'innovation', 'sanctuary', 'subterfuge'];
 
-export function ClassEditor({ classData, onUpdate }: ClassEditorProps) {
+export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ClassDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...classData, [field]: event.target.value });
@@ -90,7 +91,20 @@ export function ClassEditor({ classData, onUpdate }: ClassEditorProps) {
 
   return (
     <Paper sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Class Editor
+      </Typography>
       <Box sx={{ mb: 3 }}>
+        <TextField
+          label="Class ID"
+          value={classData.classId}
+          onChange={handleTextChange('classId')}
+          fullWidth
+          size="small"
+          sx={{ mb: 2 }}
+          error={idError !== null}
+          helperText={idError ?? 'Unique identifier for this class (e.g. vanguard).'}
+        />
         <TextField
           label="Display Name"
           value={classData.displayName}
