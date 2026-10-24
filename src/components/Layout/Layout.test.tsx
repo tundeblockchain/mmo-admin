@@ -54,6 +54,14 @@ describe('Layout', () => {
     expect(main).toBeInTheDocument();
   });
 
+  it('renders a theme toggle in the app bar', () => {
+    render(<Layout />);
+
+    const toggle = screen.getByRole('button', { name: /switch to dark mode/i });
+    expect(toggle).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toContainElement(toggle);
+  });
+
   it('shows user avatar when authenticated', () => {
     render(<Layout />);
 

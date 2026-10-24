@@ -107,7 +107,7 @@ export function CatalogEntityList<T>({
               sx={{
                 px: 2,
                 py: 1,
-                bgcolor: 'grey.100',
+                bgcolor: 'action.hover',
                 textTransform: 'capitalize',
               }}
             >

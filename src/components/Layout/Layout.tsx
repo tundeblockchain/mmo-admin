@@ -20,6 +20,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth, signOutUser } from '../../auth';
+import { ThemeToggle } from '../../theme';
 
 const DRAWER_WIDTH = 240;
 
@@ -62,10 +63,13 @@ export function Layout() {
             MMO Admin
           </Typography>
 
+          <ThemeToggle />
+
           {user && (
             <>
               <IconButton
                 onClick={handleMenuOpen}
+                color="inherit"
                 aria-label="Account menu"
                 aria-controls={menuOpen ? 'account-menu' : undefined}
                 aria-haspopup="true"

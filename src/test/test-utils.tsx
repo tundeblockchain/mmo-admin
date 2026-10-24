@@ -1,9 +1,8 @@
 import { type ReactElement, type ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import { theme } from '../theme';
+import { ThemeModeProvider } from '../theme';
 
 interface WrapperProps {
   children: ReactNode;
@@ -30,7 +29,7 @@ function createWrapper(initialEntries: string[]) {
     return (
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={initialEntries}>
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          <ThemeModeProvider>{children}</ThemeModeProvider>
         </MemoryRouter>
       </QueryClientProvider>
     );
