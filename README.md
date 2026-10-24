@@ -30,6 +30,9 @@ The app will be available at `http://localhost:5173`.
 | `npm run typecheck` | Run TypeScript type checking |
 | `npm test` | Run tests in watch mode |
 | `npm test -- --run` | Run tests once |
+| `npm run build:e2e` | Production build with the E2E auth stub enabled |
+| `npm run test:e2e` | Run Playwright end-to-end tests |
+| `npm run test:e2e:ui` | Open the Playwright UI runner |
 
 ## Testing
 
@@ -42,6 +45,31 @@ npm test
 # Run tests once (CI mode)
 npm test -- --run
 ```
+
+### End-to-end tests
+
+Playwright covers sign-in, catalog browsing, draft editing, draft persistence, and publish gating. Mocked specs stub Firebase auth and intercept backend API calls with `page.route`, so they do not need a live API or Firebase project.
+
+```bash
+# Install the Chromium browser used by Playwright (once per machine)
+npx playwright install --with-deps chromium
+
+# Build the E2E bundle and run the suite
+npm run test:e2e
+```
+
+`npm run test:e2e` starts a preview server automatically. Locally it builds with `vite build --mode e2e` first (dummy Firebase config from `.env.e2e`, `VITE_E2E_MOCK_AUTH=true`). GitHub Actions runs the same suite on every pull request and on pushes to `main`. The HTML report is uploaded as the `playwright-report` artifact; failure screenshots and traces are uploaded as `test-results`.
+
+#### Real Firebase sign-in (opt-in)
+
+`e2e/specs/real-signin.spec.ts` signs in with Firebase email/password. It never uses Google sign-in. Set both variables in the environment (or as GitHub Actions repository secrets) and do not log them:
+
+```env
+E2E_TEST_EMAIL=admin@example.com
+E2E_TEST_PASSWORD=your-test-password
+```
+
+If either value is unset, the spec is skipped with a clear message instead of failing. This spec needs a build that talks to a real Firebase project (not `--mode e2e`). Do not commit credentials.
 
 ## Environment Variables
 
@@ -85,7 +113,7 @@ Configure these in your deployment platform (e.g., Netlify):
 
 ## Authentication
 
-This application uses Firebase Authentication with Google sign-in. All admin routes are protected and require authentication.
+This application uses Firebase Authentication with Google sign-in or email/password. All admin routes are protected and require authentication.
 
 ### Getting ID Tokens for API Calls
 

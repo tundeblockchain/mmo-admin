@@ -26,6 +26,17 @@ const hoisted = vi.hoisted(() => {
         getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
       },
     }),
+    mockSignInWithEmailAndPassword: vi.fn().mockResolvedValue({
+      user: {
+        uid: 'test-uid-123',
+        email: 'test@example.com',
+        displayName: 'Test User',
+        photoURL: 'https://example.com/photo.jpg',
+        emailVerified: true,
+        isAnonymous: false,
+        getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
+      },
+    }),
     mockSignOut: vi.fn().mockResolvedValue(undefined),
     mockOnAuthStateChanged: vi.fn(),
   };
@@ -42,12 +53,14 @@ vi.mock('firebase/auth', () => {
     getAuth: vi.fn(() => ({})),
     onAuthStateChanged: hoisted.mockOnAuthStateChanged,
     signInWithPopup: hoisted.mockSignInWithPopup,
+    signInWithEmailAndPassword: hoisted.mockSignInWithEmailAndPassword,
     signOut: hoisted.mockSignOut,
     GoogleAuthProvider: MockGoogleAuthProvider,
   };
 });
 
 export const mockSignInWithPopup = hoisted.mockSignInWithPopup;
+export const mockSignInWithEmailAndPassword = hoisted.mockSignInWithEmailAndPassword;
 export const mockSignOut = hoisted.mockSignOut;
 export const mockOnAuthStateChanged = hoisted.mockOnAuthStateChanged;
 
@@ -93,6 +106,7 @@ setupOnAuthStateChangedMock();
 export function resetMockAuth() {
   mockState.currentUser = null;
   hoisted.mockSignInWithPopup.mockClear();
+  hoisted.mockSignInWithEmailAndPassword.mockClear();
   hoisted.mockSignOut.mockClear();
   hoisted.mockOnAuthStateChanged.mockClear();
   setupOnAuthStateChangedMock();
