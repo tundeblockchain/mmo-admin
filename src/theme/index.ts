@@ -1,38 +1,22 @@
-import { createTheme } from '@mui/material/styles';
-
-export const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#9c27b0',
-    },
-    background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
-    },
-  },
-  typography: {
-    fontFamily: [
-      'system-ui',
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-    ].join(','),
-  },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          margin: 0,
-        },
-      },
-    },
-  },
-});
+export { colors, schemeColors } from './colors';
+export type {
+  BrandPalette,
+  HeroPalette,
+  SchemeColors,
+  SidebarPalette,
+  ThemeMode,
+} from './colors';
+export { radii } from './radii';
+export { createAppTheme, theme } from './createAppTheme';
+export { ThemeModeProvider } from './ThemeModeProvider';
+export { ThemeToggle } from './ThemeToggle';
+export { useColorScheme } from './useColorScheme';
+export {
+  COLOR_SCHEME_STORAGE_KEY,
+  getResolvedColorScheme,
+  getStoredColorScheme,
+  getSystemColorScheme,
+  resetColorSchemeForTesting,
+  setColorScheme,
+  toggleColorScheme,
+} from './colorSchemeStore';

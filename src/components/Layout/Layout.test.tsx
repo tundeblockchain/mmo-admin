@@ -8,6 +8,7 @@ import {
   resetMockAuth,
 } from '../../test/mocks/firebase-auth';
 import { render } from '../../test/test-utils';
+import { colors } from '../../theme';
 import { Layout } from './Layout';
 
 describe('Layout', () => {
@@ -52,6 +53,30 @@ describe('Layout', () => {
 
     const main = screen.getByRole('main');
     expect(main).toBeInTheDocument();
+  });
+
+  it('renders a theme toggle in the app bar', () => {
+    render(<Layout />);
+
+    const toggle = screen.getByRole('button', { name: /switch to dark mode/i });
+    expect(toggle).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toContainElement(toggle);
+  });
+
+  it('uses the theme sidebar colour for the drawer', async () => {
+    const user = userEvent.setup();
+    render(<Layout />);
+
+    const sidebar = screen.getByLabelText('Sidebar');
+    expect(sidebar).toHaveStyle({
+      backgroundColor: colors.light.sidebar.background,
+    });
+
+    await user.click(screen.getByRole('button', { name: /switch to dark mode/i }));
+
+    expect(screen.getByLabelText('Sidebar')).toHaveStyle({
+      backgroundColor: colors.dark.sidebar.background,
+    });
   });
 
   it('shows user avatar when authenticated', () => {
