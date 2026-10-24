@@ -6,6 +6,7 @@ import {
   toRegisterErrorMessage,
 } from '../../auth';
 import { isValidEmail, MIN_PASSWORD_LENGTH } from '../../auth/authMessages';
+import { provisionRegisteredUser } from '../../auth/registerSession';
 import { AuthStatusAlerts } from './AuthStatusAlerts';
 import { EmailPasswordFields } from './EmailPasswordFields';
 import { AUTH_TEST_IDS } from './authTestIds';
@@ -45,6 +46,16 @@ export function RegisterPanel({ onShowSignIn }: RegisterPanelProps) {
     setIsLoading(true);
     setError(null);
     registerWithEmailPassword(email.trim(), password)
+      .then(async (user) => {
+        if (!user) {
+          return;
+        }
+        try {
+          await provisionRegisteredUser(user);
+        } catch {
+          // Verify-email continue refreshes the token and re-POSTs /users/me.
+        }
+      })
       .catch((err: unknown) => {
         setError(toRegisterErrorMessage(err));
       })

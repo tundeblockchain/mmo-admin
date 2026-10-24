@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  type User,
 } from 'firebase/auth';
 import { env } from '../config/env';
 import { firebaseAuth, googleProvider } from '../config/firebase';
@@ -20,6 +21,16 @@ function signInE2EUser(email: string): void {
     email,
     displayName: 'E2E User',
     idToken: 'e2e-admin-token',
+  });
+}
+
+function registerE2EUser(email: string): void {
+  e2eSignIn({
+    uid: 'e2e-registered-user',
+    email,
+    displayName: 'E2E User',
+    idToken: 'e2e-player-token',
+    emailVerified: false,
   });
 }
 
@@ -47,10 +58,10 @@ export async function signInWithEmailPassword(
 export async function registerWithEmailPassword(
   email: string,
   password: string,
-): Promise<void> {
+): Promise<User | null> {
   if (isE2EAuthStubActive()) {
-    signInE2EUser(email);
-    return;
+    registerE2EUser(email);
+    return null;
   }
 
   const credential = await createUserWithEmailAndPassword(
@@ -59,13 +70,17 @@ export async function registerWithEmailPassword(
     password,
   );
 
-  if (credential.user) {
-    try {
-      await sendEmailVerification(credential.user);
-    } catch {
-      // The verify screen can resend if the first email does not send.
-    }
+  if (!credential.user) {
+    return null;
   }
+
+  try {
+    await sendEmailVerification(credential.user);
+  } catch {
+    // The verify screen can resend if the first email does not send.
+  }
+
+  return credential.user;
 }
 
 export async function sendPasswordReset(email: string): Promise<void> {

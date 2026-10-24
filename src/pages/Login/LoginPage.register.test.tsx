@@ -1,12 +1,16 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { http, HttpResponse } from 'msw';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AUTH_MESSAGES } from '../../auth/authMessages';
+import { server } from '../../test/mocks/server';
 import {
   firebaseAuthError,
   mockCreateUserWithEmailAndPassword,
   mockSendEmailVerification,
+  mockUnverifiedUser,
   resetMockAuth,
+  setMockAuthState,
 } from '../../test/mocks/firebase-auth';
 import { render } from '../../test/test-utils';
 import { AUTH_TEST_IDS } from './authTestIds';
@@ -19,6 +23,7 @@ async function openRegister(user: ReturnType<typeof userEvent.setup>) {
 describe('LoginPage register', () => {
   beforeEach(() => {
     resetMockAuth();
+    setMockAuthState(null);
   });
 
   it('creates an account and sends a verification email', async () => {
@@ -42,6 +47,45 @@ describe('LoginPage register', () => {
       );
       expect(mockSendEmailVerification).toHaveBeenCalledWith(createdUser);
     });
+  });
+
+  it('provisions a new account as player after sending verification', async () => {
+    const user = userEvent.setup();
+    const order: string[] = [];
+    let capturedBody: unknown = null;
+
+    mockCreateUserWithEmailAndPassword.mockResolvedValueOnce({
+      user: mockUnverifiedUser,
+    });
+    vi.mocked(mockUnverifiedUser.getIdToken).mockImplementation(async (force) => {
+      order.push(force === true ? 'refresh' : 'token');
+      return 'mock-id-token';
+    });
+    mockSendEmailVerification.mockImplementation(async () => {
+      order.push('verify');
+    });
+
+    server.use(
+      http.post('*/users/me', async ({ request }) => {
+        const text = await request.text();
+        capturedBody = text ? JSON.parse(text) : {};
+        order.push('post');
+        return HttpResponse.json({ uid: 'test-uid-123', accountType: 'player' });
+      }),
+    );
+
+    render(<LoginPage />);
+    await openRegister(user);
+
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'new.user@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'secure-pass');
+    await user.type(screen.getByLabelText(/confirm password/i), 'secure-pass');
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+
+    await waitFor(() => {
+      expect(order).toEqual(['verify', 'refresh', 'token', 'post']);
+    });
+    expect(capturedBody).not.toEqual(expect.objectContaining({ accountType: 'admin' }));
   });
 
   it('does not reveal that an email is already registered', async () => {

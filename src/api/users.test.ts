@@ -35,6 +35,19 @@ describe('syncCurrentUser', () => {
     expect(result).toEqual({ uid: 'user-1', accountType: 'admin' });
   });
 
+  it('returns a player account type without assuming admin', async () => {
+    server.use(
+      http.post('*/users/me', () => {
+        return HttpResponse.json({ uid: 'user-1', accountType: 'player' });
+      }),
+    );
+
+    const result = await syncCurrentUser();
+
+    expect(result.accountType).toBe('player');
+    expect(result.accountType).not.toBe('admin');
+  });
+
   it('rejects a malformed account payload', async () => {
     server.use(
       http.post('*/users/me', () => {
