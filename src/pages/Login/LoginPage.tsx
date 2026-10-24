@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -7,45 +7,25 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  TextField,
-  Divider,
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import { signInWithEmailPassword, signInWithGoogle } from '../../auth';
-
-type SignInMethod = 'google' | 'email';
+import { signInWithGoogle } from '../../auth';
 
 export function LoginPage() {
-  const [pendingMethod, setPendingMethod] = useState<SignInMethod | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const isLoading = pendingMethod !== null;
-
-  function handleAuthError(err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to sign in';
-    setError(message);
-  }
-
-  function handleGoogleSignIn() {
-    setPendingMethod('google');
+  function handleSignIn() {
+    setIsLoading(true);
     setError(null);
-    void signInWithGoogle()
-      .catch(handleAuthError)
+    signInWithGoogle()
+      .catch((err: unknown) => {
+        const message =
+          err instanceof Error ? err.message : 'Failed to sign in';
+        setError(message);
+      })
       .finally(() => {
-        setPendingMethod(null);
-      });
-  }
-
-  function handleEmailSignIn(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPendingMethod('email');
-    setError(null);
-    void signInWithEmailPassword(email, password)
-      .catch(handleAuthError)
-      .finally(() => {
-        setPendingMethod(null);
+        setIsLoading(false);
       });
   }
 
@@ -91,67 +71,18 @@ export function LoginPage() {
             variant="contained"
             size="large"
             startIcon={
-              pendingMethod === 'google' ? (
+              isLoading ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
                 <GoogleIcon />
               )
             }
-            onClick={handleGoogleSignIn}
+            onClick={handleSignIn}
             disabled={isLoading}
             sx={{ mt: 2 }}
           >
-            {pendingMethod === 'google' ? 'Signing in...' : 'Sign in with Google'}
+            {isLoading ? 'Signing in...' : 'Sign in with Google'}
           </Button>
-
-          <Divider sx={{ width: '100%' }}>or</Divider>
-
-          <Box
-            component="form"
-            onSubmit={handleEmailSignIn}
-            sx={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
-            <TextField
-              label="Email"
-              type="email"
-              name="email"
-              autoComplete="username"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              disabled={isLoading}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={isLoading}
-              required
-              fullWidth
-            />
-            <Button
-              type="submit"
-              variant="outlined"
-              size="large"
-              disabled={isLoading}
-              startIcon={
-                pendingMethod === 'email' ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : undefined
-              }
-            >
-              {pendingMethod === 'email' ? 'Signing in...' : 'Sign in with email'}
-            </Button>
-          </Box>
         </Paper>
       </Container>
     </Box>

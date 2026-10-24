@@ -1,14 +1,10 @@
-import {
-  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from 'firebase/auth';
+import { signInWithPopup, signOut } from 'firebase/auth';
 import { env } from '../config/env';
 import { firebaseAuth, googleProvider } from '../config/firebase';
 import { e2eSignIn, e2eSignOut, isE2EAuthEnabled } from './e2eAuthBridge';
 
 function isE2EAuthStubActive(): boolean {
-  return env.e2eMockAuth && isE2EAuthEnabled();
+  return env.e2e && isE2EAuthEnabled();
 }
 
 export async function signInWithGoogle(): Promise<void> {
@@ -23,24 +19,6 @@ export async function signInWithGoogle(): Promise<void> {
   }
 
   await signInWithPopup(firebaseAuth, googleProvider);
-}
-
-export async function signInWithEmailPassword(
-  email: string,
-  password: string,
-): Promise<void> {
-  if (isE2EAuthStubActive()) {
-    void password;
-    e2eSignIn({
-      uid: 'e2e-signed-in-user',
-      email,
-      displayName: 'E2E User',
-      idToken: 'e2e-admin-token',
-    });
-    return;
-  }
-
-  await firebaseSignInWithEmailAndPassword(firebaseAuth, email, password);
 }
 
 export async function signOutUser(): Promise<void> {

@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { firebaseAuth } from '../config/firebase';
 import {
   getE2EAuthUser,
+  installE2EEmailPasswordHarness,
   isE2EAuthEnabled,
   subscribeToE2EAuth,
   toE2EFirebaseUser,
@@ -34,12 +35,14 @@ function applyE2EAuthState(): void {
   applyFirebaseUser(user ? toE2EFirebaseUser(user) : null);
 }
 
-if (env.e2eMockAuth && isE2EAuthEnabled()) {
+if (env.e2e && isE2EAuthEnabled()) {
   applyE2EAuthState();
   subscribeToE2EAuth(applyE2EAuthState);
 } else {
   onAuthStateChanged(firebaseAuth, applyFirebaseUser);
 }
+
+installE2EEmailPasswordHarness();
 
 export function subscribeToAuth(listener: () => void): () => void {
   listeners.add(listener);

@@ -86,3 +86,21 @@ test.describe('Publish gating with expired auth', () => {
     ).toBeVisible();
   });
 });
+
+test.describe('Account-based publish gating (MMO-30)', () => {
+  test.use({ e2eAuth: 'player', catalogApi: { accountType: 'player' } });
+
+  // MMO-30 / PR #12 is not on main: POST /users/me does not yet disable Publish in the UI.
+  test.fixme(
+    'disables Publish for a player from POST /users/me (MMO-30, not on main)',
+    async ({ page }) => {
+      await openClassDraft(page);
+
+      await expect(
+        page.getByRole('status', { name: /account is not an admin/i }),
+      ).toBeVisible();
+      await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
+    },
+  );
+});
+

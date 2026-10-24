@@ -1,4 +1,6 @@
-import type { User } from 'firebase/auth';
+import { signInWithEmailAndPassword, type User } from 'firebase/auth';
+import { env } from '../config/env';
+import { firebaseAuth } from '../config/firebase';
 
 export interface E2EAuthUser {
   uid: string;
@@ -15,6 +17,10 @@ export interface E2EAuthBridgeState {
 declare global {
   interface Window {
     __E2E_AUTH__?: E2EAuthBridgeState;
+    __E2E_SIGN_IN_WITH_EMAIL_PASSWORD__?: (
+      email: string,
+      password: string,
+    ) => Promise<void>;
   }
 }
 
@@ -97,6 +103,16 @@ export function e2eSignOut(): void {
     };
   }
   notifyListeners();
+}
+
+export function installE2EEmailPasswordHarness(): void {
+  if (!env.e2e || typeof window === 'undefined') {
+    return;
+  }
+
+  window.__E2E_SIGN_IN_WITH_EMAIL_PASSWORD__ = async (email, password) => {
+    await signInWithEmailAndPassword(firebaseAuth, email, password);
+  };
 }
 
 export function toE2EFirebaseUser(user: E2EAuthUser): User {

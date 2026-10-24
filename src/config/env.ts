@@ -6,7 +6,7 @@ interface EnvConfig {
   readonly firebaseStorageBucket: string;
   readonly firebaseMessagingSenderId: string;
   readonly firebaseAppId: string;
-  readonly e2eMockAuth: boolean;
+  readonly e2e: boolean;
 }
 
 function getEnvVar(name: string, fallback?: string): string {
@@ -28,5 +28,5 @@ export const env: EnvConfig = {
   firebaseStorageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET', ''),
   firebaseMessagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID', ''),
   firebaseAppId: getEnvVar('VITE_FIREBASE_APP_ID', ''),
-  e2eMockAuth: getEnvVar('VITE_E2E_MOCK_AUTH', '') === 'true',
+  e2e: getEnvVar('VITE_E2E', '') === 'true',
 };
