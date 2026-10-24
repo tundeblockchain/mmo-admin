@@ -618,5 +618,40 @@ describe('Draft Editing and Publishing', () => {
       await user.click(screen.getByRole('button', { name: /coefficients/i }));
       expect(screen.getByRole('spinbutton', { name: 'Base Power' })).toHaveValue(1.5);
     });
+
+    it('blocks publishing an empty class draft until the wipe is confirmed', async () => {
+      const user = userEvent.setup();
+      render(<CatalogPage />);
+      await enterClassDraft(user);
+
+      await user.click(screen.getByRole('button', { name: /delete vanguard/i }));
+      await user.click(screen.getByRole('button', { name: /^delete$/i }));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /delete ranger/i }));
+      await user.click(screen.getByRole('button', { name: /^delete$/i }));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /publish class/i }));
+
+      expect(
+        screen.getByText(/this will publish an empty class catalog and remove all entries/i),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /review & publish/i }));
+      expect(screen.getByRole('button', { name: /confirm publish/i })).toBeDisabled();
+
+      await user.click(
+        screen.getByRole('checkbox', {
+          name: /i understand this will remove all class entries/i,
+        }),
+      );
+
+      expect(screen.getByRole('button', { name: /confirm publish/i })).toBeEnabled();
+    });
   });
 });

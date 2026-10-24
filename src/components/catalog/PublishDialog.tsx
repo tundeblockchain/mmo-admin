@@ -15,6 +15,8 @@ import {
   ListItem,
   ListItemText,
   Chip,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import type { CatalogType, CatalogEntityData } from '../../types/catalog';
 import { computeDiffSummary } from '../../lib/catalogDiff';
@@ -43,6 +45,10 @@ function formatCatalogType(type: CatalogType): string {
   }
 }
 
+function isEmptyArrayCatalog(catalogType: CatalogType, draftData: CatalogEntityData): boolean {
+  return catalogType !== 'combat-constants' && Array.isArray(draftData) && draftData.length === 0;
+}
+
 export function PublishDialog({
   open,
   onClose,
@@ -59,9 +65,12 @@ export function PublishDialog({
 }: PublishDialogProps) {
   const [releaseNotes, setReleaseNotes] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [emptyWipeAcknowledged, setEmptyWipeAcknowledged] = useState(false);
 
   const diffSummary = computeDiffSummary(originalData, draftData, catalogType);
   const hasChanges = diffSummary.added > 0 || diffSummary.modified > 0 || diffSummary.removed > 0;
+  const isEmptyArrayPublish = isEmptyArrayCatalog(catalogType, draftData);
+  const catalogTypeLabel = formatCatalogType(catalogType).toLowerCase();
 
   const handleReleaseNotesChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,8 +83,16 @@ export function PublishDialog({
     setShowConfirm(true);
   }, []);
 
+  const handleEmptyWipeAckChange = useCallback(
+    (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      setEmptyWipeAcknowledged(checked);
+    },
+    [],
+  );
+
   const handleCancelConfirm = useCallback(() => {
     setShowConfirm(false);
+    setEmptyWipeAcknowledged(false);
   }, []);
 
   const handleConfirmPublish = useCallback(() => {
@@ -85,6 +102,7 @@ export function PublishDialog({
   const handleClose = useCallback(() => {
     setReleaseNotes('');
     setShowConfirm(false);
+    setEmptyWipeAcknowledged(false);
     onClose();
   }, [onClose]);
 
@@ -169,6 +187,31 @@ export function PublishDialog({
           disabled={isPending}
         />
 
+        {isEmptyArrayPublish && (
+          <Alert severity="error" sx={{ mt: 2 }} role="alert">
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }} gutterBottom>
+              This will publish an empty {catalogTypeLabel} catalog and remove all entries.
+            </Typography>
+            <Typography variant="body2">
+              The backend treats an empty data array as a full wipe of this catalog type.
+            </Typography>
+          </Alert>
+        )}
+
+        {isEmptyArrayPublish && (
+          <FormControlLabel
+            sx={{ mt: 1, alignItems: 'flex-start' }}
+            control={
+              <Checkbox
+                checked={emptyWipeAcknowledged}
+                onChange={handleEmptyWipeAckChange}
+                disabled={isPending}
+              />
+            }
+            label={`I understand this will remove all ${catalogTypeLabel} entries`}
+          />
+        )}
+
         {hasValidationErrors && (
           <Alert severity="error" sx={{ mt: 2 }}>
             Resolve invalid entry IDs before publishing. Each ID must be non-empty and unique
@@ -219,7 +262,9 @@ export function PublishDialog({
               onClick={handleConfirmPublish}
               variant="contained"
               color="warning"
-              disabled={isPending || hasValidationErrors}
+              disabled={
+                isPending || hasValidationErrors || (isEmptyArrayPublish && !emptyWipeAcknowledged)
+              }
               startIcon={isPending ? <CircularProgress size={16} /> : undefined}
             >
               {isPending ? 'Publishing...' : 'Confirm Publish'}
