@@ -3,6 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { render, screen, waitFor } from '../test/test-utils';
 import {
   mockUser,
+  mockUnverifiedUser,
   setMockAuthState,
   resetMockAuth,
 } from '../test/mocks/firebase-auth';
@@ -74,6 +75,26 @@ describe('useAccount', () => {
     await waitFor(() => {
       expect(calls).toBe(0);
     });
+  });
+
+  it('does not call /users/me while the email is unverified', async () => {
+    let calls = 0;
+
+    server.use(
+      http.post('*/users/me', () => {
+        calls += 1;
+        return HttpResponse.json({ uid: mockUnverifiedUser.uid, accountType: 'player' });
+      }),
+    );
+
+    setMockAuthState(mockUnverifiedUser);
+    render(<AccountProbe />);
+
+    expect(screen.getByText('Account ready')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(calls).toBe(0);
+    });
+    expect(screen.queryByText('Admin access')).not.toBeInTheDocument();
   });
 
   it('exposes player accountType without treating it as admin', async () => {

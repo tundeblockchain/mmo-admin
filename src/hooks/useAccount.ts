@@ -15,7 +15,9 @@ export interface AccountState {
 
 export function useAccount(): AccountState {
   const authState = useAuth();
-  const uid = authState.status === 'authenticated' ? authState.user.uid : null;
+  const isVerified =
+    authState.status === 'authenticated' && authState.user.emailVerified;
+  const uid = isVerified ? authState.user.uid : null;
 
   const query = useQuery({
     queryKey: queryKeys.account.me(uid ?? 'anonymous'),
