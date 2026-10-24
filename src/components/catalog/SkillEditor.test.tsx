@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, userEvent } from '../../test/test-utils';
 import { SkillEditor } from './SkillEditor';
+import type { FieldErrors } from '../../lib/catalogValidation';
 import type { SkillDefinition } from '../../types/catalog';
 
 const mockSkillData: SkillDefinition = {
@@ -17,6 +19,9 @@ const mockSkillData: SkillDefinition = {
   castTimeSeconds: 0,
   castableWhileMoving: false,
   range: 0,
+  resourceEffects: [
+    { resourceId: 'resolve', amount: 8, isPercentOfMax: false, perTargetBonus: 8 },
+  ],
   coefficients: {
     basePower: 1.5,
     scaling: [
@@ -24,6 +29,7 @@ const mockSkillData: SkillDefinition = {
       { stat: 'strength', coefficient: 0.6 },
     ],
     element: 'physical',
+    perStack: { basePowerPerStack: [1.5, 2.0] },
   },
   timing: { castMs: 0, activeMs: 350, recoveryMs: 300 },
   stagger: { staggerPower: 20, canStagger: true },
@@ -91,6 +97,86 @@ describe('SkillEditor', () => {
     const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
     expect(typeof lastCall.pvpMultipliers?.damageMultiplier).toBe('number');
     expect(lastCall.pvpMultipliers?.damageMultiplier).toBeGreaterThan(0);
+  });
+
+  function mountEditableSkill(initial: SkillDefinition, fieldErrors?: FieldErrors) {
+    const onUpdate = vi.fn();
+
+    function Harness() {
+      const [data, setData] = useState(initial);
+      return (
+        <SkillEditor
+          skillData={data}
+          onUpdate={(updated) => {
+            setData(updated);
+            onUpdate(updated);
+          }}
+          fieldErrors={fieldErrors}
+        />
+      );
+    }
+
+    render(<Harness />);
+    return { onUpdate };
+  }
+
+  it('updates resource effects on the draft working copy', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = mountEditableSkill(mockSkillData);
+
+    await user.click(screen.getByRole('button', { name: /resource effects/i }));
+    const amount = screen.getByRole('spinbutton', { name: 'Amount' });
+    await user.clear(amount);
+    await user.type(amount, '12');
+
+    const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
+    expect(lastCall.resourceEffects?.[0]).toEqual({
+      resourceId: 'resolve',
+      amount: 12,
+      isPercentOfMax: false,
+      perTargetBonus: 8,
+    });
+  });
+
+  it('updates per-stack values and can add or remove rows', async () => {
+    const user = userEvent.setup();
+    const { onUpdate } = mountEditableSkill(mockSkillData);
+
+    await user.click(screen.getByRole('button', { name: /coefficients/i }));
+    const stackOne = screen.getByRole('spinbutton', { name: 'Stack 1 base power' });
+    expect(stackOne).toHaveValue(1.5);
+    await user.clear(stackOne);
+    await user.type(stackOne, '1.75');
+
+    expect(onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0].coefficients.perStack).toEqual({
+      basePowerPerStack: [1.75, 2.0],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Add stack value' }));
+    expect(
+      onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0].coefficients.perStack.basePowerPerStack,
+    ).toEqual([1.75, 2.0, 1]);
+
+    await user.click(screen.getByRole('button', { name: 'Remove stack 2' }));
+    expect(
+      onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0].coefficients.perStack.basePowerPerStack,
+    ).toEqual([1.75, 1]);
+  });
+
+  it('shows resource-effect validation next to the field', async () => {
+    const user = userEvent.setup();
+    mountEditableSkill(
+      {
+        ...mockSkillData,
+        resourceEffects: [{ resourceId: '', amount: 8, isPercentOfMax: false }],
+      },
+      { 'resourceEffects.0.resourceId': 'This field is required' },
+    );
+
+    await user.click(screen.getByRole('button', { name: /resource effects/i }));
+    expect(screen.getByRole('textbox', { name: 'Resource ID' })).toHaveAccessibleDescription(
+      'This field is required',
+    );
   });
 
   it('preserves unchanged fields when updating', async () => {

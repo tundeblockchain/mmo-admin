@@ -13,19 +13,28 @@ import {
   MenuItem,
   type SelectChangeEvent,
 } from '@mui/material';
+import {
+  CLASS_ROLES,
+  PRIMARY_RESOURCES,
+  RESONANCE_IDS,
+  SECONDARY_RESOURCES,
+} from '../../lib/catalogSchema';
+import type { FieldErrors } from '../../lib/catalogValidation';
 import type { ClassDefinition, ClassRole, PrimaryResource, ResonanceId } from '../../types/catalog';
 
 interface ClassEditorProps {
   classData: ClassDefinition;
   onUpdate: (updated: ClassDefinition) => void;
   idError?: string | null;
+  fieldErrors?: FieldErrors;
 }
 
-const ROLES: ClassRole[] = ['tank', 'healer', 'dps', 'support'];
-const RESOURCES: PrimaryResource[] = ['resolve', 'focus', 'mana', 'charge', 'radiance', 'momentum'];
-const RESONANCES: ResonanceId[] = ['valor', 'precision', 'arcana', 'innovation', 'sanctuary', 'subterfuge'];
-
-export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditorProps) {
+export function ClassEditor({
+  classData,
+  onUpdate,
+  idError = null,
+  fieldErrors = {},
+}: ClassEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ClassDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...classData, [field]: event.target.value });
@@ -43,6 +52,17 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
   const handleResonanceChange = useCallback(
     (event: SelectChangeEvent<string>) => {
       onUpdate({ ...classData, resonance: event.target.value as ResonanceId });
+    },
+    [classData, onUpdate],
+  );
+
+  const handleSecondaryResourceChange = useCallback(
+    (event: SelectChangeEvent<string>) => {
+      const next = event.target.value;
+      onUpdate({
+        ...classData,
+        secondaryResource: next === '' ? undefined : next,
+      });
     },
     [classData, onUpdate],
   );
@@ -126,15 +146,16 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Primary Resource</InputLabel>
+              <InputLabel id="class-primary-resource-label">Primary Resource</InputLabel>
               <Select
+                labelId="class-primary-resource-label"
                 value={classData.primaryResource}
                 label="Primary Resource"
                 onChange={handleResourceChange}
               >
-                {RESOURCES.map((r) => (
-                  <MenuItem key={r} value={r}>
-                    {r}
+                {PRIMARY_RESOURCES.map((resource) => (
+                  <MenuItem key={resource} value={resource}>
+                    {resource}
                   </MenuItem>
                 ))}
               </Select>
@@ -142,15 +163,40 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>Resonance</InputLabel>
+              <InputLabel id="class-secondary-resource-label">Secondary Resource</InputLabel>
               <Select
+                labelId="class-secondary-resource-label"
+                value={classData.secondaryResource ?? ''}
+                label="Secondary Resource"
+                onChange={handleSecondaryResourceChange}
+              >
+                <MenuItem value="">None</MenuItem>
+                {(classData.secondaryResource &&
+                !SECONDARY_RESOURCES.includes(
+                  classData.secondaryResource as (typeof SECONDARY_RESOURCES)[number],
+                )
+                  ? [...SECONDARY_RESOURCES, classData.secondaryResource]
+                  : SECONDARY_RESOURCES
+                ).map((resource) => (
+                  <MenuItem key={resource} value={resource}>
+                    {resource}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="class-resonance-label">Resonance</InputLabel>
+              <Select
+                labelId="class-resonance-label"
                 value={classData.resonance}
                 label="Resonance"
                 onChange={handleResonanceChange}
               >
-                {RESONANCES.map((r) => (
-                  <MenuItem key={r} value={r}>
-                    {r}
+                {RESONANCE_IDS.map((resonance) => (
+                  <MenuItem key={resonance} value={resonance}>
+                    {resonance}
                   </MenuItem>
                 ))}
               </Select>
@@ -164,7 +210,7 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
           Roles
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {ROLES.map((role) => (
+          {CLASS_ROLES.map((role) => (
             <Chip
               key={role}
               label={role}
@@ -198,6 +244,8 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
                   size="small"
                   fullWidth
                   slotProps={{ htmlInput: { step: 1 } }}
+                  error={fieldErrors[`startingStats.${stat.key}`] !== undefined}
+                  helperText={fieldErrors[`startingStats.${stat.key}`]}
                 />
               </Grid>
             ))}
@@ -218,6 +266,8 @@ export function ClassEditor({ classData, onUpdate, idError = null }: ClassEditor
                   size="small"
                   fullWidth
                   slotProps={{ htmlInput: { step: stat.key === 'movementSpeed' ? 0.1 : 1 } }}
+                  error={fieldErrors[`startingStats.${stat.key}`] !== undefined}
+                  helperText={fieldErrors[`startingStats.${stat.key}`]}
                 />
               </Grid>
             ))}

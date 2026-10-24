@@ -10,46 +10,28 @@ import {
   TableRow,
   TableCell,
   TableHead,
+  Button,
+  IconButton,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import type { FieldErrors } from '../../lib/catalogValidation';
+import { PercentField } from './catalogFields';
 import type { ResonanceDefinition, ResonancePartyBonus } from '../../types/catalog';
 
 interface ResonanceEditorProps {
   resonanceData: ResonanceDefinition;
   onUpdate: (updated: ResonanceDefinition) => void;
   idError?: string | null;
+  fieldErrors?: FieldErrors;
 }
 
-interface PercentFieldProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-}
-
-function PercentField({ label, value, onChange }: PercentFieldProps) {
-  const displayValue = (value * 100).toFixed(0);
-
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const percentValue = parseFloat(event.target.value) || 0;
-      onChange(percentValue / 100);
-    },
-    [onChange],
-  );
-
-  return (
-    <TextField
-      label={label}
-      type="number"
-      value={displayValue}
-      onChange={handleChange}
-      size="small"
-      fullWidth
-      slotProps={{ htmlInput: { step: 1 } }}
-    />
-  );
-}
-
-export function ResonanceEditor({ resonanceData, onUpdate, idError = null }: ResonanceEditorProps) {
+export function ResonanceEditor({
+  resonanceData,
+  onUpdate,
+  idError = null,
+  fieldErrors = {},
+}: ResonanceEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ResonanceDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...resonanceData, [field]: event.target.value });
@@ -62,6 +44,23 @@ export function ResonanceEditor({ resonanceData, onUpdate, idError = null }: Res
       const partyBonus = [...resonanceData.partyBonus];
       partyBonus[index] = { ...partyBonus[index], [field]: value };
       onUpdate({ ...resonanceData, partyBonus });
+    },
+    [resonanceData, onUpdate],
+  );
+
+  const handleAddPartyBonus = useCallback(() => {
+    onUpdate({
+      ...resonanceData,
+      partyBonus: [...resonanceData.partyBonus, { stat: '', bonusPercent: 0 }],
+    });
+  }, [resonanceData, onUpdate]);
+
+  const handleRemovePartyBonus = useCallback(
+    (index: number) => {
+      onUpdate({
+        ...resonanceData,
+        partyBonus: resonanceData.partyBonus.filter((_, itemIndex) => itemIndex !== index),
+      });
     },
     [resonanceData, onUpdate],
   );
@@ -119,6 +118,7 @@ export function ResonanceEditor({ resonanceData, onUpdate, idError = null }: Res
           <TableRow>
             <TableCell>Stat</TableCell>
             <TableCell align="right">Bonus (%)</TableCell>
+            <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -127,23 +127,38 @@ export function ResonanceEditor({ resonanceData, onUpdate, idError = null }: Res
               <TableCell>
                 <TextField
                   value={bonus.stat}
-                  onChange={(e) => handlePartyBonusChange(idx, 'stat', e.target.value)}
+                  onChange={(event) => handlePartyBonusChange(idx, 'stat', event.target.value)}
                   size="small"
                   fullWidth
                   placeholder="e.g., attackPower"
+                  error={fieldErrors[`partyBonus.${idx}.stat`] !== undefined}
+                  helperText={fieldErrors[`partyBonus.${idx}.stat`]}
+                  slotProps={{ htmlInput: { 'aria-label': `Party bonus stat ${idx + 1}` } }}
                 />
               </TableCell>
               <TableCell align="right" sx={{ width: 150 }}>
                 <PercentField
                   label=""
                   value={bonus.bonusPercent}
-                  onChange={(v) => handlePartyBonusChange(idx, 'bonusPercent', v)}
+                  onChange={(value) => handlePartyBonusChange(idx, 'bonusPercent', value)}
+                  error={fieldErrors[`partyBonus.${idx}.bonusPercent`]}
                 />
+              </TableCell>
+              <TableCell sx={{ width: 56 }}>
+                <IconButton
+                  aria-label={`Remove party bonus ${idx + 1}`}
+                  onClick={() => handleRemovePartyBonus(idx)}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <Button startIcon={<AddIcon />} onClick={handleAddPartyBonus} size="small" sx={{ mt: 1 }}>
+        Add party bonus
+      </Button>
     </Paper>
   );
 }

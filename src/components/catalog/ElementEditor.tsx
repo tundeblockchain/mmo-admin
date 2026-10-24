@@ -12,47 +12,24 @@ import {
   TableCell,
   TableHead,
 } from '@mui/material';
-import type { ElementDefinition, ElementId } from '../../types/catalog';
+import { ELEMENT_IDS } from '../../lib/catalogSchema';
+import type { FieldErrors } from '../../lib/catalogValidation';
+import { PercentField } from './catalogFields';
+import type { ElementDefinition } from '../../types/catalog';
 
 interface ElementEditorProps {
   elementData: ElementDefinition;
   onUpdate: (updated: ElementDefinition) => void;
   idError?: string | null;
+  fieldErrors?: FieldErrors;
 }
 
-interface PercentFieldProps {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-}
-
-function PercentField({ label, value, onChange }: PercentFieldProps) {
-  const displayValue = (value * 100).toFixed(0);
-
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const percentValue = parseFloat(event.target.value) || 0;
-      onChange(percentValue / 100);
-    },
-    [onChange],
-  );
-
-  return (
-    <TextField
-      label={label}
-      type="number"
-      value={displayValue}
-      onChange={handleChange}
-      size="small"
-      fullWidth
-      slotProps={{ htmlInput: { step: 1 } }}
-    />
-  );
-}
-
-const ALL_ELEMENTS: ElementId[] = ['physical', 'fire', 'ice', 'lightning', 'arcane', 'nature', 'shadow', 'radiant'];
-
-export function ElementEditor({ elementData, onUpdate, idError = null }: ElementEditorProps) {
+export function ElementEditor({
+  elementData,
+  onUpdate,
+  idError = null,
+  fieldErrors = {},
+}: ElementEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ElementDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...elementData, [field]: event.target.value });
@@ -86,7 +63,13 @@ export function ElementEditor({ elementData, onUpdate, idError = null }: Element
     [elementData, onUpdate],
   );
 
-  const otherElements = ALL_ELEMENTS.filter((el) => el !== elementData.elementId);
+  const otherElements = Array.from(
+    new Set([
+      ...ELEMENT_IDS.filter((element) => element !== elementData.elementId),
+      ...Object.keys(elementData.strongAgainst),
+      ...Object.keys(elementData.weakAgainst),
+    ]),
+  );
 
   return (
     <Paper sx={{ p: 3 }}>
@@ -137,6 +120,8 @@ export function ElementEditor({ elementData, onUpdate, idError = null }: Element
           fullWidth
           size="small"
           placeholder="#ff6600"
+          error={fieldErrors.color !== undefined}
+          helperText={fieldErrors.color}
         />
       </Box>
 
@@ -160,7 +145,8 @@ export function ElementEditor({ elementData, onUpdate, idError = null }: Element
                     <PercentField
                       label=""
                       value={elementData.strongAgainst[element] ?? 0}
-                      onChange={(v) => handleStrongAgainstChange(element, v)}
+                      onChange={(value) => handleStrongAgainstChange(element, value)}
+                      error={fieldErrors[`strongAgainst.${element}`]}
                     />
                   </TableCell>
                 </TableRow>
@@ -188,7 +174,8 @@ export function ElementEditor({ elementData, onUpdate, idError = null }: Element
                     <PercentField
                       label=""
                       value={elementData.weakAgainst[element] ?? 0}
-                      onChange={(v) => handleWeakAgainstChange(element, v)}
+                      onChange={(value) => handleWeakAgainstChange(element, value)}
+                      error={fieldErrors[`weakAgainst.${element}`]}
                     />
                   </TableCell>
                 </TableRow>

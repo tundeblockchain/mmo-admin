@@ -48,11 +48,12 @@ import {
   createDefaultElement,
   createDefaultResonance,
 } from '../../lib/catalogDefaults';
+import { collectEntityIds, getIdValidationMessage } from '../../lib/catalogIds';
 import {
-  collectEntityIds,
-  draftHasInvalidIds,
-  getIdValidationMessage,
-} from '../../lib/catalogIds';
+  draftHasValidationErrors,
+  getCombatConstantsFieldErrors,
+  getEntityFieldErrors,
+} from '../../lib/catalogValidation';
 import type {
   CatalogType,
   ClassDefinition,
@@ -463,7 +464,9 @@ export function CatalogPage() {
     latestVersion !== null &&
     draft.sourceVersion !== latestVersion &&
     draftIdentity !== dismissedStaleWarningId;
-  const hasInvalidIds = draft ? draftHasInvalidIds(draft.data, selectedType) : false;
+  const hasValidationErrors = draft
+    ? draftHasValidationErrors(draft.data, selectedType)
+    : false;
 
   const getOriginalData = (): CatalogEntityData | undefined => {
     switch (selectedType) {
@@ -528,6 +531,7 @@ export function CatalogPage() {
                   classData={selectedClass}
                   onUpdate={handleUpdateClassEntity}
                   idError={idError}
+                  fieldErrors={getEntityFieldErrors(selectedClass, 'class')}
                 />
               </Grid>
             </Grid>
@@ -591,6 +595,7 @@ export function CatalogPage() {
                   skillData={selectedSkill}
                   onUpdate={handleUpdateSkillEntity}
                   idError={idError}
+                  fieldErrors={getEntityFieldErrors(selectedSkill, 'skill')}
                 />
               </Grid>
             </Grid>
@@ -657,6 +662,7 @@ export function CatalogPage() {
                   statusData={selectedStatus}
                   onUpdate={handleUpdateStatusEntity}
                   idError={idError}
+                  fieldErrors={getEntityFieldErrors(selectedStatus, 'status')}
                 />
               </Grid>
             </Grid>
@@ -723,6 +729,7 @@ export function CatalogPage() {
                   elementData={selectedElement}
                   onUpdate={handleUpdateElementEntity}
                   idError={idError}
+                  fieldErrors={getEntityFieldErrors(selectedElement, 'element')}
                 />
               </Grid>
             </Grid>
@@ -789,6 +796,7 @@ export function CatalogPage() {
                   resonanceData={selectedResonance}
                   onUpdate={handleUpdateResonanceEntity}
                   idError={idError}
+                  fieldErrors={getEntityFieldErrors(selectedResonance, 'resonance')}
                 />
               </Grid>
             </Grid>
@@ -824,7 +832,11 @@ export function CatalogPage() {
 
         if (draft && data) {
           return (
-            <CombatConstantsEditor data={data} onUpdate={handleUpdateCombatConstants} />
+            <CombatConstantsEditor
+              data={data}
+              onUpdate={handleUpdateCombatConstants}
+              fieldErrors={getCombatConstantsFieldErrors(data)}
+            />
           );
         }
 
@@ -898,7 +910,7 @@ export function CatalogPage() {
           onDiscardDraft={handleRequestDiscard}
           onOpenPublish={handleOpenPublish}
           isCreatingDraft={false}
-          hasValidationErrors={hasInvalidIds}
+          hasValidationErrors={hasValidationErrors}
         />
       )}
 
@@ -927,7 +939,7 @@ export function CatalogPage() {
           isAuthError={isAuthError}
           isForbiddenError={isForbiddenError}
           isBadRequestError={isBadRequestError}
-          hasValidationErrors={hasInvalidIds}
+          hasValidationErrors={hasValidationErrors}
         />
       )}
 
