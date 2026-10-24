@@ -16,15 +16,12 @@ test.describe('Real Firebase email/password sign-in', () => {
     }
 
     await page.goto('/');
-    await expect(page.getByRole('button', { name: /sign in with google/i })).toBeVisible();
+    await expect(page.getByTestId('auth-email')).toBeVisible();
+    await expect(page.getByTestId('auth-password')).toBeVisible();
 
-    await page.evaluate(async ([harnessEmail, harnessPassword]) => {
-      const signIn = window.__E2E_SIGN_IN_WITH_EMAIL_PASSWORD__;
-      if (!signIn) {
-        throw new Error('E2E email/password harness is not available in this build');
-      }
-      await signIn(harnessEmail, harnessPassword);
-    }, [email, password] as const);
+    await page.getByTestId('auth-email').fill(email);
+    await page.getByTestId('auth-password').fill(password);
+    await page.getByTestId('auth-submit-sign-in').click();
 
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({
       timeout: 15_000,

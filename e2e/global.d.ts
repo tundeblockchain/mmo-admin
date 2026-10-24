@@ -9,6 +9,7 @@ declare global {
         email: string;
         displayName: string;
         idToken: string;
+        emailVerified?: boolean;
       } | null;
     };
     __E2E_SIGN_IN_WITH_EMAIL_PASSWORD__?: (

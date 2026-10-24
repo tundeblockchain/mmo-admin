@@ -7,6 +7,7 @@ export interface E2EAuthUser {
   email: string;
   displayName: string;
   idToken: string;
+  emailVerified?: boolean;
 }
 
 export interface E2EAuthBridgeState {
@@ -121,7 +122,7 @@ export function toE2EFirebaseUser(user: E2EAuthUser): User {
     email: user.email,
     displayName: user.displayName,
     photoURL: null,
-    emailVerified: true,
+    emailVerified: user.emailVerified ?? true,
     isAnonymous: false,
     metadata: {},
     providerData: [],

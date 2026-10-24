@@ -66,3 +66,17 @@ export async function getIdToken(forceRefresh = false): Promise<string | null> {
   }
   return null;
 }
+
+export async function peekReloadedUser(): Promise<User | null> {
+  const current = firebaseAuth.currentUser;
+  if (!current) {
+    return null;
+  }
+
+  await current.reload();
+  return firebaseAuth.currentUser;
+}
+
+export function commitAuthUser(user: User | null): void {
+  applyFirebaseUser(user);
+}
