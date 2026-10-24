@@ -106,6 +106,9 @@ export const mockSkillCatalog: SkillCatalogData = {
       kind: 'active',
       resourceId: null,
       resourceCost: 0,
+      resourceEffects: [
+        { resourceId: 'resolve', amount: 8, isPercentOfMax: false, perTargetBonus: 8 },
+      ],
       cooldownSeconds: 0,
       charges: 1,
       chargeRechargeSeconds: 0,
@@ -119,6 +122,9 @@ export const mockSkillCatalog: SkillCatalogData = {
           { stat: 'strength', coefficient: 0.6 },
         ],
         element: 'physical',
+        perStack: {
+          basePowerPerStack: [1.5, 2.0, 2.6],
+        },
       },
       timing: { castMs: 0, activeMs: 350, recoveryMs: 300 },
       stagger: { staggerPower: 20, canStagger: true },
@@ -208,6 +214,15 @@ export const mockCombatConstantsCatalog: CombatConstantsCatalogData = {
       armorReductionPerPoint: 0.001,
       maxArmorReduction: 0.75,
       blockDamageReduction: 0.5,
+    },
+    statCaps: {
+      softCap: 100,
+      hardCap: 150,
+      softCapPenalty: 0.5,
+    },
+    dodge: {
+      baseDodgeChance: 0.02,
+      maxDodgeChance: 0.4,
     },
   },
 };

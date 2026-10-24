@@ -286,4 +286,42 @@ describe('Draft persistence (MMO-29)', () => {
     expect(localStorage.getItem(draftStorageKey('class', 2))).toBeTruthy();
     expect(screen.getByText('Keep Me')).toBeInTheDocument();
   });
+
+  it('restores a newly editable field edit after remount', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<CatalogPage />);
+
+    await user.click(screen.getByRole('tab', { name: 'Skills' }));
+    const select = await screen.findByRole('combobox');
+    await user.click(select);
+    await user.click(await screen.findByRole('option', { name: /v1/ }));
+    await waitFor(() => {
+      expect(screen.getByText('Cleaving Strike')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /edit as draft/i }));
+    await user.click(screen.getByText('Cleaving Strike'));
+    await user.click(screen.getByRole('button', { name: /resource effects/i }));
+
+    const amount = screen.getByRole('spinbutton', { name: 'Amount' });
+    await user.clear(amount);
+    await user.type(amount, '12');
+
+    await waitFor(() => {
+      expect(localStorage.getItem(draftStorageKey('skill', 1))).toContain('"amount":12');
+    });
+
+    unmount();
+    resetDraftMemoryForTesting();
+    render(<CatalogPage />);
+
+    await user.click(screen.getByRole('tab', { name: 'Skills' }));
+    expect(
+      await screen.findByRole('status', { name: /restored unsaved draft/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/editing draft \(from v1\)/i)).toBeInTheDocument();
+    await user.click(await screen.findByText('Cleaving Strike'));
+    await user.click(screen.getByRole('button', { name: /resource effects/i }));
+    expect(screen.getByRole('spinbutton', { name: 'Amount' })).toHaveValue(12);
+  });
 });

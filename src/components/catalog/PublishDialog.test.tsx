@@ -218,7 +218,7 @@ describe('PublishDialog', () => {
       <PublishDialog {...defaultProps} draftData={modifiedData} hasValidationErrors />,
     );
 
-    expect(screen.getByText(/resolve invalid entry ids/i)).toBeInTheDocument();
+    expect(screen.getByText(/resolve validation errors before publishing/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /review & publish/i })).toBeDisabled();
   });
 

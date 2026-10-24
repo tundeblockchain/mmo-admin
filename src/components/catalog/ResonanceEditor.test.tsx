@@ -61,6 +61,20 @@ describe('ResonanceEditor', () => {
     }
   });
 
+  it('adds and removes party bonus rows', async () => {
+    const user = userEvent.setup();
+    const onUpdate = vi.fn();
+    render(<ResonanceEditor resonanceData={mockResonanceData} onUpdate={onUpdate} />);
+
+    await user.click(screen.getByRole('button', { name: 'Add party bonus' }));
+    expect(onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0].partyBonus).toHaveLength(3);
+
+    await user.click(screen.getByRole('button', { name: 'Remove party bonus 2' }));
+    expect(onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0].partyBonus).toEqual([
+      { stat: 'hp', bonusPercent: 0.1 },
+    ]);
+  });
+
   it('allows changing party bonus stat name', async () => {
     const user = userEvent.setup();
     const onUpdate = vi.fn();

@@ -253,8 +253,8 @@ export function PublishDialog({
 
         {hasValidationErrors && (
           <Alert severity="error" sx={{ mt: 2 }}>
-            Resolve invalid entry IDs before publishing. Each ID must be non-empty and unique
-            within this draft.
+            Resolve validation errors before publishing. Entry IDs must be unique, and edited
+            fields must match the catalog schema.
           </Alert>
         )}
 

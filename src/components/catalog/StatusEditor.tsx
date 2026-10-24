@@ -14,17 +14,23 @@ import {
   Checkbox,
   type SelectChangeEvent,
 } from '@mui/material';
+import { STATUS_CATEGORIES } from '../../lib/catalogSchema';
+import type { FieldErrors } from '../../lib/catalogValidation';
 import type { StatusDefinition, StatusCategory } from '../../types/catalog';
 
 interface StatusEditorProps {
   statusData: StatusDefinition;
   onUpdate: (updated: StatusDefinition) => void;
   idError?: string | null;
+  fieldErrors?: FieldErrors;
 }
 
-const CATEGORIES: StatusCategory[] = ['buff', 'debuff', 'dot', 'hot', 'control'];
-
-export function StatusEditor({ statusData, onUpdate, idError = null }: StatusEditorProps) {
+export function StatusEditor({
+  statusData,
+  onUpdate,
+  idError = null,
+  fieldErrors = {},
+}: StatusEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof StatusDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...statusData, [field]: event.target.value });
@@ -110,9 +116,9 @@ export function StatusEditor({ statusData, onUpdate, idError = null }: StatusEdi
               label="Category"
               onChange={handleCategoryChange}
             >
-              {CATEGORIES.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
+              {STATUS_CATEGORIES.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
                 </MenuItem>
               ))}
             </Select>
@@ -126,7 +132,19 @@ export function StatusEditor({ statusData, onUpdate, idError = null }: StatusEdi
             onChange={handleNumberChange('maxStacks')}
             fullWidth
             size="small"
+            error={fieldErrors.maxStacks !== undefined}
+            helperText={fieldErrors.maxStacks}
             slotProps={{ htmlInput: { min: 1, step: 1 } }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            label="Icon Path"
+            value={statusData.iconPath}
+            onChange={handleTextChange('iconPath')}
+            fullWidth
+            size="small"
+            helperText="Asset path stored on the status (e.g. icons/statuses/flame.png)."
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>

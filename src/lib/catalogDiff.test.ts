@@ -62,6 +62,74 @@ describe('computeDiffSummary', () => {
     expect(summary.unchanged).toBe(1);
   });
 
+  it('counts nested skill and combat-constant edits as modified', () => {
+    const skill = {
+      skillId: 'vanguard_cleaving_strike',
+      classId: 'vanguard',
+      displayName: 'Cleaving Strike',
+      description: '',
+      kind: 'active' as const,
+      resourceId: null,
+      resourceCost: 0,
+      resourceEffects: [{ resourceId: 'resolve', amount: 8, isPercentOfMax: false }],
+      cooldownSeconds: 0,
+      charges: 1,
+      chargeRechargeSeconds: 0,
+      castTimeSeconds: 0,
+      castableWhileMoving: false,
+      range: 0,
+      coefficients: {
+        basePower: 1.5,
+        scaling: [{ stat: 'attackPower' as const, coefficient: 1.5 }],
+        perStack: { basePowerPerStack: [1.5, 2] },
+      },
+      unlockLevel: 1,
+      iconPath: 'icons/skills/vanguard/cleaving_strike.png',
+    };
+
+    const editedSkill = {
+      ...skill,
+      resourceEffects: [{ resourceId: 'resolve', amount: 12, isPercentOfMax: false }],
+      coefficients: {
+        ...skill.coefficients,
+        perStack: { basePowerPerStack: [1.5, 2.2] },
+      },
+    };
+
+    expect(computeDiffSummary([skill], [editedSkill], 'skill').modified).toBe(1);
+
+    const constants = {
+      powerScaling: {
+        physicalPower: { strengthMultiplier: 2, levelMultiplier: 1.5 },
+        spellPower: { intellectMultiplier: 2, levelMultiplier: 1 },
+        techPower: { techMultiplier: 2, levelMultiplier: 1 },
+        devicePower: { techDivisor: 100 },
+      },
+      critical: {
+        baseCritChance: 0.05,
+        critChance: { luckConstant: 500, maxLuckCritBonus: 0.3 },
+        procChance: { luckDivisor: 500 },
+        criticalDamageMultiplier: 1.5,
+      },
+      defense: {
+        defenseConstant: { baseConstant: 200, levelMultiplier: 15 },
+        armorReductionPerPoint: 0.001,
+        maxArmorReduction: 0.75,
+        blockDamageReduction: 0.5,
+      },
+      statCaps: { softCap: 100, hardCap: 150, softCapPenalty: 0.5 },
+      dodge: { baseDodgeChance: 0.02, maxDodgeChance: 0.4 },
+    };
+
+    expect(
+      computeDiffSummary(
+        constants,
+        { ...constants, dodge: { ...constants.dodge, maxDodgeChance: 0.45 } },
+        'combat-constants',
+      ).modified,
+    ).toBe(1);
+  });
+
   it('counts modified entries separately from added and removed', () => {
     const modified = { ...vanguard, displayName: 'Modified Vanguard' };
     const summary = computeDiffSummary([vanguard, ranger], [modified], 'class');

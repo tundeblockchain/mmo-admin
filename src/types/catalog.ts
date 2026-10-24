@@ -83,28 +83,51 @@ export interface ScalingVector {
 
 export type ElementId = string;
 
+export type ActivePhaseType =
+  | 'standard'
+  | 'hold'
+  | 'stance'
+  | 'reaction'
+  | 'deploy'
+  | 'buff'
+  | 'summon'
+  | 'channel';
+
+export type SkillCondition =
+  | 'marked'
+  | 'below_hp_threshold'
+  | 'above_hp_threshold'
+  | 'perfect_timing'
+  | 'flanking'
+  | 'stealthed'
+  | 'boss_target';
+
+export interface PerStackCoefficients {
+  basePowerPerStack: number[];
+}
+
+export interface SkillConditional {
+  condition: SkillCondition;
+  threshold?: number;
+  basePower?: number;
+  damageMultiplier?: number;
+}
+
 export interface SkillCoefficients {
   basePower: number;
   scaling: ScalingVector[];
   element?: ElementId;
   appliesStatus?: string;
   effectDuration?: number;
-  perStack?: {
-    basePowerPerStack: number[];
-  };
-  conditionals?: Array<{
-    condition: string;
-    threshold?: number;
-    basePower?: number;
-    damageMultiplier?: number;
-  }>;
+  perStack?: PerStackCoefficients;
+  conditionals?: SkillConditional[];
 }
 
 export interface SkillTiming {
   castMs: number;
   activeMs: number;
   recoveryMs: number;
-  activePhaseType?: string;
+  activePhaseType?: ActivePhaseType;
 }
 
 export interface StaggerCoefficients {
@@ -230,29 +253,29 @@ export interface CombatConstantsData {
   powerScaling: PowerScalingConstants;
   speed?: {
     attackSpeed?: {
-      finesseConstant: number;
-      attackSpeedCap: number;
+      finesseConstant?: number;
+      attackSpeedCap?: number;
     };
     dodgeRecovery?: {
-      finesseConstant: number;
+      finesseConstant?: number;
     };
   };
   vitality?: {
     maxHp?: {
-      vitalityDivisor: number;
+      vitalityDivisor?: number;
     };
     healingReceived?: {
-      vitalityDivisor: number;
+      vitalityDivisor?: number;
     };
   };
   accuracy?: {
-    baseHitChance: number;
+    baseHitChance?: number;
     accuracyBonus?: {
-      precisionConstant: number;
-      maxAccuracyBonus: number;
+      precisionConstant?: number;
+      maxAccuracyBonus?: number;
     };
     weakPoint?: {
-      precisionMultiplier: number;
+      precisionMultiplier?: number;
     };
   };
   critical: {
@@ -276,12 +299,12 @@ export interface CombatConstantsData {
     blockDamageReduction: number;
   };
   glancingHit?: {
-    damageMultiplier: number;
-    canCrit: boolean;
-    canStagger: boolean;
+    damageMultiplier?: number;
+    canCrit?: boolean;
+    canStagger?: boolean;
   };
   status?: {
-    resistanceConstant: number;
+    resistanceConstant?: number;
   };
   statAllocationBands?: Array<{
     minLevel: number;
@@ -290,31 +313,31 @@ export interface CombatConstantsData {
     allocationCostPerPoint: number;
   }>;
   statCaps?: {
-    softCap: number;
-    hardCap: number;
-    softCapPenalty: number;
+    softCap?: number;
+    hardCap?: number;
+    softCapPenalty?: number;
   };
   dodge?: {
-    baseDodgeChance: number;
-    maxDodgeChance: number;
+    baseDodgeChance?: number;
+    maxDodgeChance?: number;
   };
   timing?: {
-    globalCooldown: number;
-    outOfCombatHpRegen: number;
-    outOfCombatResourceRegen: number;
-    combatDropoffSeconds: number;
+    globalCooldown?: number;
+    outOfCombatHpRegen?: number;
+    outOfCombatResourceRegen?: number;
+    combatDropoffSeconds?: number;
   };
   stagger?: {
-    baseStaggerThreshold: number;
-    staggerRecoveryRate: number;
-    staggerDurationSeconds: number;
-    staggerImmunitySeconds: number;
+    baseStaggerThreshold?: number;
+    staggerRecoveryRate?: number;
+    staggerDurationSeconds?: number;
+    staggerImmunitySeconds?: number;
   };
   pvp?: {
-    globalDamageMultiplier: number;
-    globalHealingMultiplier: number;
-    ccDurationMultiplier: number;
-    executeThresholdModifier: number;
+    globalDamageMultiplier?: number;
+    globalHealingMultiplier?: number;
+    ccDurationMultiplier?: number;
+    executeThresholdModifier?: number;
   };
   additionalConstants?: Record<string, number | boolean | string>;
 }

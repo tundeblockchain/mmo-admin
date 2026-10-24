@@ -40,6 +40,19 @@ describe('StatusEditor', () => {
     expect(lastCall.statusId).toBe('flame');
   });
 
+  it('updates icon path on the draft working copy', async () => {
+    const user = userEvent.setup();
+    const onUpdate = vi.fn();
+    render(<StatusEditor statusData={mockStatusData} onUpdate={onUpdate} />);
+
+    const iconPath = screen.getByRole('textbox', { name: 'Icon Path' });
+    expect(iconPath).toHaveValue('icons/statuses/flame.png');
+    await user.type(iconPath, 'x');
+
+    const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
+    expect(lastCall.iconPath).toBe('icons/statuses/flame.pngx');
+  });
+
   it('calls onUpdate when max stacks is changed', async () => {
     const user = userEvent.setup();
     const onUpdate = vi.fn();

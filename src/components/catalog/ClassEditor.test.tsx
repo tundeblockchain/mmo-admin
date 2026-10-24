@@ -44,6 +44,19 @@ describe('ClassEditor', () => {
     expect(screen.getByText('ID is required')).toBeInTheDocument();
   });
 
+  it('updates secondary resource on the draft working copy', async () => {
+    const user = userEvent.setup();
+    const onUpdate = vi.fn();
+    render(<ClassEditor classData={mockClass} onUpdate={onUpdate} />);
+
+    await user.click(screen.getByRole('combobox', { name: 'Secondary Resource' }));
+    await user.click(await screen.findByRole('option', { name: 'judgement' }));
+
+    const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
+    expect(lastCall.secondaryResource).toBe('judgement');
+    expect(lastCall.classId).toBe('vanguard');
+  });
+
   it('calls onUpdate when the class id changes', async () => {
     const user = userEvent.setup();
     const onUpdate = vi.fn();
