@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, userEvent } from '../../test/test-utils';
-import { PublishDialog } from './PublishDialog';
+import {
+  ADMIN_FORBIDDEN_PUBLISH_MESSAGE,
+  BAD_REQUEST_PUBLISH_MESSAGE,
+  PublishDialog,
+} from './PublishDialog';
+import { AdminForbiddenError, ApiError } from '../../lib/errors';
 import type { ClassDefinition } from '../../types/catalog';
 
 const mockClassData: ClassDefinition[] = [
@@ -137,6 +142,31 @@ describe('PublishDialog', () => {
 
     expect(screen.getByText(/authentication required/i)).toBeInTheDocument();
     expect(screen.getByText(/sign in/i)).toBeInTheDocument();
+  });
+
+  it('displays a distinct admin message for 403 forbidden errors', () => {
+    render(
+      <PublishDialog
+        {...defaultProps}
+        error={new AdminForbiddenError('Admin only')}
+        isForbiddenError
+      />,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(ADMIN_FORBIDDEN_PUBLISH_MESSAGE);
+    expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument();
+  });
+
+  it('displays a clear message when the server rejects a 400 publish', () => {
+    render(
+      <PublishDialog
+        {...defaultProps}
+        error={new ApiError('Catalog data is required', 400)}
+        isBadRequestError
+      />,
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(BAD_REQUEST_PUBLISH_MESSAGE);
   });
 
   it('disables buttons when pending', () => {

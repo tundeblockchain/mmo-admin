@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import type { CatalogType, CatalogEntityData } from '../../types/catalog';
 import { computeDiffSummary } from '../../lib/catalogDiff';
+import { AdminForbiddenError, ApiError } from '../../lib/errors';
 
 interface PublishDialogProps {
   open: boolean;
@@ -33,6 +34,8 @@ interface PublishDialogProps {
   error: Error | null;
   isConflictError: boolean;
   isAuthError: boolean;
+  isForbiddenError?: boolean;
+  isBadRequestError?: boolean;
   hasValidationErrors?: boolean;
 }
 
@@ -49,6 +52,38 @@ function isEmptyArrayCatalog(catalogType: CatalogType, draftData: CatalogEntityD
   return catalogType !== 'combat-constants' && Array.isArray(draftData) && draftData.length === 0;
 }
 
+export const ADMIN_FORBIDDEN_PUBLISH_MESSAGE =
+  "Your account isn't an admin, so it can't publish catalogs.";
+
+export const BAD_REQUEST_PUBLISH_MESSAGE =
+  'The server rejected this catalog. An empty data array cannot be published.';
+
+function publishFailureMessage(
+  error: Error,
+  isConflictError: boolean,
+  isAuthError: boolean,
+  isForbiddenError: boolean,
+  isBadRequestError: boolean,
+): string {
+  if (isConflictError) {
+    return 'Version conflict: Another version was published while you were editing. Please retry to publish as the next version.';
+  }
+
+  if (isAuthError) {
+    return 'Authentication required. Please sign in to publish.';
+  }
+
+  if (isForbiddenError || error instanceof AdminForbiddenError) {
+    return ADMIN_FORBIDDEN_PUBLISH_MESSAGE;
+  }
+
+  if (isBadRequestError || (error instanceof ApiError && error.status === 400)) {
+    return BAD_REQUEST_PUBLISH_MESSAGE;
+  }
+
+  return error.message;
+}
+
 export function PublishDialog({
   open,
   onClose,
@@ -61,6 +96,8 @@ export function PublishDialog({
   error,
   isConflictError,
   isAuthError,
+  isForbiddenError = false,
+  isBadRequestError = false,
   hasValidationErrors = false,
 }: PublishDialogProps) {
   const [releaseNotes, setReleaseNotes] = useState('');
@@ -96,7 +133,9 @@ export function PublishDialog({
   }, []);
 
   const handleConfirmPublish = useCallback(() => {
-    void onPublish(releaseNotes);
+    void onPublish(releaseNotes).catch(() => {
+      // Mutation error is rendered by this dialog.
+    });
   }, [onPublish, releaseNotes]);
 
   const handleClose = useCallback(() => {
@@ -219,13 +258,15 @@ export function PublishDialog({
           </Alert>
         )}
 
-        {error && !showConfirm && (
+        {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
-            {isConflictError
-              ? 'Version conflict: Another version was published while you were editing. Please retry to publish as the next version.'
-              : isAuthError
-                ? 'Authentication required. Please sign in to publish.'
-                : error.message}
+            {publishFailureMessage(
+              error,
+              isConflictError,
+              isAuthError,
+              isForbiddenError,
+              isBadRequestError,
+            )}
           </Alert>
         )}
 
