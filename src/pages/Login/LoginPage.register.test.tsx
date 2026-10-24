@@ -29,8 +29,8 @@ describe('LoginPage register', () => {
     render(<LoginPage />);
     await openRegister(user);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'new.user@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'secure-pass');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'new.user@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'secure-pass');
     await user.type(screen.getByLabelText(/confirm password/i), 'secure-pass');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -53,8 +53,8 @@ describe('LoginPage register', () => {
     render(<LoginPage />);
     await openRegister(user);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'taken@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'secure-pass');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'taken@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'secure-pass');
     await user.type(screen.getByLabelText(/confirm password/i), 'secure-pass');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
@@ -71,8 +71,8 @@ describe('LoginPage register', () => {
     render(<LoginPage />);
     await openRegister(user);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'new.user@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'secure-pass');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'new.user@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'secure-pass');
     await user.type(screen.getByLabelText(/confirm password/i), 'other-pass');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 

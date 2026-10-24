@@ -59,7 +59,11 @@ export const mockSendPasswordResetEmail = hoisted.mockSendPasswordResetEmail;
 export const mockSignOut = hoisted.mockSignOut;
 export const mockOnAuthStateChanged = hoisted.mockOnAuthStateChanged;
 
-function createMockUser(overrides: Partial<User> = {}): User {
+export type MockAuthUser = Omit<User, 'emailVerified'> & {
+  emailVerified: boolean;
+};
+
+function createMockUser(overrides: Partial<MockAuthUser> = {}): MockAuthUser {
   return {
     uid: 'test-uid-123',
     email: 'test@example.com',
@@ -79,7 +83,7 @@ function createMockUser(overrides: Partial<User> = {}): User {
     phoneNumber: null,
     providerId: 'password',
     ...overrides,
-  } as unknown as User;
+  } as MockAuthUser;
 }
 
 export const mockUser = createMockUser({ providerId: 'google.com' });

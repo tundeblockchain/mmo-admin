@@ -20,8 +20,8 @@ describe('LoginPage email sign-in', () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'tester@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'correct-password');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'tester@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'correct-password');
     await user.click(screen.getByRole('button', { name: /^sign in$/i }));
 
     await waitFor(() => {
@@ -42,8 +42,8 @@ describe('LoginPage email sign-in', () => {
 
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'tester@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'wrong-password');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'tester@example.com');
+    await user.type(screen.getByLabelText(/^password/i), 'wrong-password');
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       await user.click(screen.getByRole('button', { name: /^sign in$/i }));

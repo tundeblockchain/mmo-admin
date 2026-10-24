@@ -25,7 +25,7 @@ describe('LoginPage forgot password', () => {
     render(<LoginPage />);
     await openForgotPassword(user);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'tester@example.com');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'tester@example.com');
     await user.click(screen.getByRole('button', { name: /send reset link/i }));
 
     await waitFor(() => {
@@ -48,7 +48,7 @@ describe('LoginPage forgot password', () => {
     render(<LoginPage />);
     await openForgotPassword(user);
 
-    await user.type(screen.getByLabelText(/^email$/i), 'unknown@example.com');
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'unknown@example.com');
     await user.click(screen.getByRole('button', { name: /send reset link/i }));
 
     await waitFor(() => {
