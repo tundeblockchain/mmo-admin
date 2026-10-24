@@ -146,6 +146,8 @@ export function CatalogPage() {
     error: publishError,
     isConflictError,
     isAuthError,
+    isForbiddenError,
+    isBadRequestError,
     reset: resetPublishError,
   } = usePublishCatalog();
 
@@ -865,6 +867,8 @@ export function CatalogPage() {
           error={publishError}
           isConflictError={isConflictError}
           isAuthError={isAuthError}
+          isForbiddenError={isForbiddenError}
+          isBadRequestError={isBadRequestError}
           hasValidationErrors={hasInvalidIds}
         />
       )}

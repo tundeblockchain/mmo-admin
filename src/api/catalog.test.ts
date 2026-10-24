@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../test/mocks/server';
 import { publishCatalog } from './catalog';
-import { ApiError } from '../lib/errors';
+import { AdminForbiddenError, ApiError } from '../lib/errors';
 import type { ClassDefinition } from '../types/catalog';
 
 vi.mock('../auth', () => ({
@@ -142,6 +142,48 @@ describe('publishCatalog', () => {
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).status).toBe(401);
     }
+  });
+
+  it('surfaces 403 as AdminForbiddenError without a generic fallback', async () => {
+    server.use(
+      http.post('*/catalog/class/versions', () => {
+        return HttpResponse.json({ error: 'Admin only' }, { status: 403 });
+      }),
+    );
+
+    try {
+      await publishCatalog('class', { data: mockClassData });
+      expect.fail('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AdminForbiddenError);
+      expect((error as AdminForbiddenError).status).toBe(403);
+      expect((error as AdminForbiddenError).message).toBe('Admin only');
+    }
+
+    expect(getIdToken).not.toHaveBeenCalledWith(true);
+  });
+
+  it('surfaces 400 when the server rejects the catalog payload', async () => {
+    server.use(
+      http.post('*/catalog/class/versions', () => {
+        return HttpResponse.json(
+          { error: 'Catalog data must not be an empty array' },
+          { status: 400 },
+        );
+      }),
+    );
+
+    try {
+      await publishCatalog('class', { data: [] });
+      expect.fail('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error).not.toBeInstanceOf(AdminForbiddenError);
+      expect((error as ApiError).status).toBe(400);
+      expect((error as ApiError).message).toBe('Catalog data must not be an empty array');
+    }
+
+    expect(getIdToken).not.toHaveBeenCalledWith(true);
   });
 
   it('handles 409 version conflict error', async () => {

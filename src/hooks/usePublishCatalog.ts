@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { publishCatalog } from '../api/catalog';
 import { queryKeys } from './queryKeys';
-import { ApiError } from '../lib/errors';
+import { AdminForbiddenError, ApiError } from '../lib/errors';
 import type { CatalogType, PublishCatalogRequest, PublishedCatalogResponse } from '../types/catalog';
 
 interface PublishCatalogVariables {
@@ -15,6 +15,8 @@ interface UsePublishCatalogResult {
   error: Error | null;
   isConflictError: boolean;
   isAuthError: boolean;
+  isForbiddenError: boolean;
+  isBadRequestError: boolean;
   reset: () => void;
 }
 
@@ -32,6 +34,8 @@ export function usePublishCatalog(): UsePublishCatalogResult {
   const error = mutation.error;
   const isConflictError = error instanceof ApiError && error.status === 409;
   const isAuthError = error instanceof ApiError && error.status === 401;
+  const isForbiddenError = error instanceof AdminForbiddenError;
+  const isBadRequestError = error instanceof ApiError && error.status === 400;
 
   return {
     publish: mutation.mutateAsync,
@@ -39,6 +43,8 @@ export function usePublishCatalog(): UsePublishCatalogResult {
     error,
     isConflictError,
     isAuthError,
+    isForbiddenError,
+    isBadRequestError,
     reset: mutation.reset,
   };
 }
