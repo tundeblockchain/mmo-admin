@@ -7,8 +7,11 @@ import {
   Box,
   CircularProgress,
   Alert,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import type { StatusDefinition } from '../../types/catalog';
+import { DraftListToolbar } from './DraftListToolbar';
 
 const CATEGORY_COLORS: Record<string, 'success' | 'error' | 'warning' | 'info' | 'default'> = {
   buff: 'success',
@@ -21,17 +24,25 @@ const CATEGORY_COLORS: Record<string, 'success' | 'error' | 'warning' | 'info' |
 interface StatusListProps {
   statuses: StatusDefinition[] | undefined;
   selectedStatusId: string | null;
-  onSelectStatus: (statusId: string) => void;
+  selectedIndex?: number | null;
+  onSelectStatus: (statusId: string, index: number) => void;
   isLoading: boolean;
   error: Error | null;
+  isDraft?: boolean;
+  onAdd?: () => void;
+  onRequestDelete?: (statusId: string, index: number, displayName: string) => void;
 }
 
 export function StatusList({
   statuses,
   selectedStatusId,
+  selectedIndex = null,
   onSelectStatus,
   isLoading,
   error,
+  isDraft = false,
+  onAdd,
+  onRequestDelete,
 }: StatusListProps) {
   if (isLoading) {
     return (
@@ -51,38 +62,62 @@ export function StatusList({
 
   if (!statuses || statuses.length === 0) {
     return (
-      <Alert severity="info">
-        No statuses found in this version.
-      </Alert>
+      <Box>
+        {isDraft && onAdd && <DraftListToolbar label="Status" onAdd={onAdd} />}
+        <Alert severity="info">
+          No statuses found in this version.
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {statuses.map((status) => (
-        <ListItem key={status.statusId} disablePadding>
-          <ListItemButton
-            selected={selectedStatusId === status.statusId}
-            onClick={() => onSelectStatus(status.statusId)}
+    <Box>
+      {isDraft && onAdd && <DraftListToolbar label="Status" onAdd={onAdd} />}
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        {statuses.map((status, index) => (
+          <ListItem
+            key={`${status.statusId}-${index}`}
+            disablePadding
+            secondaryAction={
+              onRequestDelete ? (
+                <IconButton
+                  edge="end"
+                  aria-label={`Delete ${status.displayName || status.statusId || 'status'}`}
+                  onClick={() => onRequestDelete(status.statusId, index, status.displayName)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              ) : undefined
+            }
           >
-            <ListItemText
-              primary={status.displayName}
-              secondary={
-                <Box component="span" sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
-                  <Chip
-                    label={status.category}
-                    size="small"
-                    color={CATEGORY_COLORS[status.category]}
-                  />
-                  {status.maxStacks > 1 && (
-                    <Chip label={`${status.maxStacks} stacks`} size="small" variant="outlined" />
-                  )}
-                </Box>
+            <ListItemButton
+              selected={
+                selectedIndex !== null
+                  ? selectedIndex === index
+                  : selectedStatusId === status.statusId
               }
-            />
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
+              onClick={() => onSelectStatus(status.statusId, index)}
+            >
+              <ListItemText
+                primary={status.displayName || 'Untitled status'}
+                secondary={
+                  <Box component="span" sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+                    <Chip
+                      label={status.category}
+                      size="small"
+                      color={CATEGORY_COLORS[status.category]}
+                    />
+                    {status.maxStacks > 1 && (
+                      <Chip label={`${status.maxStacks} stacks`} size="small" variant="outlined" />
+                    )}
+                  </Box>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
 }

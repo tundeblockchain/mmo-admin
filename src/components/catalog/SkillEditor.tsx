@@ -33,6 +33,7 @@ import type {
 interface SkillEditorProps {
   skillData: SkillDefinition;
   onUpdate: (updated: SkillDefinition) => void;
+  idError?: string | null;
 }
 
 interface PercentFieldProps {
@@ -97,14 +98,14 @@ function NumberField({ label, value, onChange, step = 1 }: NumberFieldProps) {
 
 const SKILL_KINDS: SkillKind[] = ['active', 'passive', 'reaction'];
 const ELEMENTS: ElementId[] = ['physical', 'fire', 'ice', 'lightning', 'arcane', 'nature', 'shadow', 'radiant'];
-const CLASSES: ClassId[] = ['vanguard', 'ranger', 'arcanist', 'machinist', 'warden', 'shade'];
+const KNOWN_CLASSES: ClassId[] = ['vanguard', 'ranger', 'arcanist', 'machinist', 'warden', 'shade'];
 const SCALING_STATS: ScalingStat[] = [
   'attackPower', 'spellPower', 'techPower', 'devicePower', 'healingPower',
   'maxHp', 'missingHp', 'missingHpPercent', 'armor', 'level',
   'strength', 'finesse', 'vitality', 'intellect', 'precision', 'luck', 'tech',
 ];
 
-export function SkillEditor({ skillData, onUpdate }: SkillEditorProps) {
+export function SkillEditor({ skillData, onUpdate, idError = null }: SkillEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof SkillDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...skillData, [field]: event.target.value });
@@ -211,6 +212,16 @@ export function SkillEditor({ skillData, onUpdate }: SkillEditorProps) {
 
       <Box sx={{ mb: 3 }}>
         <TextField
+          label="Skill ID"
+          value={skillData.skillId}
+          onChange={handleTextChange('skillId')}
+          fullWidth
+          size="small"
+          sx={{ mb: 2 }}
+          error={idError !== null}
+          helperText={idError ?? 'Unique identifier for this skill (e.g. vanguard_cleaving_strike).'}
+        />
+        <TextField
           label="Display Name"
           value={skillData.displayName}
           onChange={handleTextChange('displayName')}
@@ -255,7 +266,10 @@ export function SkillEditor({ skillData, onUpdate }: SkillEditorProps) {
                 label="Class"
                 onChange={handleClassChange}
               >
-                {CLASSES.map((cls) => (
+                {(KNOWN_CLASSES.includes(skillData.classId)
+                  ? KNOWN_CLASSES
+                  : [...KNOWN_CLASSES, skillData.classId]
+                ).map((cls) => (
                   <MenuItem key={cls} value={cls}>
                     {cls}
                   </MenuItem>

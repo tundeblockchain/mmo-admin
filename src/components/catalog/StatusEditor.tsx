@@ -19,11 +19,12 @@ import type { StatusDefinition, StatusCategory } from '../../types/catalog';
 interface StatusEditorProps {
   statusData: StatusDefinition;
   onUpdate: (updated: StatusDefinition) => void;
+  idError?: string | null;
 }
 
 const CATEGORIES: StatusCategory[] = ['buff', 'debuff', 'dot', 'hot', 'control'];
 
-export function StatusEditor({ statusData, onUpdate }: StatusEditorProps) {
+export function StatusEditor({ statusData, onUpdate, idError = null }: StatusEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof StatusDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...statusData, [field]: event.target.value });
@@ -66,6 +67,16 @@ export function StatusEditor({ statusData, onUpdate }: StatusEditorProps) {
       <Divider sx={{ my: 2 }} />
 
       <Box sx={{ mb: 3 }}>
+        <TextField
+          label="Status ID"
+          value={statusData.statusId}
+          onChange={handleTextChange('statusId')}
+          fullWidth
+          size="small"
+          sx={{ mb: 2 }}
+          error={idError !== null}
+          helperText={idError ?? 'Unique identifier for this status (e.g. flame).'}
+        />
         <TextField
           label="Display Name"
           value={statusData.displayName}

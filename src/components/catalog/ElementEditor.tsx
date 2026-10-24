@@ -17,6 +17,7 @@ import type { ElementDefinition, ElementId } from '../../types/catalog';
 interface ElementEditorProps {
   elementData: ElementDefinition;
   onUpdate: (updated: ElementDefinition) => void;
+  idError?: string | null;
 }
 
 interface PercentFieldProps {
@@ -51,7 +52,7 @@ function PercentField({ label, value, onChange }: PercentFieldProps) {
 
 const ALL_ELEMENTS: ElementId[] = ['physical', 'fire', 'ice', 'lightning', 'arcane', 'nature', 'shadow', 'radiant'];
 
-export function ElementEditor({ elementData, onUpdate }: ElementEditorProps) {
+export function ElementEditor({ elementData, onUpdate, idError = null }: ElementEditorProps) {
   const handleTextChange = useCallback(
     (field: keyof ElementDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({ ...elementData, [field]: event.target.value });
@@ -111,6 +112,16 @@ export function ElementEditor({ elementData, onUpdate }: ElementEditorProps) {
       <Divider sx={{ my: 2 }} />
 
       <Box sx={{ mb: 3 }}>
+        <TextField
+          label="Element ID"
+          value={elementData.elementId}
+          onChange={handleTextChange('elementId')}
+          fullWidth
+          size="small"
+          sx={{ mb: 2 }}
+          error={idError !== null}
+          helperText={idError ?? 'Unique identifier for this element (e.g. fire).'}
+        />
         <TextField
           label="Display Name"
           value={elementData.displayName}

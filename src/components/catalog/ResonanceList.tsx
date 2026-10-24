@@ -6,23 +6,34 @@ import {
   Box,
   CircularProgress,
   Alert,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import type { ResonanceDefinition } from '../../types/catalog';
+import { DraftListToolbar } from './DraftListToolbar';
 
 interface ResonanceListProps {
   resonances: ResonanceDefinition[] | undefined;
   selectedResonanceId: string | null;
-  onSelectResonance: (resonanceId: string) => void;
+  selectedIndex?: number | null;
+  onSelectResonance: (resonanceId: string, index: number) => void;
   isLoading: boolean;
   error: Error | null;
+  isDraft?: boolean;
+  onAdd?: () => void;
+  onRequestDelete?: (resonanceId: string, index: number, displayName: string) => void;
 }
 
 export function ResonanceList({
   resonances,
   selectedResonanceId,
+  selectedIndex = null,
   onSelectResonance,
   isLoading,
   error,
+  isDraft = false,
+  onAdd,
+  onRequestDelete,
 }: ResonanceListProps) {
   if (isLoading) {
     return (
@@ -42,27 +53,53 @@ export function ResonanceList({
 
   if (!resonances || resonances.length === 0) {
     return (
-      <Alert severity="info">
-        No resonances found in this version.
-      </Alert>
+      <Box>
+        {isDraft && onAdd && <DraftListToolbar label="Resonance" onAdd={onAdd} />}
+        <Alert severity="info">
+          No resonances found in this version.
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {resonances.map((resonance) => (
-        <ListItem key={resonance.resonanceId} disablePadding>
-          <ListItemButton
-            selected={selectedResonanceId === resonance.resonanceId}
-            onClick={() => onSelectResonance(resonance.resonanceId)}
+    <Box>
+      {isDraft && onAdd && <DraftListToolbar label="Resonance" onAdd={onAdd} />}
+      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        {resonances.map((resonance, index) => (
+          <ListItem
+            key={`${resonance.resonanceId}-${index}`}
+            disablePadding
+            secondaryAction={
+              onRequestDelete ? (
+                <IconButton
+                  edge="end"
+                  aria-label={`Delete ${resonance.displayName || resonance.resonanceId || 'resonance'}`}
+                  onClick={() =>
+                    onRequestDelete(resonance.resonanceId, index, resonance.displayName)
+                  }
+                >
+                  <DeleteIcon />
+                </IconButton>
+              ) : undefined
+            }
           >
-            <ListItemText
-              primary={resonance.displayName}
-              secondary={`${resonance.partyBonus.length} bonus${resonance.partyBonus.length !== 1 ? 'es' : ''}`}
-            />
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
+            <ListItemButton
+              selected={
+                selectedIndex !== null
+                  ? selectedIndex === index
+                  : selectedResonanceId === resonance.resonanceId
+              }
+              onClick={() => onSelectResonance(resonance.resonanceId, index)}
+            >
+              <ListItemText
+                primary={resonance.displayName || 'Untitled resonance'}
+                secondary={`${resonance.partyBonus.length} bonus${resonance.partyBonus.length !== 1 ? 'es' : ''}`}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
 }
