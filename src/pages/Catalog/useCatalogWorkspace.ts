@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { catalogTypeFromSection } from '../../lib/catalogRoutes';
 import { useCatalogVersions } from '../../hooks/useCatalogVersions';
 import {
   restorePersistedDraft,
@@ -18,11 +20,22 @@ import { useCatalogQueries } from './useCatalogQueries';
 import { draftNoticeFlags, useCatalogWorkspaceUi } from './useCatalogWorkspaceUi';
 
 export function useCatalogWorkspace() {
-  const [selectedType, setSelectedType] = useState<CatalogType>('class');
+  const { catalogSection } = useParams<{ catalogSection: string }>();
+  const selectedType = catalogTypeFromSection(catalogSection) ?? 'class';
   const [versions, setVersions] = useState<VersionSelections>(emptyVersionSelections);
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectionType, setSelectionType] = useState<CatalogType>(selectedType);
   const ui = useCatalogWorkspaceUi();
+
+  if (selectionType !== selectedType) {
+    setSelectionType(selectedType);
+    setSelectedEntityId(null);
+    setSelectedIndex(null);
+    if (ui.pendingDelete !== null) {
+      ui.setPendingDelete(null);
+    }
+  }
 
   const {
     data: versionData,
@@ -44,13 +57,6 @@ export function useCatalogWorkspace() {
     setSelectedEntityId,
     setSelectedIndex,
   });
-
-  const handleTypeChange = useCallback((type: CatalogType) => {
-    setSelectedType(type);
-    setSelectedEntityId(null);
-    setSelectedIndex(null);
-    ui.setPendingDelete(null);
-  }, [ui]);
 
   const handleVersionChange = useCallback((type: CatalogType, version: number) => {
     setVersions((prev) => ({ ...prev, [type]: version }));
@@ -148,7 +154,6 @@ export function useCatalogWorkspace() {
     canPublish: account.isAdmin,
     originalData: queries.originalDataFor(selectedType),
     draftActions,
-    handleTypeChange,
     handleVersionChange,
     handleSelectEntity,
     handleCreateDraft,

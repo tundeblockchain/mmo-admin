@@ -6,29 +6,18 @@ import {
   Button,
   Drawer,
   IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
 } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth, signOutUser } from '../../auth';
 import { useAccount } from '../../hooks/useAccount';
 import { ThemeToggle } from '../../theme';
+import { SidebarNav } from './SidebarNav';
 
 const DRAWER_WIDTH = 240;
-
-const navItems = [
-  { to: '/', label: 'Home', icon: <HomeIcon /> },
-  { to: '/catalog', label: 'Catalog', icon: <InventoryIcon /> },
-];
 
 export function Layout() {
   const authState = useAuth();
@@ -125,24 +114,7 @@ export function Layout() {
       >
         <Toolbar />
         <Box sx={{ overflow: 'auto' }}>
-          <List component="nav" aria-label="Main navigation">
-            {navItems.map(({ to, label, icon }) => (
-              <ListItem key={to} disablePadding>
-                <ListItemButton
-                  component={NavLink}
-                  to={to}
-                  sx={{
-                    '&.active': {
-                      backgroundColor: 'action.selected',
-                    },
-                  }}
-                >
-                  <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={label} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+          <SidebarNav />
         </Box>
       </Drawer>
 

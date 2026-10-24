@@ -31,7 +31,8 @@ test.describe('Sign-in flow', () => {
 
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByRole('navigation', { name: /main navigation/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /catalog/i })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Catalog' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Classes' })).toBeVisible();
   });
 
   test('opens register and forgot-password screens', async ({ page }) => {

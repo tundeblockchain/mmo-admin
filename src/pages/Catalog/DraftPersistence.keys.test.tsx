@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { CatalogPage } from './CatalogPage';
 import {
   clearDraftStoreForTesting,
@@ -65,12 +66,12 @@ describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
       }),
     );
 
-    render(<CatalogPage />);
+    renderCatalogApp();
 
     expect(await screen.findByText('Class V2 Draft')).toBeInTheDocument();
     expect(screen.queryByText('Class V1 Draft')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('tab', { name: 'Skills' }));
+    await clickCatalogNav(user, 'Skills');
     expect(await screen.findByText('Skill V1 Draft')).toBeInTheDocument();
     expect(
       screen.getByRole('status', { name: /restored unsaved draft/i }),
@@ -99,9 +100,9 @@ describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
 
   it('restores a newly editable field edit after remount', async () => {
     const user = userEvent.setup();
-    const { unmount } = render(<CatalogPage />);
+    const { unmount } = renderCatalogApp();
 
-    await user.click(screen.getByRole('tab', { name: 'Skills' }));
+    await clickCatalogNav(user, 'Skills');
     const select = await screen.findByRole('combobox');
     await user.click(select);
     await user.click(await screen.findByRole('option', { name: /v1/ }));
@@ -123,9 +124,9 @@ describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
 
     unmount();
     resetDraftMemoryForTesting();
-    render(<CatalogPage />);
+    renderCatalogApp();
 
-    await user.click(screen.getByRole('tab', { name: 'Skills' }));
+    await clickCatalogNav(user, 'Skills');
     expect(
       await screen.findByRole('status', { name: /restored unsaved draft/i }),
     ).toBeInTheDocument();

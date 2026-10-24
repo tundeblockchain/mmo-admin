@@ -25,24 +25,53 @@ describe('Layout', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders navigation with Home and Catalog links', () => {
+  it('renders Home and nested Catalog section links', () => {
     render(<Layout />);
 
     const nav = screen.getByRole('navigation', { name: /main navigation/i });
     expect(nav).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Catalog' })).toBeInTheDocument();
 
     expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /catalog/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Classes' })).toHaveAttribute(
+      'href',
+      '/catalog/classes',
+    );
+    expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute(
+      'href',
+      '/catalog/skills',
+    );
+    expect(screen.getByRole('link', { name: 'Combat Constants' })).toHaveAttribute(
+      'href',
+      '/catalog/combat-constants',
+    );
+    expect(screen.getByRole('link', { name: 'Statuses' })).toHaveAttribute(
+      'href',
+      '/catalog/statuses',
+    );
+    expect(screen.getByRole('link', { name: 'Elements' })).toHaveAttribute(
+      'href',
+      '/catalog/elements',
+    );
+    expect(screen.getByRole('link', { name: 'Resonance' })).toHaveAttribute(
+      'href',
+      '/catalog/resonance',
+    );
   });
 
-  it('navigates to catalog when catalog link is clicked', async () => {
-    const user = userEvent.setup();
-    render(<Layout />);
+  it('highlights the active catalog section', () => {
+    render(<Layout />, { initialEntries: ['/catalog/skills'] });
 
-    const catalogLink = screen.getByRole('link', { name: /catalog/i });
-    await user.click(catalogLink);
-
-    expect(catalogLink).toHaveAttribute('href', '/catalog');
+    expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('link', { name: 'Classes' })).not.toHaveAttribute(
+      'aria-current',
+    );
+    expect(screen.getByRole('link', { name: /home/i })).not.toHaveAttribute(
+      'aria-current',
+    );
   });
 
   it('has accessible navigation structure', () => {

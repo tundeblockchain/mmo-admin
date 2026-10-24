@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { screen, waitFor, userEvent } from '../../test/test-utils';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/mocks/server';
-import { CatalogPage } from './CatalogPage';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
@@ -40,10 +40,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       );
 
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const skillsTab = screen.getByRole('tab', { name: 'Skills' });
-      await user.click(skillsTab);
+      await clickCatalogNav(user, 'Skills');
 
       const select = await screen.findByRole('combobox');
       await user.click(select);
@@ -101,10 +100,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       );
 
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const skillsTab = screen.getByRole('tab', { name: 'Skills' });
-      await user.click(skillsTab);
+      await clickCatalogNav(user, 'Skills');
 
       const select = await screen.findByRole('combobox');
       await user.click(select);

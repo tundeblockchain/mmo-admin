@@ -32,7 +32,7 @@ export async function selectCatalogVersion(
 export async function openCatalogDraft(
   page: Page,
   options: {
-    tab?: string;
+    section?: string;
     versionLabel: string | RegExp;
     optionName: string | RegExp;
     publishedName: string;
@@ -41,8 +41,10 @@ export async function openCatalogDraft(
   await page.goto('/catalog');
   await expect(page.getByRole('heading', { name: 'Catalog' })).toBeVisible();
 
-  if (options.tab) {
-    await page.getByRole('tab', { name: options.tab }).click();
+  if (options.section) {
+    await page.getByRole('navigation', { name: 'Catalog' })
+      .getByRole('link', { name: options.section })
+      .click();
   }
 
   await selectCatalogVersion(page, options.versionLabel, options.optionName);

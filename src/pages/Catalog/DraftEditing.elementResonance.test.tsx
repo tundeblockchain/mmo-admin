@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor, userEvent } from '../../test/test-utils';
-import { CatalogPage } from './CatalogPage';
+import { screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
@@ -14,10 +14,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   describe('Element Editor', () => {
     it('dirty draft enables Confirm publish', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const elementsTab = screen.getByRole('tab', { name: 'Elements' });
-      await user.click(elementsTab);
+      await clickCatalogNav(user, 'Elements');
 
       await waitFor(() => {
         expect(screen.getByLabelText(/Elements Version/)).toBeInTheDocument();
@@ -59,10 +58,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   describe('Resonance Editor', () => {
     it('dirty draft enables Confirm publish', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const resonanceTab = screen.getByRole('tab', { name: 'Resonance' });
-      await user.click(resonanceTab);
+      await clickCatalogNav(user, 'Resonance');
 
       await waitFor(() => {
         expect(screen.getByLabelText(/Resonance Version/)).toBeInTheDocument();

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/mocks/server';
-import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
@@ -34,9 +34,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       );
 
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Skills' }));
+      await clickCatalogNav(user, 'Skills');
       const select = await screen.findByRole('combobox');
       await user.click(select);
       await user.click(await screen.findByRole('option', { name: /v1/ }));
@@ -87,9 +87,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
     it('blocks publish when a resource effect is missing its required id', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Skills' }));
+      await clickCatalogNav(user, 'Skills');
       const select = await screen.findByRole('combobox');
       await user.click(select);
       await user.click(await screen.findByRole('option', { name: /v1/ }));
@@ -123,9 +123,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       );
 
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Combat Constants' }));
+      await clickCatalogNav(user, 'Combat Constants');
       const select = await screen.findByRole('combobox');
       await user.click(select);
       await user.click(await screen.findByRole('option', { name: /v1/ }));
@@ -170,9 +170,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
     it('blocks publish when a stat cap is not an integer', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Combat Constants' }));
+      await clickCatalogNav(user, 'Combat Constants');
       const select = await screen.findByRole('combobox');
       await user.click(select);
       await user.click(await screen.findByRole('option', { name: /v1/ }));
