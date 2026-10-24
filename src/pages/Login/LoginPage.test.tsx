@@ -1,11 +1,13 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { AUTH_MESSAGES } from '../../auth/authMessages';
 import {
   mockSignInWithPopup,
   resetMockAuth,
 } from '../../test/mocks/firebase-auth';
 import { render } from '../../test/test-utils';
+import { AUTH_TEST_IDS } from './authTestIds';
 import { LoginPage } from './LoginPage';
 
 describe('LoginPage', () => {
@@ -19,6 +21,7 @@ describe('LoginPage', () => {
     expect(
       screen.getByRole('button', { name: /sign in with google/i }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId(AUTH_TEST_IDS.google)).toBeInTheDocument();
   });
 
   it('renders page title', () => {
@@ -33,29 +36,23 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const signInButton = screen.getByRole('button', {
-      name: /sign in with google/i,
-    });
-    await user.click(signInButton);
+    await user.click(screen.getByRole('button', { name: /sign in with google/i }));
 
     await waitFor(() => {
       expect(mockSignInWithPopup).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('shows error message when sign in fails', async () => {
+  it('shows a generic error when Google sign in fails', async () => {
     const user = userEvent.setup();
     mockSignInWithPopup.mockRejectedValueOnce(new Error('Auth failed'));
 
     render(<LoginPage />);
 
-    const signInButton = screen.getByRole('button', {
-      name: /sign in with google/i,
-    });
-    await user.click(signInButton);
+    await user.click(screen.getByRole('button', { name: /sign in with google/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Auth failed');
+      expect(screen.getByRole('alert')).toHaveTextContent(AUTH_MESSAGES.genericSignIn);
     });
   });
 
@@ -71,15 +68,10 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const signInButton = screen.getByRole('button', {
-      name: /sign in with google/i,
-    });
-    await user.click(signInButton);
+    await user.click(screen.getByRole('button', { name: /sign in with google/i }));
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /signing in/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
     });
 
     resolveSignIn();
@@ -89,7 +81,7 @@ describe('LoginPage', () => {
     render(<LoginPage />);
 
     expect(
-      screen.getByText(/sign in with your google account/i),
+      screen.getByText(/sign in with email or google/i),
     ).toBeInTheDocument();
   });
 });

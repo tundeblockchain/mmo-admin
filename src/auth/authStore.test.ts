@@ -4,7 +4,7 @@ import {
   setMockAuthState,
   resetMockAuth,
 } from '../test/mocks/firebase-auth';
-import { getIdToken, getAuthSnapshot } from './authStore';
+import { getIdToken, getAuthSnapshot, peekReloadedUser } from './authStore';
 
 describe('authStore', () => {
   beforeEach(() => {
@@ -54,6 +54,16 @@ describe('authStore', () => {
       setMockAuthState(mockUser);
       await getIdToken(true);
       expect(mockUser.getIdToken).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe('peekReloadedUser', () => {
+    it('reloads the current Firebase user', async () => {
+      setMockAuthState(mockUser);
+      const user = await peekReloadedUser();
+
+      expect(mockUser.reload).toHaveBeenCalledTimes(1);
+      expect(user).toBe(mockUser);
     });
   });
 });
