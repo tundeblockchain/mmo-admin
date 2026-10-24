@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { enterClassDraft } from '../../test/draftEditingTestUtils';
@@ -75,9 +76,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
     it('does not offer add or delete on combat-constants', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Combat Constants' }));
+      await clickCatalogNav(user, 'Combat Constants');
 
       const select = await screen.findByRole('combobox');
       await user.click(select);
@@ -98,9 +99,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
     it('adds a skill with seed-shaped defaults', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      await user.click(screen.getByRole('tab', { name: 'Skills' }));
+      await clickCatalogNav(user, 'Skills');
       const select = await screen.findByRole('combobox');
       await user.click(select);
       await user.click(await screen.findByRole('option', { name: /v1/ }));

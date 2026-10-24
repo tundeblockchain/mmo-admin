@@ -1,15 +1,25 @@
 import { Alert, Box, Paper, Snackbar, Typography } from '@mui/material';
+import { Navigate, useParams } from 'react-router-dom';
 import { AccountNotice } from '../../components/account/AccountNotice';
-import { CatalogTypeNav } from '../../components/catalog/CatalogTypeNav';
 import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
 import { StaleDraftWarning } from '../../components/catalog/StaleDraftWarning';
 import { VersionPicker } from '../../components/catalog/VersionPicker';
+import { CATALOG_DEFAULT_PATH, isUnknownCatalogSection } from '../../lib/catalogRoutes';
 import { CatalogTypeContent } from './CatalogTypeContent';
 import { useCatalogWorkspace } from './useCatalogWorkspace';
 
 export function CatalogPage() {
+  const { catalogSection } = useParams<{ catalogSection: string }>();
+  if (isUnknownCatalogSection(catalogSection)) {
+    return <Navigate to={CATALOG_DEFAULT_PATH} replace />;
+  }
+
+  return <CatalogWorkspacePage />;
+}
+
+function CatalogWorkspacePage() {
   const workspace = useCatalogWorkspace();
 
   return (
@@ -19,11 +29,6 @@ export function CatalogPage() {
       </Typography>
 
       <AccountNotice />
-
-      <CatalogTypeNav
-        selectedType={workspace.selectedType}
-        onTypeChange={workspace.handleTypeChange}
-      />
 
       <Box sx={{ mb: 3 }}>
         <VersionPicker

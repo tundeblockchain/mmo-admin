@@ -1,23 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { CatalogPage } from './CatalogPage';
 
 describe('CatalogPage', () => {
-  it('renders page header', () => {
+  it('renders page header without catalog type tabs', () => {
     render(<CatalogPage />);
 
     expect(screen.getByRole('heading', { name: 'Catalog' })).toBeInTheDocument();
-  });
-
-  it('renders catalog type navigation tabs', () => {
-    render(<CatalogPage />);
-
-    expect(screen.getByRole('tab', { name: 'Classes' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Skills' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Combat Constants' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Statuses' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Elements' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Resonance' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
   it('loads and displays version picker', async () => {
@@ -46,7 +37,7 @@ describe('CatalogPage', () => {
 
     const select = screen.getByRole('combobox');
     await user.click(select);
-    
+
     const option = await screen.findByRole('option', { name: /v2/ });
     await user.click(option);
 
@@ -65,7 +56,7 @@ describe('CatalogPage', () => {
 
     const select = screen.getByRole('combobox');
     await user.click(select);
-    
+
     const option = await screen.findByRole('option', { name: /v2/ });
     await user.click(option);
 
@@ -81,32 +72,35 @@ describe('CatalogPage', () => {
     });
   });
 
-  it('switches between catalog types', async () => {
+  it('switches catalog types from the sidebar', async () => {
     const user = userEvent.setup();
-    render(<CatalogPage />);
+    renderCatalogApp();
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Classes Version/)).toBeInTheDocument();
     });
 
-    const skillsTab = screen.getByRole('tab', { name: 'Skills' });
-    await user.click(skillsTab);
+    await clickCatalogNav(user, 'Skills');
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Skills Version/)).toBeInTheDocument();
     });
+    expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
-  it('loads skills list after selecting version on Skills tab', async () => {
+  it('loads skills list after selecting a sidebar section and version', async () => {
     const user = userEvent.setup();
-    render(<CatalogPage />);
+    renderCatalogApp();
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Classes Version/)).toBeInTheDocument();
     });
 
-    const skillsTab = screen.getByRole('tab', { name: 'Skills' });
-    await user.click(skillsTab);
+    await clickCatalogNav(user, 'Skills');
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Skills Version/)).toBeInTheDocument();
@@ -114,7 +108,7 @@ describe('CatalogPage', () => {
 
     const select = screen.getByRole('combobox');
     await user.click(select);
-    
+
     const option = await screen.findByRole('option', { name: /v1/ });
     await user.click(option);
 
@@ -123,12 +117,11 @@ describe('CatalogPage', () => {
     });
   });
 
-  it('loads combat constants after selecting version', async () => {
+  it('loads combat constants after selecting the sidebar section', async () => {
     const user = userEvent.setup();
-    render(<CatalogPage />);
+    renderCatalogApp();
 
-    const combatTab = screen.getByRole('tab', { name: 'Combat Constants' });
-    await user.click(combatTab);
+    await clickCatalogNav(user, 'Combat Constants');
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Combat Constants Version/)).toBeInTheDocument();
@@ -136,7 +129,7 @@ describe('CatalogPage', () => {
 
     const select = screen.getByRole('combobox');
     await user.click(select);
-    
+
     const option = await screen.findByRole('option', { name: /v1/ });
     await user.click(option);
 

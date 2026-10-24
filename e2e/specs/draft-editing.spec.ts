@@ -31,7 +31,7 @@ test.describe('Draft editing', () => {
 
   test('edits percent fields as displayed percentages', async ({ page }) => {
     await openCatalogDraft(page, {
-      tab: 'Resonance',
+      section: 'Resonance',
       versionLabel: /Resonance Version/,
       optionName: /v1/,
       publishedName: 'Valor',
@@ -49,7 +49,7 @@ test.describe('Draft editing', () => {
 
   test('edits skill PvP percent multipliers', async ({ page }) => {
     await openCatalogDraft(page, {
-      tab: 'Skills',
+      section: 'Skills',
       versionLabel: /Skills Version/,
       optionName: /v1/,
       publishedName: 'Cleaving Strike',

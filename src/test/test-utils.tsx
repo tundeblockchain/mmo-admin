@@ -10,6 +10,7 @@ interface WrapperProps {
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   initialEntries?: string[];
+  withMemoryRouter?: boolean;
 }
 
 function createTestQueryClient() {
@@ -23,14 +24,17 @@ function createTestQueryClient() {
   });
 }
 
-function createWrapper(initialEntries: string[]) {
+function createWrapper(initialEntries: string[], withMemoryRouter: boolean) {
   const queryClient = createTestQueryClient();
   return function Wrapper({ children }: WrapperProps) {
+    const themed = <ThemeModeProvider>{children}</ThemeModeProvider>;
     return (
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={initialEntries}>
-          <ThemeModeProvider>{children}</ThemeModeProvider>
-        </MemoryRouter>
+        {withMemoryRouter ? (
+          <MemoryRouter initialEntries={initialEntries}>{themed}</MemoryRouter>
+        ) : (
+          themed
+        )}
       </QueryClientProvider>
     );
   };
@@ -38,10 +42,14 @@ function createWrapper(initialEntries: string[]) {
 
 export function renderWithProviders(
   ui: ReactElement,
-  { initialEntries = ['/'], ...options }: CustomRenderOptions = {},
+  {
+    initialEntries = ['/'],
+    withMemoryRouter = true,
+    ...options
+  }: CustomRenderOptions = {},
 ) {
   return render(ui, {
-    wrapper: createWrapper(initialEntries),
+    wrapper: createWrapper(initialEntries, withMemoryRouter),
     ...options,
   });
 }

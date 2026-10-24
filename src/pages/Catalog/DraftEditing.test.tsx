@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor, userEvent } from '../../test/test-utils';
-import { CatalogPage } from './CatalogPage';
+import { screen, waitFor, userEvent } from '../../test/test-utils';
+import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
@@ -14,10 +14,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   describe('Skill Editor', () => {
     it('dirty draft enables Confirm publish', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const skillsTab = screen.getByRole('tab', { name: 'Skills' });
-      await user.click(skillsTab);
+      await clickCatalogNav(user, 'Skills');
 
       await waitFor(() => {
         expect(screen.getByLabelText(/Skills Version/)).toBeInTheDocument();
@@ -59,10 +58,9 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   describe('Status Editor', () => {
     it('dirty draft enables Confirm publish', async () => {
       const user = userEvent.setup();
-      render(<CatalogPage />);
+      renderCatalogApp();
 
-      const statusesTab = screen.getByRole('tab', { name: 'Statuses' });
-      await user.click(statusesTab);
+      await clickCatalogNav(user, 'Statuses');
 
       await waitFor(() => {
         expect(screen.getByLabelText(/Statuses Version/)).toBeInTheDocument();
