@@ -7,6 +7,7 @@ import {
   useDraftStore,
 } from '../../hooks/useDraftCatalog';
 import { useCatalogDraftActions } from '../../hooks/useCatalogDraftActions';
+import { useAccount } from '../../hooks/useAccount';
 import { usePublishCatalog } from '../../hooks/usePublishCatalog';
 import { latestPublishedVersion } from '../../lib/catalogVersions';
 import { entityKindLabel } from '../../lib/catalogLabels';
@@ -35,6 +36,7 @@ export function useCatalogWorkspace() {
   const discardDraft = useDiscardDraft();
   const queries = useCatalogQueries(drafts, versions);
   const publishCatalog = usePublishCatalog();
+  const account = useAccount();
   const draftActions = useCatalogDraftActions({
     draft,
     selectedType,
@@ -143,6 +145,7 @@ export function useCatalogWorkspace() {
     latestVersion,
     ...notices,
     hasValidationErrors,
+    canPublish: account.isAdmin,
     originalData: queries.originalDataFor(selectedType),
     draftActions,
     handleTypeChange,
@@ -154,6 +157,9 @@ export function useCatalogWorkspace() {
     handleRequestDiscard: ui.handleRequestDiscard,
     handleCancelDiscard: ui.handleCancelDiscard,
     handleOpenPublish: () => {
+      if (!account.isAdmin) {
+        return;
+      }
       publishCatalog.reset();
       ui.setPublishDialogOpen(true);
     },

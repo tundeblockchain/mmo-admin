@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, userEvent } from '../../test/test-utils';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../test/mocks/server';
@@ -9,12 +9,10 @@ import {
   BAD_REQUEST_PUBLISH_MESSAGE,
 } from '../../components/catalog/PublishDialog';
 import { enterClassDraft } from '../../test/draftEditingTestUtils';
+import { mockUser } from '../../test/mocks/firebase-auth';
+import { setupSignedInAuth } from '../../test/signedInAuth';
 
-vi.mock('../../auth', () => ({
-  getIdToken: vi.fn().mockResolvedValue('mock-firebase-jwt-token'),
-}));
-
-import { getIdToken } from '../../auth';
+setupSignedInAuth();
 
 describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
   beforeEach(() => {
@@ -79,7 +77,7 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
       expect(await screen.findByText(ADMIN_FORBIDDEN_PUBLISH_MESSAGE)).toBeInTheDocument();
       expect(attempts).toBe(1);
-      expect(getIdToken).not.toHaveBeenCalledWith(true);
+      expect(mockUser.getIdToken).not.toHaveBeenCalledWith(true);
     });
     it('shows a clear message when the server rejects a 400 empty catalog', async () => {
       server.use(

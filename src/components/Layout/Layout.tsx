@@ -20,6 +20,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth, signOutUser } from '../../auth';
+import { useAccount } from '../../hooks/useAccount';
 import { ThemeToggle } from '../../theme';
 
 const DRAWER_WIDTH = 240;
@@ -31,6 +32,7 @@ const navItems = [
 
 export function Layout() {
   const authState = useAuth();
+  useAccount();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpen = anchorEl !== null;
 

@@ -60,15 +60,13 @@ test.describe('Publish gating', () => {
 test.describe('Publish gating as player', () => {
   test.use({ e2eAuth: 'player' });
 
-  test('player token is treated as forbidden on publish', async ({ page }) => {
+  test('player account cannot open Publish and sees a non-admin notice', async ({ page }) => {
     await openClassDraft(page);
-    await makeClassDraftDirty(page);
-    await reviewPublish(page);
-    await page.getByRole('button', { name: /confirm publish/i }).click();
 
     await expect(
-      page.getByText(/your account isn't an admin, so it can't publish catalogs/i),
+      page.getByRole('status', { name: /account is not an admin/i }),
     ).toBeVisible();
+    await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
   });
 });
 
@@ -90,17 +88,13 @@ test.describe('Publish gating with expired auth', () => {
 test.describe('Account-based publish gating (MMO-30)', () => {
   test.use({ e2eAuth: 'player', catalogApi: { accountType: 'player' } });
 
-  // MMO-30 / PR #12 is not on main: POST /users/me does not yet disable Publish in the UI.
-  test.fixme(
-    'disables Publish for a player from POST /users/me (MMO-30, not on main)',
-    async ({ page }) => {
-      await openClassDraft(page);
+  test('disables Publish for a player from POST /users/me', async ({ page }) => {
+    await openClassDraft(page);
 
-      await expect(
-        page.getByRole('status', { name: /account is not an admin/i }),
-      ).toBeVisible();
-      await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
-    },
-  );
+    await expect(
+      page.getByRole('status', { name: /account is not an admin/i }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
+  });
 });
 

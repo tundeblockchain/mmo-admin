@@ -7,4 +7,8 @@ export const queryKeys = {
     data: (catalogType: CatalogType, version: number) =>
       [...queryKeys.catalog.all, catalogType, version] as const,
   },
+  account: {
+    all: ['account'] as const,
+    me: (uid: string) => [...queryKeys.account.all, 'me', uid] as const,
+  },
 } as const;

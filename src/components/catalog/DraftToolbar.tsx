@@ -16,6 +16,7 @@ interface DraftToolbarProps {
   onOpenPublish: () => void;
   isCreatingDraft: boolean;
   hasValidationErrors?: boolean;
+  canPublish?: boolean;
 }
 
 export function DraftToolbar({
@@ -29,6 +30,7 @@ export function DraftToolbar({
   onOpenPublish,
   isCreatingDraft,
   hasValidationErrors = false,
+  canPublish = false,
 }: DraftToolbarProps) {
   if (!hasDraft) {
     return (
@@ -77,7 +79,7 @@ export function DraftToolbar({
         startIcon={<PublishIcon />}
         onClick={onOpenPublish}
         size="small"
-        disabled={hasValidationErrors}
+        disabled={hasValidationErrors || !canPublish}
       >
         Publish {formatCatalogType(catalogType)}
       </Button>
