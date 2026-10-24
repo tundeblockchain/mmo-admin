@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import {
   mockUser,
   setMockAuthState,
@@ -9,6 +9,7 @@ import { getIdToken, getAuthSnapshot } from './authStore';
 describe('authStore', () => {
   beforeEach(() => {
     resetMockAuth();
+    vi.mocked(mockUser.getIdToken).mockClear();
   });
 
   describe('getAuthSnapshot', () => {
@@ -43,10 +44,16 @@ describe('authStore', () => {
       expect(token).toBe('mock-id-token');
     });
 
-    it('calls user.getIdToken to get fresh token', async () => {
+    it('calls user.getIdToken without forcing refresh by default', async () => {
       setMockAuthState(mockUser);
       await getIdToken();
-      expect(mockUser.getIdToken).toHaveBeenCalled();
+      expect(mockUser.getIdToken).toHaveBeenCalledWith(false);
+    });
+
+    it('forwards forceRefresh to Firebase getIdToken', async () => {
+      setMockAuthState(mockUser);
+      await getIdToken(true);
+      expect(mockUser.getIdToken).toHaveBeenCalledWith(true);
     });
   });
 });

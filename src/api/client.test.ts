@@ -1,0 +1,153 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { http, HttpResponse } from 'msw';
+import { server } from '../test/mocks/server';
+import { ApiError } from '../lib/errors';
+
+vi.mock('../auth', () => ({
+  getIdToken: vi.fn(),
+}));
+
+import { apiClient } from './client';
+import { getIdToken } from '../auth';
+
+function forceRefreshCallCount(): number {
+  return vi
+    .mocked(getIdToken)
+    .mock.calls.filter((call) => call[0] === true).length;
+}
+
+describe('apiClient auth interceptors', () => {
+  beforeEach(() => {
+    vi.mocked(getIdToken).mockReset();
+  });
+
+  it('attaches the Bearer token on GET when signed in', async () => {
+    vi.mocked(getIdToken).mockResolvedValue('signed-in-token');
+    let capturedAuthHeader: string | null = null;
+
+    server.use(
+      http.get('*/auth-probe', ({ request }) => {
+        capturedAuthHeader = request.headers.get('Authorization');
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    await apiClient.get('/auth-probe');
+
+    expect(capturedAuthHeader).toBe('Bearer signed-in-token');
+    expect(getIdToken).toHaveBeenCalledTimes(1);
+    expect(getIdToken).toHaveBeenCalledWith();
+  });
+
+  it('attaches the Bearer token on POST when signed in', async () => {
+    vi.mocked(getIdToken).mockResolvedValue('signed-in-token');
+    let capturedAuthHeader: string | null = null;
+
+    server.use(
+      http.post('*/auth-probe', ({ request }) => {
+        capturedAuthHeader = request.headers.get('Authorization');
+        return HttpResponse.json({ ok: true }, { status: 201 });
+      }),
+    );
+
+    await apiClient.post('/auth-probe', { example: true });
+
+    expect(capturedAuthHeader).toBe('Bearer signed-in-token');
+    expect(getIdToken).toHaveBeenCalledTimes(1);
+    expect(getIdToken).toHaveBeenCalledWith();
+  });
+
+  it('omits the Authorization header on GET when signed out', async () => {
+    vi.mocked(getIdToken).mockResolvedValue(null);
+    let capturedAuthHeader: string | null | undefined;
+
+    server.use(
+      http.get('*/auth-probe', ({ request }) => {
+        capturedAuthHeader = request.headers.get('Authorization');
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    await apiClient.get('/auth-probe');
+
+    expect(capturedAuthHeader).toBeNull();
+    expect(getIdToken).not.toHaveBeenCalledWith(true);
+  });
+
+  it('omits the Authorization header on POST when signed out', async () => {
+    vi.mocked(getIdToken).mockResolvedValue(null);
+    const capturedAuthHeaders: Array<string | null> = [];
+
+    server.use(
+      http.post('*/auth-probe', ({ request }) => {
+        capturedAuthHeaders.push(request.headers.get('Authorization'));
+        return HttpResponse.json({ ok: true }, { status: 201 });
+      }),
+    );
+
+    await apiClient.post('/auth-probe', { example: true });
+
+    expect(capturedAuthHeaders).toEqual([null]);
+    expect(getIdToken).not.toHaveBeenCalledWith(true);
+  });
+
+  it('force-refreshes the token and retries once after a 401', async () => {
+    vi.mocked(getIdToken)
+      .mockResolvedValueOnce('stale-token')
+      .mockResolvedValueOnce('fresh-token')
+      .mockResolvedValueOnce('fresh-token');
+
+    const capturedAuthHeaders: Array<string | null> = [];
+    let attempts = 0;
+
+    server.use(
+      http.get('*/auth-probe', ({ request }) => {
+        attempts += 1;
+        capturedAuthHeaders.push(request.headers.get('Authorization'));
+
+        if (attempts === 1) {
+          return HttpResponse.json({ error: 'Token expired' }, { status: 401 });
+        }
+
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    const response = await apiClient.get('/auth-probe');
+
+    expect(response.data).toEqual({ ok: true });
+    expect(attempts).toBe(2);
+    expect(capturedAuthHeaders).toEqual([
+      'Bearer stale-token',
+      'Bearer fresh-token',
+    ]);
+    expect(getIdToken).toHaveBeenCalledTimes(3);
+    expect(getIdToken).toHaveBeenNthCalledWith(2, true);
+    expect(forceRefreshCallCount()).toBe(1);
+  });
+
+  it('does not retry infinitely when the retried request still returns 401', async () => {
+    vi.mocked(getIdToken).mockResolvedValue('expired-token');
+    let attempts = 0;
+
+    server.use(
+      http.get('*/auth-probe', () => {
+        attempts += 1;
+        return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }),
+    );
+
+    try {
+      await apiClient.get('/auth-probe');
+      expect.fail('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(401);
+      expect((error as ApiError).message).toBe('Unauthorized');
+    }
+
+    expect(attempts).toBe(2);
+    expect(getIdToken).toHaveBeenCalledTimes(3);
+    expect(forceRefreshCallCount()).toBe(1);
+  });
+});

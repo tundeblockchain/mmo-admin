@@ -1,5 +1,4 @@
 import { apiClient } from './client';
-import { getIdToken } from '../auth';
 import type {
   CatalogType,
   CatalogVersionList,
@@ -52,19 +51,9 @@ export async function publishCatalog(
   catalogType: CatalogType,
   request: PublishCatalogRequest,
 ): Promise<PublishedCatalogResponse> {
-  const idToken = await getIdToken();
-  if (!idToken) {
-    throw new Error('Authentication required to publish catalog');
-  }
-
   const response = await apiClient.post<PublishedCatalogResponse>(
     `/catalog/${catalogType}/versions`,
     request,
-    {
-      headers: {
-        Authorization: `Bearer ${idToken}`,
-      },
-    },
   );
   return response.data;
 }
