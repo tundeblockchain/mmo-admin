@@ -3,6 +3,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import PublishIcon from '@mui/icons-material/Publish';
 import CancelIcon from '@mui/icons-material/Cancel';
 import type { CatalogType } from '../../types/catalog';
+import { formatCatalogType } from '../../lib/catalogLabels';
 
 interface DraftToolbarProps {
   catalogType: CatalogType;
@@ -15,15 +16,6 @@ interface DraftToolbarProps {
   onOpenPublish: () => void;
   isCreatingDraft: boolean;
   hasValidationErrors?: boolean;
-}
-
-function formatCatalogType(type: CatalogType): string {
-  switch (type) {
-    case 'combat-constants':
-      return 'Combat Constants';
-    default:
-      return type.charAt(0).toUpperCase() + type.slice(1);
-  }
 }
 
 export function DraftToolbar({

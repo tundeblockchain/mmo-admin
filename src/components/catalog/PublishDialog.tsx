@@ -1,26 +1,27 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  TextField,
   Alert,
   Box,
-  CircularProgress,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
-  FormControlLabel,
+  Button,
   Checkbox,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  TextField,
+  Typography,
 } from '@mui/material';
-import type { CatalogType, CatalogEntityData } from '../../types/catalog';
-import { computeDiffSummary } from '../../lib/catalogDiff';
-import { AdminForbiddenError, ApiError } from '../../lib/errors';
+import type { CatalogEntityData, CatalogType } from '../../types/catalog';
+import { formatCatalogType } from '../../lib/catalogLabels';
+import { hasPublishableChanges, PublishChangeSummary } from './publish/PublishChangeSummary';
+import {
+  ADMIN_FORBIDDEN_PUBLISH_MESSAGE,
+  BAD_REQUEST_PUBLISH_MESSAGE,
+  publishFailureMessage,
+} from './publish/publishMessages';
 
 interface PublishDialogProps {
   open: boolean;
@@ -39,50 +40,11 @@ interface PublishDialogProps {
   hasValidationErrors?: boolean;
 }
 
-function formatCatalogType(type: CatalogType): string {
-  switch (type) {
-    case 'combat-constants':
-      return 'Combat Constants';
-    default:
-      return type.charAt(0).toUpperCase() + type.slice(1);
-  }
-}
-
 function isEmptyArrayCatalog(catalogType: CatalogType, draftData: CatalogEntityData): boolean {
   return catalogType !== 'combat-constants' && Array.isArray(draftData) && draftData.length === 0;
 }
 
-export const ADMIN_FORBIDDEN_PUBLISH_MESSAGE =
-  "Your account isn't an admin, so it can't publish catalogs.";
-
-export const BAD_REQUEST_PUBLISH_MESSAGE =
-  'The server rejected this catalog. An empty data array cannot be published.';
-
-function publishFailureMessage(
-  error: Error,
-  isConflictError: boolean,
-  isAuthError: boolean,
-  isForbiddenError: boolean,
-  isBadRequestError: boolean,
-): string {
-  if (isConflictError) {
-    return 'Version conflict: Another version was published while you were editing. Please retry to publish as the next version.';
-  }
-
-  if (isAuthError) {
-    return 'Authentication required. Please sign in to publish.';
-  }
-
-  if (isForbiddenError || error instanceof AdminForbiddenError) {
-    return ADMIN_FORBIDDEN_PUBLISH_MESSAGE;
-  }
-
-  if (isBadRequestError || (error instanceof ApiError && error.status === 400)) {
-    return BAD_REQUEST_PUBLISH_MESSAGE;
-  }
-
-  return error.message;
-}
+export { ADMIN_FORBIDDEN_PUBLISH_MESSAGE, BAD_REQUEST_PUBLISH_MESSAGE };
 
 export function PublishDialog({
   open,
@@ -104,39 +66,9 @@ export function PublishDialog({
   const [showConfirm, setShowConfirm] = useState(false);
   const [emptyWipeAcknowledged, setEmptyWipeAcknowledged] = useState(false);
 
-  const diffSummary = computeDiffSummary(originalData, draftData, catalogType);
-  const hasChanges = diffSummary.added > 0 || diffSummary.modified > 0 || diffSummary.removed > 0;
+  const hasChanges = hasPublishableChanges(catalogType, originalData, draftData);
   const isEmptyArrayPublish = isEmptyArrayCatalog(catalogType, draftData);
   const catalogTypeLabel = formatCatalogType(catalogType).toLowerCase();
-
-  const handleReleaseNotesChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setReleaseNotes(event.target.value);
-    },
-    [],
-  );
-
-  const handleRequestPublish = useCallback(() => {
-    setShowConfirm(true);
-  }, []);
-
-  const handleEmptyWipeAckChange = useCallback(
-    (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      setEmptyWipeAcknowledged(checked);
-    },
-    [],
-  );
-
-  const handleCancelConfirm = useCallback(() => {
-    setShowConfirm(false);
-    setEmptyWipeAcknowledged(false);
-  }, []);
-
-  const handleConfirmPublish = useCallback(() => {
-    void onPublish(releaseNotes).catch(() => {
-      // Mutation error is rendered by this dialog.
-    });
-  }, [onPublish, releaseNotes]);
 
   const handleClose = useCallback(() => {
     setReleaseNotes('');
@@ -147,9 +79,7 @@ export function PublishDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        Publish {formatCatalogType(catalogType)} Catalog
-      </DialogTitle>
+      <DialogTitle>Publish {formatCatalogType(catalogType)} Catalog</DialogTitle>
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="text.secondary">
@@ -163,55 +93,11 @@ export function PublishDialog({
         <Typography variant="subtitle2" gutterBottom>
           Changes Summary
         </Typography>
-        <List dense disablePadding>
-          {diffSummary.added > 0 && (
-            <ListItem disablePadding sx={{ py: 0.5 }}>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip label="Added" color="success" size="small" />
-                    <Typography variant="body2">{diffSummary.added} entities</Typography>
-                  </Box>
-                }
-              />
-            </ListItem>
-          )}
-          {diffSummary.modified > 0 && (
-            <ListItem disablePadding sx={{ py: 0.5 }}>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip label="Modified" color="warning" size="small" />
-                    <Typography variant="body2">{diffSummary.modified} entities</Typography>
-                  </Box>
-                }
-              />
-            </ListItem>
-          )}
-          {diffSummary.removed > 0 && (
-            <ListItem disablePadding sx={{ py: 0.5 }}>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip label="Removed" color="error" size="small" />
-                    <Typography variant="body2">{diffSummary.removed} entities</Typography>
-                  </Box>
-                }
-              />
-            </ListItem>
-          )}
-          {!hasChanges && (
-            <ListItem disablePadding sx={{ py: 0.5 }}>
-              <ListItemText
-                primary={
-                  <Typography variant="body2" color="text.secondary">
-                    No changes detected
-                  </Typography>
-                }
-              />
-            </ListItem>
-          )}
-        </List>
+        <PublishChangeSummary
+          catalogType={catalogType}
+          originalData={originalData}
+          draftData={draftData}
+        />
 
         <Divider sx={{ my: 2 }} />
 
@@ -221,7 +107,7 @@ export function PublishDialog({
           rows={3}
           fullWidth
           value={releaseNotes}
-          onChange={handleReleaseNotesChange}
+          onChange={(event) => setReleaseNotes(event.target.value)}
           placeholder="Describe the changes in this version..."
           disabled={isPending}
         />
@@ -243,7 +129,7 @@ export function PublishDialog({
             control={
               <Checkbox
                 checked={emptyWipeAcknowledged}
-                onChange={handleEmptyWipeAckChange}
+                onChange={(_, checked) => setEmptyWipeAcknowledged(checked)}
                 disabled={isPending}
               />
             }
@@ -288,7 +174,7 @@ export function PublishDialog({
         </Button>
         {!showConfirm ? (
           <Button
-            onClick={handleRequestPublish}
+            onClick={() => setShowConfirm(true)}
             variant="contained"
             disabled={isPending || !hasChanges || hasValidationErrors}
           >
@@ -296,11 +182,21 @@ export function PublishDialog({
           </Button>
         ) : (
           <>
-            <Button onClick={handleCancelConfirm} disabled={isPending}>
+            <Button
+              onClick={() => {
+                setShowConfirm(false);
+                setEmptyWipeAcknowledged(false);
+              }}
+              disabled={isPending}
+            >
               Go Back
             </Button>
             <Button
-              onClick={handleConfirmPublish}
+              onClick={() => {
+                void onPublish(releaseNotes).catch(() => {
+                  // Mutation error is rendered by this dialog.
+                });
+              }}
               variant="contained"
               color="warning"
               disabled={

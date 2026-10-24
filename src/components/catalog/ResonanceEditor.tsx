@@ -1,23 +1,20 @@
 import { useCallback } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Divider,
-  TextField,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
   Button,
   IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { FieldErrors } from '../../lib/catalogValidation';
-import { PercentField } from './catalogFields';
 import type { ResonanceDefinition, ResonancePartyBonus } from '../../types/catalog';
+import { CatalogEditorLayout, IdentityFields, PercentField } from '../form';
 
 interface ResonanceEditorProps {
   resonanceData: ResonanceDefinition;
@@ -32,9 +29,9 @@ export function ResonanceEditor({
   idError = null,
   fieldErrors = {},
 }: ResonanceEditorProps) {
-  const handleTextChange = useCallback(
-    (field: keyof ResonanceDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdate({ ...resonanceData, [field]: event.target.value });
+  const handleFieldChange = useCallback(
+    (field: keyof ResonanceDefinition, value: string) => {
+      onUpdate({ ...resonanceData, [field]: value });
     },
     [resonanceData, onUpdate],
   );
@@ -66,46 +63,22 @@ export function ResonanceEditor({
   );
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Resonance Editor
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Edit resonance properties and party bonuses. Bonus percentages are displayed as whole numbers
-        but stored as decimals (e.g., 5% = 0.05).
-      </Typography>
-
-      <Divider sx={{ my: 2 }} />
-
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          label="Resonance ID"
-          value={resonanceData.resonanceId}
-          onChange={handleTextChange('resonanceId')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-          error={idError !== null}
-          helperText={idError ?? 'Unique identifier for this resonance (e.g. valor).'}
-        />
-        <TextField
-          label="Display Name"
-          value={resonanceData.displayName}
-          onChange={handleTextChange('displayName')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          label="Description"
-          value={resonanceData.description}
-          onChange={handleTextChange('description')}
-          fullWidth
-          multiline
-          rows={2}
-          size="small"
-        />
-      </Box>
+    <CatalogEditorLayout
+      title="Resonance Editor"
+      description="Edit resonance properties and party bonuses. Bonus percentages are displayed as whole numbers but stored as decimals (e.g., 5% = 0.05)."
+    >
+      <IdentityFields
+        idLabel="Resonance ID"
+        idValue={resonanceData.resonanceId}
+        onIdChange={(value) => handleFieldChange('resonanceId', value)}
+        idError={idError}
+        idHelperText="Unique identifier for this resonance (e.g. valor)."
+        nameValue={resonanceData.displayName}
+        onNameChange={(value) => handleFieldChange('displayName', value)}
+        descriptionValue={resonanceData.description}
+        onDescriptionChange={(value) => handleFieldChange('description', value)}
+        descriptionGutter={false}
+      />
 
       <Typography variant="h6" gutterBottom>
         Party Bonuses
@@ -159,6 +132,6 @@ export function ResonanceEditor({
       <Button startIcon={<AddIcon />} onClick={handleAddPartyBonus} size="small" sx={{ mt: 1 }}>
         Add party bonus
       </Button>
-    </Paper>
+    </CatalogEditorLayout>
   );
 }

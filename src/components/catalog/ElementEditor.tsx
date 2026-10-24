@@ -1,21 +1,9 @@
 import { useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Divider,
-  TextField,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHead,
-} from '@mui/material';
+import { Box, Grid, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { ELEMENT_IDS } from '../../lib/catalogSchema';
 import type { FieldErrors } from '../../lib/catalogValidation';
-import { PercentField } from './catalogFields';
 import type { ElementDefinition } from '../../types/catalog';
+import { CatalogEditorLayout, IdentityFields, PercentField } from '../form';
 
 interface ElementEditorProps {
   elementData: ElementDefinition;
@@ -30,35 +18,22 @@ export function ElementEditor({
   idError = null,
   fieldErrors = {},
 }: ElementEditorProps) {
-  const handleTextChange = useCallback(
-    (field: keyof ElementDefinition) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdate({ ...elementData, [field]: event.target.value });
+  const handleFieldChange = useCallback(
+    (field: keyof ElementDefinition, value: string) => {
+      onUpdate({ ...elementData, [field]: value });
     },
     [elementData, onUpdate],
   );
 
-  const handleStrongAgainstChange = useCallback(
-    (element: string, value: number) => {
-      const strongAgainst = { ...elementData.strongAgainst };
+  const handleMultiplierChange = useCallback(
+    (map: 'strongAgainst' | 'weakAgainst', element: string, value: number) => {
+      const next = { ...elementData[map] };
       if (value === 0) {
-        delete strongAgainst[element];
+        delete next[element];
       } else {
-        strongAgainst[element] = value;
+        next[element] = value;
       }
-      onUpdate({ ...elementData, strongAgainst });
-    },
-    [elementData, onUpdate],
-  );
-
-  const handleWeakAgainstChange = useCallback(
-    (element: string, value: number) => {
-      const weakAgainst = { ...elementData.weakAgainst };
-      if (value === 0) {
-        delete weakAgainst[element];
-      } else {
-        weakAgainst[element] = value;
-      }
-      onUpdate({ ...elementData, weakAgainst });
+      onUpdate({ ...elementData, [map]: next });
     },
     [elementData, onUpdate],
   );
@@ -72,8 +47,10 @@ export function ElementEditor({
   );
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+    <CatalogEditorLayout
+      title="Element Editor"
+      description="Edit element properties and damage multipliers. Multipliers are displayed as percentages but stored as decimals (e.g., 150% = 1.50)."
+      headerAdornment={
         <Box
           sx={{
             width: 32,
@@ -84,106 +61,97 @@ export function ElementEditor({
             borderColor: 'divider',
           }}
         />
-        <Typography variant="h5">Element Editor</Typography>
-      </Box>
-
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Edit element properties and damage multipliers. Multipliers are displayed as percentages but
-        stored as decimals (e.g., 150% = 1.50).
-      </Typography>
-
-      <Divider sx={{ my: 2 }} />
-
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          label="Element ID"
-          value={elementData.elementId}
-          onChange={handleTextChange('elementId')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-          error={idError !== null}
-          helperText={idError ?? 'Unique identifier for this element (e.g. fire).'}
-        />
-        <TextField
-          label="Display Name"
-          value={elementData.displayName}
-          onChange={handleTextChange('displayName')}
-          fullWidth
-          size="small"
-          sx={{ mb: 2 }}
-        />
+      }
+    >
+      <IdentityFields
+        idLabel="Element ID"
+        idValue={elementData.elementId}
+        onIdChange={(value) => handleFieldChange('elementId', value)}
+        idError={idError}
+        idHelperText="Unique identifier for this element (e.g. fire)."
+        nameValue={elementData.displayName}
+        onNameChange={(value) => handleFieldChange('displayName', value)}
+      >
         <TextField
           label="Color (hex)"
           value={elementData.color}
-          onChange={handleTextChange('color')}
+          onChange={(event) => handleFieldChange('color', event.target.value)}
           fullWidth
           size="small"
           placeholder="#ff6600"
           error={fieldErrors.color !== undefined}
           helperText={fieldErrors.color}
         />
-      </Box>
+      </IdentityFields>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h6" gutterBottom color="success.main">
             Strong Against (bonus damage)
           </Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Element</TableCell>
-                <TableCell align="right">Multiplier (%)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {otherElements.map((element) => (
-                <TableRow key={element}>
-                  <TableCell sx={{ textTransform: 'capitalize' }}>{element}</TableCell>
-                  <TableCell align="right" sx={{ width: 120 }}>
-                    <PercentField
-                      label=""
-                      value={elementData.strongAgainst[element] ?? 0}
-                      onChange={(value) => handleStrongAgainstChange(element, value)}
-                      error={fieldErrors[`strongAgainst.${element}`]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <MultiplierTable
+            elements={otherElements}
+            values={elementData.strongAgainst}
+            fieldPrefix="strongAgainst"
+            fieldErrors={fieldErrors}
+            onChange={(element, value) => handleMultiplierChange('strongAgainst', element, value)}
+          />
         </Grid>
-
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h6" gutterBottom color="error.main">
             Weak Against (reduced damage)
           </Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Element</TableCell>
-                <TableCell align="right">Multiplier (%)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {otherElements.map((element) => (
-                <TableRow key={element}>
-                  <TableCell sx={{ textTransform: 'capitalize' }}>{element}</TableCell>
-                  <TableCell align="right" sx={{ width: 120 }}>
-                    <PercentField
-                      label=""
-                      value={elementData.weakAgainst[element] ?? 0}
-                      onChange={(value) => handleWeakAgainstChange(element, value)}
-                      error={fieldErrors[`weakAgainst.${element}`]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <MultiplierTable
+            elements={otherElements}
+            values={elementData.weakAgainst}
+            fieldPrefix="weakAgainst"
+            fieldErrors={fieldErrors}
+            onChange={(element, value) => handleMultiplierChange('weakAgainst', element, value)}
+          />
         </Grid>
       </Grid>
-    </Paper>
+    </CatalogEditorLayout>
+  );
+}
+
+interface MultiplierTableProps {
+  elements: string[];
+  values: Record<string, number>;
+  fieldPrefix: string;
+  fieldErrors: FieldErrors;
+  onChange: (element: string, value: number) => void;
+}
+
+function MultiplierTable({
+  elements,
+  values,
+  fieldPrefix,
+  fieldErrors,
+  onChange,
+}: MultiplierTableProps) {
+  return (
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Element</TableCell>
+          <TableCell align="right">Multiplier (%)</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {elements.map((element) => (
+          <TableRow key={element}>
+            <TableCell sx={{ textTransform: 'capitalize' }}>{element}</TableCell>
+            <TableCell align="right" sx={{ width: 120 }}>
+              <PercentField
+                label=""
+                value={values[element] ?? 0}
+                onChange={(value) => onChange(element, value)}
+                error={fieldErrors[`${fieldPrefix}.${element}`]}
+              />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

@@ -87,6 +87,10 @@ export default tseslint.config(
       ],
       'no-console': 'error',
       'no-restricted-syntax': ['error', ...architectureSyntax, envSyntax],
+      'max-lines': [
+        'error',
+        { max: 200, skipBlankLines: true, skipComments: true },
+      ],
     },
   },
   {
@@ -108,6 +112,10 @@ export default tseslint.config(
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
+      'max-lines': [
+        'error',
+        { max: 200, skipBlankLines: true, skipComments: true },
+      ],
     },
   },
   {
