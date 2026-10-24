@@ -76,6 +76,7 @@ describe('ElementEditor', () => {
     expect(natureStrongInput).toBeDefined();
     if (natureStrongInput) {
       await user.clear(natureStrongInput);
+      await user.type(natureStrongInput, '0');
 
       expect(onUpdate).toHaveBeenCalled();
       const lastCall = onUpdate.mock.calls[onUpdate.mock.calls.length - 1][0];
