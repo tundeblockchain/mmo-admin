@@ -26,6 +26,7 @@ export interface VersionSelections {
 
 export interface PendingDelete {
   index: number;
+  entityId: string;
   displayName: string;
   kindLabel: string;
 }

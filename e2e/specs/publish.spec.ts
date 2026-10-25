@@ -24,36 +24,18 @@ test.describe('Publish gating', () => {
     await expect(page.getByRole('dialog', { name: /publish class catalog/i })).toHaveCount(0);
   });
 
-  test('blocks empty publish until the wipe is acknowledged, then surfaces 400', async ({
-    page,
-  }) => {
+  test('keeps at least one class so publish cannot send an empty array', async ({ page }) => {
     await openClassDraft(page);
-
-    await page.getByRole('button', { name: /delete vanguard/i }).click();
-    await page.getByRole('button', { name: /^delete$/i }).click();
-    await expect(page.getByRole('dialog', { name: /delete class/i })).toHaveCount(0);
 
     await page.getByRole('button', { name: /delete ranger/i }).click();
     await page.getByRole('button', { name: /^delete$/i }).click();
-    await expect(page.getByRole('dialog', { name: /delete class/i })).toHaveCount(0);
+    await expect(page.getByText('Ranger')).toHaveCount(0);
 
-    await page.getByRole('button', { name: /publish class/i }).click();
-    await expect(
-      page.getByText(/this will publish an empty class catalog and remove all entries/i),
-    ).toBeVisible();
-
-    await page.getByRole('button', { name: /review & publish/i }).click();
-    await expect(page.getByRole('button', { name: /confirm publish/i })).toBeDisabled();
-
-    await page
-      .getByRole('checkbox', { name: /i understand this will remove all class entries/i })
-      .check();
-    await expect(page.getByRole('button', { name: /confirm publish/i })).toBeEnabled();
-
-    await page.getByRole('button', { name: /confirm publish/i }).click();
-    await expect(
-      page.getByText(/the server rejected this catalog\. an empty data array cannot be published/i),
-    ).toBeVisible();
+    await page.getByRole('button', { name: /delete vanguard/i }).click();
+    await expect(page.getByRole('dialog', { name: /cannot delete/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^delete$/i })).toHaveCount(0);
+    await page.getByRole('button', { name: /close/i }).click();
+    await expect(page.getByText('Vanguard')).toBeVisible();
   });
 });
 

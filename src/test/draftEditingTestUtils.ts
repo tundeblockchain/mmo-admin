@@ -1,24 +1,37 @@
 import { expect } from 'vitest';
 import { type userEvent, screen, waitFor, within } from './test-utils';
 
-export async function enterClassDraft(user: ReturnType<typeof userEvent.setup>) {
+export async function enterCatalogDraft(
+  user: ReturnType<typeof userEvent.setup>,
+  options: {
+    versionLabel: RegExp;
+    optionName: RegExp;
+    publishedName: string;
+  },
+) {
   await waitFor(() => {
-    expect(screen.getByLabelText(/Classes Version/)).toBeInTheDocument();
+    expect(screen.getByLabelText(options.versionLabel)).toBeInTheDocument();
   });
 
-  const select = screen.getByRole('combobox');
-  await user.click(select);
-  const option = await screen.findByRole('option', { name: /v2/ });
-  await user.click(option);
+  await user.click(screen.getByRole('combobox'));
+  await user.click(await screen.findByRole('option', { name: options.optionName }));
 
   await waitFor(() => {
-    expect(screen.getByText('Vanguard')).toBeInTheDocument();
+    expect(screen.getByText(options.publishedName)).toBeInTheDocument();
   });
 
   await user.click(screen.getByRole('button', { name: /edit as draft/i }));
 
   await waitFor(() => {
     expect(screen.getByText(/editing draft/i)).toBeInTheDocument();
+  });
+}
+
+export async function enterClassDraft(user: ReturnType<typeof userEvent.setup>) {
+  await enterCatalogDraft(user, {
+    versionLabel: /Classes Version/,
+    optionName: /v2/,
+    publishedName: 'Vanguard',
   });
 }
 
