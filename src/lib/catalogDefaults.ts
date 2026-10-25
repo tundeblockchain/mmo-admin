@@ -36,7 +36,7 @@ export function createDefaultClass(): ClassDefinition {
 export function createDefaultSkill(): SkillDefinition {
   return {
     skillId: '',
-    classId: 'vanguard',
+    classId: '',
     displayName: 'New Skill',
     description: '',
     kind: 'active',

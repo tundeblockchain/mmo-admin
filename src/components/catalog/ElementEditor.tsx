@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Box, Grid, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
-import { ELEMENT_IDS } from '../../lib/catalogSchema';
+import { useCatalogOptions } from '../../hooks/useCatalogOptions';
 import type { FieldErrors } from '../../lib/catalogValidation';
 import type { ElementDefinition } from '../../types/catalog';
 import { CatalogEditorLayout, IdentityFields, PercentField } from '../form';
@@ -38,9 +38,12 @@ export function ElementEditor({
     [elementData, onUpdate],
   );
 
+  const { options: elementOptions } = useCatalogOptions('element');
   const otherElements = Array.from(
     new Set([
-      ...ELEMENT_IDS.filter((element) => element !== elementData.elementId),
+      ...elementOptions
+        .map((option) => option.id)
+        .filter((elementId) => elementId !== elementData.elementId),
       ...Object.keys(elementData.strongAgainst),
       ...Object.keys(elementData.weakAgainst),
     ]),

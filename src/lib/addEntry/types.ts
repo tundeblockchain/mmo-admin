@@ -1,3 +1,4 @@
+import type { CatalogReferenceType } from '../catalogOptions';
 import type {
   CatalogType,
   ClassDefinition,
@@ -41,6 +42,11 @@ export interface SelectAddEntryField extends AddEntryFieldBase {
   options: readonly string[];
 }
 
+export interface CatalogSelectAddEntryField extends AddEntryFieldBase {
+  kind: 'catalog-select';
+  catalogType: CatalogReferenceType;
+}
+
 export interface BooleanAddEntryField extends AddEntryFieldBase {
   kind: 'boolean';
 }
@@ -54,6 +60,7 @@ export type AddEntryField =
   | TextAddEntryField
   | NumberAddEntryField
   | SelectAddEntryField
+  | CatalogSelectAddEntryField
   | BooleanAddEntryField
   | MultiSelectAddEntryField;
 

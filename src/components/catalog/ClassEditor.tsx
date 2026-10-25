@@ -3,12 +3,11 @@ import { Box, Chip, Divider, Grid, TextField, Typography } from '@mui/material';
 import {
   CLASS_ROLES,
   PRIMARY_RESOURCES,
-  RESONANCE_IDS,
   SECONDARY_RESOURCES,
 } from '../../lib/catalogSchema';
 import type { FieldErrors } from '../../lib/catalogValidation';
-import type { ClassDefinition, ClassRole, PrimaryResource, ResonanceId } from '../../types/catalog';
-import { CatalogEditorLayout, IdentityFields, SelectField } from '../form';
+import type { ClassDefinition, ClassRole, PrimaryResource } from '../../types/catalog';
+import { CatalogEditorLayout, CatalogReferenceSelect, IdentityFields, SelectField } from '../form';
 
 interface ClassEditorProps {
   classData: ClassDefinition;
@@ -116,12 +115,12 @@ export function ClassEditor({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <SelectField
+            <CatalogReferenceSelect
+              catalogType="resonance"
               label="Resonance"
               labelId="class-resonance-label"
               value={classData.resonance}
-              onChange={(value) => handleFieldChange('resonance', value as ResonanceId)}
-              options={RESONANCE_IDS}
+              onChange={(value) => handleFieldChange('resonance', value)}
             />
           </Grid>
         </Grid>

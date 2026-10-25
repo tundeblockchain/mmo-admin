@@ -3,6 +3,7 @@ export { OptionalNumberField } from './OptionalNumberField';
 export { PercentField } from './PercentField';
 export { OptionalPercentField } from './OptionalPercentField';
 export { SelectField } from './SelectField';
+export { CatalogReferenceSelect } from './CatalogReferenceSelect';
 export { IdentityFields } from './IdentityFields';
 export { CatalogEditorLayout } from './CatalogEditorLayout';
 export { EditorAccordion } from './EditorAccordion';

@@ -124,6 +124,7 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
         dialogName: /add skill/i,
         idLabel: 'Skill ID',
         idValue: 'vanguard_new_skill',
+        select: { label: 'Class', option: 'Vanguard' },
       });
 
       expect(screen.getAllByText('New Skill').length).toBeGreaterThan(0);

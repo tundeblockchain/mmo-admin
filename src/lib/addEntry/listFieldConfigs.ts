@@ -1,8 +1,6 @@
 import {
-  CLASS_IDS,
   CLASS_ROLES,
   PRIMARY_RESOURCES,
-  RESONANCE_IDS,
   SKILL_KINDS,
   STATUS_CATEGORIES,
 } from '../catalogSchema';
@@ -29,7 +27,7 @@ export const CLASS_ADD_ENTRY_CONFIG: AddEntryConfig = {
       kind: 'select',
       options: PRIMARY_RESOURCES,
     },
-    { key: 'resonance', label: 'Resonance', kind: 'select', options: RESONANCE_IDS },
+    { key: 'resonance', label: 'Resonance', kind: 'catalog-select', catalogType: 'resonance' },
     { key: 'roles', label: 'Roles', kind: 'multiselect', options: CLASS_ROLES },
   ],
 };
@@ -49,7 +47,13 @@ export const SKILL_ADD_ENTRY_CONFIG: AddEntryConfig = {
     },
     { key: 'displayName', label: 'Display Name', kind: 'text' },
     { key: 'description', label: 'Description', kind: 'textarea' },
-    { key: 'classId', label: 'Class', kind: 'select', options: CLASS_IDS },
+    {
+      key: 'classId',
+      label: 'Class',
+      kind: 'catalog-select',
+      catalogType: 'class',
+      required: true,
+    },
     { key: 'kind', label: 'Kind', kind: 'select', options: SKILL_KINDS },
   ],
 };

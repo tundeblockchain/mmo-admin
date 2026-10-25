@@ -39,7 +39,7 @@ describe('catalogDefaults', () => {
 
     expect(entry.skillId).toBe('');
     expect(entry.displayName).toBe('New Skill');
-    expect(entry.classId).toBe('vanguard');
+    expect(entry.classId).toBe('');
     expect(entry.kind).toBe('active');
     expect(entry.coefficients.basePower).toBe(1.5);
     expect(entry.coefficients.scaling).toEqual([

@@ -1,10 +1,16 @@
-import { Box, Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, Grid, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ELEMENT_IDS, SCALING_STATS } from '../../../lib/catalogSchema';
+import { SCALING_STATS } from '../../../lib/catalogSchema';
 import type { FieldErrors } from '../../../lib/catalogValidation';
-import type { ElementId, ScalingStat, SkillDefinition } from '../../../types/catalog';
-import { EditorAccordion, NumberField, OptionalNumberField, SelectField } from '../../form';
+import type { ScalingStat, SkillDefinition } from '../../../types/catalog';
+import {
+  CatalogReferenceSelect,
+  EditorAccordion,
+  NumberField,
+  OptionalNumberField,
+  SelectField,
+} from '../../form';
 import { SkillConditionalsBlock } from './SkillConditionalsBlock';
 import { SkillPerStackValues } from './SkillPerStackValues';
 import { createScaling } from './skillFactories';
@@ -36,46 +42,39 @@ export function SkillCoefficientsSection({
           />
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="skill-element-label">Element</InputLabel>
-            <Select<ElementId | ''>
-              labelId="skill-element-label"
-              value={coefficients.element ?? ''}
-              label="Element"
-              onChange={(event) =>
-                onUpdate({
-                  ...skillData,
-                  coefficients: {
-                    ...coefficients,
-                    element: event.target.value === '' ? undefined : (event.target.value as ElementId),
-                  },
-                })
-              }
-            >
-              <MenuItem value="">None</MenuItem>
-              {ELEMENT_IDS.map((element) => (
-                <MenuItem key={element} value={element}>
-                  {element}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <TextField
-            label="Applies Status"
-            value={coefficients.appliesStatus ?? ''}
-            onChange={(event) =>
+          <CatalogReferenceSelect
+            catalogType="element"
+            label="Element"
+            labelId="skill-element-label"
+            value={coefficients.element ?? ''}
+            onChange={(value) =>
               onUpdate({
                 ...skillData,
                 coefficients: {
                   ...coefficients,
-                  appliesStatus: event.target.value === '' ? undefined : event.target.value,
+                  element: value === '' ? undefined : value,
                 },
               })
             }
-            size="small"
-            fullWidth
+            includeEmpty
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 3 }}>
+          <CatalogReferenceSelect
+            catalogType="status"
+            label="Applies Status"
+            labelId="skill-applies-status-label"
+            value={coefficients.appliesStatus ?? ''}
+            onChange={(value) =>
+              onUpdate({
+                ...skillData,
+                coefficients: {
+                  ...coefficients,
+                  appliesStatus: value === '' ? undefined : value,
+                },
+              })
+            }
+            includeEmpty
           />
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
