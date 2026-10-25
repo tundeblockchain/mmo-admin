@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest';
+import { catalogLabelForType } from '../../lib/catalogRoutes';
 import { render, screen, waitFor, userEvent } from '../../test/test-utils';
 import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { CatalogPage } from './CatalogPage';
 
 describe('CatalogPage', () => {
-  it('renders page header without catalog type tabs', () => {
+  it('renders the section heading without catalog type tabs', () => {
     render(<CatalogPage />);
 
-    expect(screen.getByRole('heading', { name: 'Catalog' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: catalogLabelForType('class'), level: 1 }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
@@ -85,6 +88,9 @@ describe('CatalogPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Skills Version/)).toBeInTheDocument();
     });
+    expect(
+      screen.getByRole('heading', { name: catalogLabelForType('skill'), level: 1 }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -134,7 +140,12 @@ describe('CatalogPage', () => {
     await user.click(option);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Combat Constants' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', {
+          name: catalogLabelForType('combat-constants'),
+          level: 1,
+        }),
+      ).toBeInTheDocument();
       expect(screen.getByText('Power Scaling')).toBeInTheDocument();
     });
   });

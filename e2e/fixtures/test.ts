@@ -1,4 +1,5 @@
 import { test as base, expect, type Page } from '@playwright/test';
+import { catalogLabelForType } from '../../src/lib/catalogRoutes';
 import { installCatalogRoutes, type CatalogRouteOptions } from './catalog';
 import { installE2EAuth, type E2EAuthRole } from './auth';
 
@@ -39,7 +40,7 @@ export async function openCatalogDraft(
   },
 ): Promise<void> {
   await page.goto('/catalog');
-  await expect(page.getByRole('heading', { name: 'Catalog' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: catalogLabelForType('class'), level: 1 })).toBeVisible();
 
   if (options.section) {
     await page.getByRole('navigation', { name: 'Catalog' })

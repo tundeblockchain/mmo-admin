@@ -1,10 +1,11 @@
+import { catalogLabelForType } from '../../src/lib/catalogRoutes';
 import { test, expect, selectCatalogVersion } from '../fixtures/test';
 
 test.describe('Catalog version list and view', () => {
   test('lists published versions and shows class details', async ({ page }) => {
     await page.goto('/catalog');
 
-    await expect(page.getByRole('heading', { name: 'Catalog' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: catalogLabelForType('class'), level: 1 })).toBeVisible();
     await expect(page).toHaveURL(/\/catalog\/classes$/);
     await expect(page.getByRole('link', { name: 'Classes' })).toHaveAttribute(
       'aria-current',
@@ -31,6 +32,7 @@ test.describe('Catalog version list and view', () => {
 
     await page.getByRole('link', { name: 'Skills' }).click();
     await expect(page).toHaveURL(/\/catalog\/skills$/);
+    await expect(page.getByRole('heading', { name: catalogLabelForType('skill'), level: 1 })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Skills' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -40,6 +42,7 @@ test.describe('Catalog version list and view', () => {
 
     await page.getByRole('link', { name: 'Resonance' }).click();
     await expect(page).toHaveURL(/\/catalog\/resonance$/);
+    await expect(page.getByRole('heading', { name: catalogLabelForType('resonance'), level: 1 })).toBeVisible();
     await selectCatalogVersion(page, /Resonance Version/, /v1/);
     await expect(page.getByText('Valor')).toBeVisible();
 
@@ -52,6 +55,7 @@ test.describe('Catalog version list and view', () => {
     await expect(page.getByText('Valor')).toBeVisible();
 
     await page.goto('/catalog/elements');
+    await expect(page.getByRole('heading', { name: catalogLabelForType('element'), level: 1 })).toBeVisible();
     await expect(page.getByLabel(/Elements Version/)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Elements' })).toHaveAttribute(
       'aria-current',

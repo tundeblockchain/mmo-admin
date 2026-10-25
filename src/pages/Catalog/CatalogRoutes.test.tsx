@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import { CATALOG_SECTIONS } from '../../lib/catalogRoutes';
 import { act, screen, userEvent } from '../../test/test-utils';
 import { clickCatalogNav, renderCatalogApp, renderCatalogRouter } from '../../test/renderCatalogApp';
 
 describe('Catalog routes', () => {
+  it.each(CATALOG_SECTIONS)(
+    'shows the $label heading on /catalog/$slug',
+    ({ slug, label }) => {
+      renderCatalogApp(`/catalog/${slug}`);
+
+      expect(screen.getByRole('heading', { name: label, level: 1 })).toBeInTheDocument();
+    },
+  );
+
   it('redirects /catalog to /catalog/classes', async () => {
     renderCatalogApp('/catalog');
 
