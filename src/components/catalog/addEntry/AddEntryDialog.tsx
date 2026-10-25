@@ -23,7 +23,14 @@ export function AddEntryDialog({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{config.title}</DialogTitle>
-      <DialogContent>
+      <DialogContent
+        sx={(theme) => ({
+          // MUI sets padding-top: 0 when DialogContent follows DialogTitle.
+          '&&': {
+            paddingTop: theme.spacing(2),
+          },
+        })}
+      >
         {open && (
           <AddEntryForm
             key={`${catalogType}-${String(open)}`}

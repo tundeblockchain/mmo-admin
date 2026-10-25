@@ -76,6 +76,21 @@ describe('AddEntryForm', () => {
     expect(screen.getByRole('button', { name: /add entry/i })).toBeEnabled();
   });
 
+  it('shrinks catalog-select labels when the placeholder is shown', async () => {
+    render(
+      <AddEntryForm
+        catalogType="skill"
+        existingIds={[]}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const classField = await screen.findByRole('combobox', { name: 'Class' });
+    expect(classField).toHaveTextContent('Select…');
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
+  });
+
   it('populates the skill class dropdown from the catalog', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();

@@ -59,4 +59,21 @@ describe('CatalogReferenceSelect', () => {
     const link = screen.getByRole('link', { name: 'Classes' });
     expect(link).toHaveAttribute('href', '/catalog/classes');
   });
+
+  it('shrinks the floating label when the empty placeholder is shown', async () => {
+    renderClassSelect();
+
+    const field = await screen.findByRole('combobox', { name: 'Class' });
+    expect(field).toHaveTextContent('Select…');
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
+  });
+
+  it('keeps the empty-catalog placeholder from covering the label', async () => {
+    mockEmptyCatalogApi();
+    renderClassSelect();
+
+    const field = await screen.findByRole('combobox', { name: 'Class' });
+    expect(field).toHaveTextContent('Select…');
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
+  });
 });
