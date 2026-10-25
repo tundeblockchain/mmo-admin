@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   REAL_AUTH_ENV_NAMES,
   missingRealAuthEnvNames,
+  readRealAuthEnv,
   realAuthSkipMessage,
 } from './realAuthEnv';
 
@@ -29,12 +30,27 @@ describe('missingRealAuthEnvNames', () => {
     expect(missingRealAuthEnvNames()).toEqual([...REAL_AUTH_ENV_NAMES]);
   });
 
-  it('treats empty strings as missing', () => {
+  it('treats empty strings and whitespace as missing', () => {
     for (const name of REAL_AUTH_ENV_NAMES) {
       process.env[name] = '';
     }
 
     expect(missingRealAuthEnvNames()).toEqual([...REAL_AUTH_ENV_NAMES]);
+
+    for (const name of REAL_AUTH_ENV_NAMES) {
+      process.env[name] = '  \n';
+    }
+
+    expect(missingRealAuthEnvNames()).toEqual([...REAL_AUTH_ENV_NAMES]);
+  });
+
+  it('trims surrounding whitespace from values', () => {
+    for (const name of REAL_AUTH_ENV_NAMES) {
+      process.env[name] = `  ${name}-value\n`;
+    }
+
+    expect(readRealAuthEnv('E2E_TEST_EMAIL')).toBe('E2E_TEST_EMAIL-value');
+    expect(missingRealAuthEnvNames()).toEqual([]);
   });
 
   it('returns an empty list when all required values are present', () => {

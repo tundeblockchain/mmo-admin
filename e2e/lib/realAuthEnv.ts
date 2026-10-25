@@ -7,11 +7,14 @@ export const REAL_AUTH_ENV_NAMES = [
   'E2E_FIREBASE_APP_ID',
 ] as const;
 
+export type RealAuthEnvName = (typeof REAL_AUTH_ENV_NAMES)[number];
+
+export function readRealAuthEnv(name: RealAuthEnvName): string {
+  return (process.env[name] ?? '').trim();
+}
+
 export function missingRealAuthEnvNames(): string[] {
-  return REAL_AUTH_ENV_NAMES.filter((name) => {
-    const value = process.env[name];
-    return value === undefined || value === '';
-  });
+  return REAL_AUTH_ENV_NAMES.filter((name) => readRealAuthEnv(name) === '');
 }
 
 export function realAuthSkipMessage(missing: string[]): string {

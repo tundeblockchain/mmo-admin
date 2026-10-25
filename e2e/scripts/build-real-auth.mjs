@@ -10,7 +10,7 @@ const firebaseEnvMap = {
 };
 
 for (const [source, target] of Object.entries(firebaseEnvMap)) {
-  const value = process.env[source];
+  const value = process.env[source]?.trim();
   if (value) {
     process.env[target] = value;
   }
