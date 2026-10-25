@@ -1,3 +1,4 @@
+import { catalogLabelForType } from '../../src/lib/catalogRoutes';
 import { test, expect } from '../fixtures/test';
 
 test.describe('Add entry from an empty catalog', () => {
@@ -6,7 +7,9 @@ test.describe('Add entry from an empty catalog', () => {
   test('adds a class and publishes version 1', async ({ page }) => {
     await page.goto('/catalog/classes');
 
-    await expect(page.getByRole('heading', { name: 'Catalog' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: catalogLabelForType('class'), level: 1 }),
+    ).toBeVisible();
     await expect(page.getByText(/no published class catalog yet/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /add class/i })).toBeEnabled();
 
