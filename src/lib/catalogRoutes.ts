@@ -34,6 +34,11 @@ export function catalogPathForType(type: CatalogType): string {
   return section ? catalogPath(section.slug) : CATALOG_DEFAULT_PATH;
 }
 
+export function catalogLabelForType(type: CatalogType): string {
+  const section = CATALOG_SECTIONS.find((item) => item.type === type);
+  return section ? section.label : CATALOG_SECTIONS[0].label;
+}
+
 export function isUnknownCatalogSection(section: string | undefined): boolean {
   return section !== undefined && catalogTypeFromSection(section) === null;
 }

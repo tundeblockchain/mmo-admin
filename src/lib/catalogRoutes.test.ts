@@ -3,6 +3,7 @@ import type { CatalogType } from '../types/catalog';
 import {
   CATALOG_DEFAULT_PATH,
   CATALOG_SECTIONS,
+  catalogLabelForType,
   catalogPath,
   catalogPathForType,
   catalogTypeFromSection,
@@ -44,5 +45,11 @@ describe('catalogRoutes', () => {
     expect(isUnknownCatalogSection(undefined)).toBe(false);
     expect(isUnknownCatalogSection('classes')).toBe(false);
     expect(isUnknownCatalogSection('not-a-section')).toBe(true);
+  });
+
+  it('returns the configured section label for each catalog type', () => {
+    for (const section of CATALOG_SECTIONS) {
+      expect(catalogLabelForType(section.type)).toBe(section.label);
+    }
   });
 });

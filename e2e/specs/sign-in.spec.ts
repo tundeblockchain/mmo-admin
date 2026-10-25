@@ -1,3 +1,4 @@
+import { catalogLabelForType } from '../../src/lib/catalogRoutes';
 import { test, expect } from '../fixtures/test';
 
 test.describe('Sign-in flow', () => {
@@ -52,6 +53,6 @@ test.describe('Sign-in flow', () => {
     await page.goto('/catalog');
 
     await expect(page.getByRole('button', { name: /sign in with google/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Catalog' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: catalogLabelForType('class') })).toHaveCount(0);
   });
 });

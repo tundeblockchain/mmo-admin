@@ -6,7 +6,11 @@ import { DraftToolbar } from '../../components/catalog/DraftToolbar';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
 import { StaleDraftWarning } from '../../components/catalog/StaleDraftWarning';
 import { VersionPicker } from '../../components/catalog/VersionPicker';
-import { CATALOG_DEFAULT_PATH, isUnknownCatalogSection } from '../../lib/catalogRoutes';
+import {
+  CATALOG_DEFAULT_PATH,
+  catalogLabelForType,
+  isUnknownCatalogSection,
+} from '../../lib/catalogRoutes';
 import { CatalogTypeContent } from './CatalogTypeContent';
 import { useCatalogWorkspace } from './useCatalogWorkspace';
 
@@ -24,8 +28,8 @@ function CatalogWorkspacePage() {
 
   return (
     <Box>
-      <Typography variant="h4" component="h2" gutterBottom>
-        Catalog
+      <Typography variant="h4" component="h1" gutterBottom>
+        {catalogLabelForType(workspace.selectedType)}
       </Typography>
 
       <AccountNotice />
