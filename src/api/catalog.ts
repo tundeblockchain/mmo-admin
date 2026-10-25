@@ -1,4 +1,8 @@
 import { apiClient } from './client';
+import {
+  normalizeCatalogVersionList,
+  normalizeLatestVersions,
+} from '../lib/catalogVersionResponses';
 import type {
   CatalogType,
   CatalogVersionList,
@@ -8,13 +12,19 @@ import type {
   ElementCatalogData,
   ResonanceCatalogData,
   CombatConstantsCatalogData,
+  LatestVersions,
   PublishCatalogRequest,
   PublishedCatalogResponse,
 } from '../types/catalog';
 
 export async function fetchCatalogVersions(): Promise<CatalogVersionList> {
-  const response = await apiClient.get<CatalogVersionList>('/catalog/versions');
-  return response.data;
+  const response = await apiClient.get<unknown>('/catalog/versions');
+  return normalizeCatalogVersionList(response.data);
+}
+
+export async function fetchLatestCatalogVersions(): Promise<LatestVersions> {
+  const response = await apiClient.get<unknown>('/catalog/versions/latest');
+  return normalizeLatestVersions(response.data);
 }
 
 export async function fetchClassCatalog(version: number): Promise<ClassCatalogData> {

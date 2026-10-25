@@ -1,13 +1,7 @@
 import { useCallback } from 'react';
-import {
-  createDefaultClass,
-  createDefaultElement,
-  createDefaultResonance,
-  createDefaultSkill,
-  createDefaultStatus,
-} from '../lib/catalogDefaults';
 import { getEntityId } from '../lib/catalogIds';
-import { updateDraft, type DraftState } from './useDraftCatalog';
+import { UNPUBLISHED_SOURCE_VERSION } from '../lib/catalogVersions';
+import { createDraft, updateDraft, type DraftState } from './useDraftCatalog';
 import type {
   CatalogEntityData,
   CatalogType,
@@ -23,6 +17,7 @@ interface UseCatalogDraftActionsOptions {
   draft: DraftState | null;
   selectedType: CatalogType;
   selectedIndex: number | null;
+  latestVersion: number | null;
   setSelectedEntityId: (id: string | null) => void;
   setSelectedIndex: (index: number | null) => void;
 }
@@ -39,9 +34,12 @@ export function useCatalogDraftActions({
   draft,
   selectedType,
   selectedIndex,
+  latestVersion,
   setSelectedEntityId,
   setSelectedIndex,
 }: UseCatalogDraftActionsOptions) {
+  const sourceVersion = latestVersion ?? UNPUBLISHED_SOURCE_VERSION;
+
   const handleUpdateEntity = useCallback(
     (updated: unknown) => {
       if (!draft || selectedType === 'combat-constants' || selectedIndex === null) {
@@ -63,22 +61,32 @@ export function useCatalogDraftActions({
     [draft, selectedType],
   );
 
-  const handleAddEntity = useCallback(() => {
-    if (!draft || selectedType === 'combat-constants') return;
+  const handleAddEntity = useCallback(
+    (entity: unknown) => {
+      if (selectedType === 'combat-constants') {
+        const data = entity as CombatConstantsData;
+        if (!draft) {
+          createDraft('combat-constants', sourceVersion, data);
+        }
+        updateDraft('combat-constants', data);
+        return;
+      }
 
-    const factories = {
-      class: createDefaultClass,
-      skill: createDefaultSkill,
-      status: createDefaultStatus,
-      element: createDefaultElement,
-      resonance: createDefaultResonance,
-    } as const;
+      if (!draft) {
+        createDraft(selectedType, sourceVersion, [entity] as CatalogEntityData);
+        updateDraft(selectedType, [entity] as CatalogEntityData);
+        setSelectedIndex(0);
+        setSelectedEntityId(getEntityId(entity, selectedType));
+        return;
+      }
 
-    const next = [...(draft.data as unknown[]), factories[selectedType]()];
-    updateDraft(selectedType, next as CatalogEntityData);
-    setSelectedIndex(next.length - 1);
-    setSelectedEntityId(getEntityId(next[next.length - 1], selectedType));
-  }, [draft, selectedType, setSelectedEntityId, setSelectedIndex]);
+      const next = [...(draft.data as unknown[]), entity];
+      updateDraft(selectedType, next as CatalogEntityData);
+      setSelectedIndex(next.length - 1);
+      setSelectedEntityId(getEntityId(next[next.length - 1], selectedType));
+    },
+    [draft, selectedType, setSelectedEntityId, setSelectedIndex, sourceVersion],
+  );
 
   const handleConfirmDelete = useCallback(
     (index: number) => {

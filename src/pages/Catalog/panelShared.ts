@@ -16,7 +16,7 @@ export function draftListProps(
     ? {
         isDraft: true,
         selectedIndex: workspace.selectedIndex,
-        onAdd: workspace.draftActions.handleAddEntity,
+        onAdd: workspace.handleRequestAdd,
         onRequestDelete: workspace.handleRequestDelete,
       }
     : {};

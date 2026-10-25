@@ -21,6 +21,7 @@ import {
   ADMIN_FORBIDDEN_PUBLISH_MESSAGE,
   BAD_REQUEST_PUBLISH_MESSAGE,
   publishFailureMessage,
+  publishSourceMessage,
 } from './publish/publishMessages';
 
 interface PublishDialogProps {
@@ -83,8 +84,7 @@ export function PublishDialog({
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            Publishing will create a new immutable version based on your draft changes from
-            version {sourceVersion}.
+            {publishSourceMessage(sourceVersion)}
           </Typography>
         </Box>
 

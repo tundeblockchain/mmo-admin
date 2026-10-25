@@ -3,6 +3,7 @@ import {
   mockClassCatalog,
   mockCombatConstantsCatalog,
   mockElementCatalog,
+  mockLatestVersions,
   mockResonanceCatalog,
   mockSkillCatalog,
   mockStatusCatalog,
@@ -24,6 +25,7 @@ export {
 export interface CatalogRouteOptions {
   publishStatus?: 201 | 400 | 401 | 403;
   accountType?: 'admin' | 'player';
+  emptyCatalog?: boolean;
 }
 
 const CORS_HEADERS = {
@@ -62,6 +64,7 @@ export async function installCatalogRoutes(
 ): Promise<void> {
   const publishStatus = options.publishStatus ?? 201;
   const defaultAccountType = options.accountType ?? 'admin';
+  const emptyCatalog = options.emptyCatalog === true;
 
   await page.route((url) => url.origin === E2E_API_ORIGIN, async (route) => {
     const request = route.request();
@@ -91,7 +94,17 @@ export async function installCatalogRoutes(
     }
 
     if (method === 'GET' && path === '/catalog/versions') {
-      await json(route, 200, mockVersionList);
+      await json(route, 200, emptyCatalog ? [] : mockVersionList);
+      return;
+    }
+
+    if (method === 'GET' && path === '/catalog/versions/latest') {
+      await json(route, 200, emptyCatalog ? { versions: {} } : mockLatestVersions);
+      return;
+    }
+
+    if (emptyCatalog && method === 'GET' && /^\/catalog\/[^/]+\/v\/\d+$/.test(path)) {
+      await json(route, 404, { error: 'Not found' });
       return;
     }
 
@@ -161,7 +174,7 @@ export async function installCatalogRoutes(
       const catalogType = path.match(/^\/catalog\/([^/]+)\/versions$/)?.[1] ?? 'class';
       await json(route, 201, {
         catalogType,
-        version: 3,
+        version: emptyCatalog ? 1 : 3,
         status: 'published',
         createdAt: '2024-06-20T00:00:00.000Z',
         publishedAt: '2024-06-20T00:00:00.000Z',

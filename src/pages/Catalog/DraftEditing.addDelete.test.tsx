@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor, userEvent } from '../../test/test-utils';
+import { render, screen, waitFor, userEvent, within } from '../../test/test-utils';
 import { clickCatalogNav, renderCatalogApp } from '../../test/renderCatalogApp';
 import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
-import { enterClassDraft } from '../../test/draftEditingTestUtils';
+import {
+  enterClassDraft,
+  submitAddClassEntry,
+  submitAddEntryForm,
+} from '../../test/draftEditingTestUtils';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
 setupSignedInAuth();
@@ -19,10 +23,10 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       render(<CatalogPage />);
       await enterClassDraft(user);
 
-      await user.click(screen.getByRole('button', { name: /add class/i }));
+      await submitAddClassEntry(user, 'warden');
 
       expect(screen.getAllByText('New Class').length).toBeGreaterThan(0);
-      expect(screen.getByRole('textbox', { name: 'Class ID' })).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: 'Class ID' })).toHaveValue('warden');
       expect(screen.getByRole('spinbutton', { name: 'Strength' })).toHaveValue(10);
       expect(screen.getByRole('spinbutton', { name: 'Movement Speed' })).toHaveValue(5);
       expect(screen.getByText(/unsaved changes/i)).toBeInTheDocument();
@@ -35,14 +39,15 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
 
       await user.click(screen.getByRole('button', { name: /add class/i }));
 
-      const idInput = screen.getByRole('textbox', { name: 'Class ID' });
-      expect(screen.getByText('ID is required')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /publish class/i })).toBeDisabled();
+      const dialog = await screen.findByRole('dialog', { name: /add class/i });
+      const idInput = within(dialog).getByRole('textbox', { name: 'Class ID' });
+      expect(within(dialog).getByText('ID is required')).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: /add entry/i })).toBeDisabled();
 
       await user.type(idInput, 'vanguard');
 
-      expect(screen.getByText('ID must be unique within this draft')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /publish class/i })).toBeDisabled();
+      expect(within(dialog).getByText('ID must be unique within this draft')).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: /add entry/i })).toBeDisabled();
     });
 
     it('requires confirmation before deleting an entry', async () => {
@@ -114,10 +119,15 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       await waitFor(() => {
         expect(screen.getByText(/editing draft/i)).toBeInTheDocument();
       });
-      await user.click(screen.getByRole('button', { name: /add skill/i }));
+      await submitAddEntryForm(user, {
+        openName: /add skill/i,
+        dialogName: /add skill/i,
+        idLabel: 'Skill ID',
+        idValue: 'vanguard_new_skill',
+      });
 
       expect(screen.getAllByText('New Skill').length).toBeGreaterThan(0);
-      expect(screen.getByRole('textbox', { name: 'Skill ID' })).toHaveValue('');
+      expect(screen.getByRole('textbox', { name: 'Skill ID' })).toHaveValue('vanguard_new_skill');
       expect(screen.getByRole('spinbutton', { name: 'Unlock Level' })).toHaveValue(1);
 
       await user.click(screen.getByRole('button', { name: /coefficients/i }));

@@ -1,5 +1,6 @@
 import type {
   ClassDefinition,
+  CombatConstantsData,
   SkillDefinition,
   StatusDefinition,
   ElementDefinition,
@@ -88,5 +89,28 @@ export function createDefaultResonance(): ResonanceDefinition {
     displayName: 'New Resonance',
     description: '',
     partyBonus: [{ stat: 'hp', bonusPercent: 0.1 }],
+  };
+}
+
+export function createDefaultCombatConstants(): CombatConstantsData {
+  return {
+    powerScaling: {
+      physicalPower: { strengthMultiplier: 2, levelMultiplier: 1.5 },
+      spellPower: { intellectMultiplier: 2, levelMultiplier: 1 },
+      techPower: { techMultiplier: 2, levelMultiplier: 1 },
+      devicePower: { techDivisor: 100 },
+    },
+    critical: {
+      baseCritChance: 0.05,
+      critChance: { luckConstant: 500, maxLuckCritBonus: 0.3 },
+      procChance: { luckDivisor: 500 },
+      criticalDamageMultiplier: 1.5,
+    },
+    defense: {
+      defenseConstant: { baseConstant: 200, levelMultiplier: 15 },
+      armorReductionPerPoint: 0.001,
+      maxArmorReduction: 0.75,
+      blockDamageReduction: 0.5,
+    },
   };
 }

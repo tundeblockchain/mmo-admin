@@ -1,9 +1,8 @@
-import { Alert, Box, Paper, Snackbar, Typography } from '@mui/material';
+import { Alert, Box, Paper, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { AccountNotice } from '../../components/account/AccountNotice';
-import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
+import { CatalogEmptyState } from '../../components/catalog/addEntry/CatalogEmptyState';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
-import { PublishDialog } from '../../components/catalog/PublishDialog';
 import { StaleDraftWarning } from '../../components/catalog/StaleDraftWarning';
 import { VersionPicker } from '../../components/catalog/VersionPicker';
 import {
@@ -11,7 +10,9 @@ import {
   catalogLabelForType,
   isUnknownCatalogSection,
 } from '../../lib/catalogRoutes';
+import { isPublishedVersion } from '../../lib/catalogVersions';
 import { CatalogTypeContent } from './CatalogTypeContent';
+import { CatalogWorkspaceDialogs } from './CatalogWorkspaceDialogs';
 import { useCatalogWorkspace } from './useCatalogWorkspace';
 
 export function CatalogPage() {
@@ -25,6 +26,7 @@ export function CatalogPage() {
 
 function CatalogWorkspacePage() {
   const workspace = useCatalogWorkspace();
+  const showToolbar = workspace.draft !== null || isPublishedVersion(workspace.currentVersion);
 
   return (
     <Box>
@@ -38,7 +40,7 @@ function CatalogWorkspacePage() {
         <VersionPicker
           catalogType={workspace.selectedType}
           versions={workspace.allVersions}
-          selectedVersion={workspace.currentVersion}
+          selectedVersion={workspace.publishedSelection}
           onVersionChange={(version) =>
             workspace.handleVersionChange(workspace.selectedType, version)
           }
@@ -46,7 +48,7 @@ function CatalogWorkspacePage() {
           error={workspace.versionsError}
           disabled={workspace.draft !== null}
         />
-        {workspace.currentVersion !== null && !workspace.draft && (
+        {isPublishedVersion(workspace.currentVersion) && !workspace.draft && (
           <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
             Viewing version {workspace.currentVersion}
           </Typography>
@@ -74,10 +76,10 @@ function CatalogWorkspacePage() {
         />
       )}
 
-      {workspace.currentVersion !== null && (
+      {showToolbar && (
         <DraftToolbar
           catalogType={workspace.selectedType}
-          currentVersion={workspace.currentVersion}
+          currentVersion={workspace.publishedSelection}
           hasDraft={workspace.draft !== null}
           isDraftDirty={workspace.draft?.isDirty ?? false}
           draftSourceVersion={workspace.draft?.sourceVersion ?? null}
@@ -90,7 +92,12 @@ function CatalogWorkspacePage() {
         />
       )}
 
-      {workspace.currentVersion === null ? (
+      {workspace.showEmptyCatalog ? (
+        <CatalogEmptyState
+          catalogType={workspace.selectedType}
+          onAdd={workspace.handleRequestAdd}
+        />
+      ) : workspace.draft === null && workspace.publishedSelection === null ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography color="text.secondary">
             Select a version above to browse catalog entities.
@@ -100,56 +107,7 @@ function CatalogWorkspacePage() {
         <CatalogTypeContent workspace={workspace} />
       )}
 
-      {workspace.draft && workspace.originalData && (
-        <PublishDialog
-          open={workspace.publishDialogOpen}
-          onClose={workspace.handleClosePublish}
-          onPublish={workspace.handlePublish}
-          catalogType={workspace.selectedType}
-          sourceVersion={workspace.draft.sourceVersion}
-          originalData={workspace.originalData}
-          draftData={workspace.draft.data}
-          isPending={workspace.publishCatalog.isPending}
-          error={workspace.publishCatalog.error}
-          isConflictError={workspace.publishCatalog.isConflictError}
-          isAuthError={workspace.publishCatalog.isAuthError}
-          isForbiddenError={workspace.publishCatalog.isForbiddenError}
-          isBadRequestError={workspace.publishCatalog.isBadRequestError}
-          hasValidationErrors={workspace.hasValidationErrors}
-        />
-      )}
-
-      {workspace.pendingDelete && (
-        <ConfirmDeleteDialog
-          open
-          title={`Delete ${workspace.pendingDelete.kindLabel}?`}
-          description={`Delete "${workspace.pendingDelete.displayName || 'this entry'}" from this draft? This only affects the working copy.`}
-          onCancel={workspace.handleCancelDelete}
-          onConfirm={workspace.handleConfirmDelete}
-        />
-      )}
-
-      {workspace.discardConfirmOpen && (
-        <ConfirmDeleteDialog
-          open
-          title="Discard draft?"
-          description="Discard this draft and revert to the published source version? Unsaved changes will be removed from this browser."
-          confirmLabel="Discard"
-          onCancel={workspace.handleCancelDiscard}
-          onConfirm={workspace.handleConfirmDiscard}
-        />
-      )}
-
-      <Snackbar
-        open={workspace.successSnackbar !== null}
-        autoHideDuration={6000}
-        onClose={workspace.handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={workspace.handleCloseSnackbar} severity="success" variant="filled">
-          {workspace.successSnackbar}
-        </Alert>
-      </Snackbar>
+      <CatalogWorkspaceDialogs workspace={workspace} />
     </Box>
   );
 }
