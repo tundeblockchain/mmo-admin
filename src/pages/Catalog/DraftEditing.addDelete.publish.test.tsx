@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../../test/mocks/server';
 import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
-import { enterClassDraft } from '../../test/draftEditingTestUtils';
+import { enterClassDraft, submitAddClassEntry } from '../../test/draftEditingTestUtils';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
 setupSignedInAuth();
@@ -27,8 +27,7 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
         expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: /add class/i }));
-      await user.type(screen.getByRole('textbox', { name: 'Class ID' }), 'warden');
+      await submitAddClassEntry(user, 'warden');
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /publish class/i })).toBeEnabled();
@@ -81,8 +80,7 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
         expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: /add class/i }));
-      await user.type(screen.getByRole('textbox', { name: 'Class ID' }), 'warden');
+      await submitAddClassEntry(user, 'warden');
 
       await user.click(screen.getByRole('button', { name: /publish class/i }));
       await user.click(await screen.findByRole('button', { name: /review & publish/i }));

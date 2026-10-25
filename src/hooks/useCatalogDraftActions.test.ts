@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, beforeEach } from 'vitest';
+import { createDefaultClass, createDefaultCombatConstants } from '../lib/catalogDefaults';
 import { mockClassCatalog } from '../test/mocks/catalog-fixtures';
 import { useCatalogDraftActions } from './useCatalogDraftActions';
 import {
@@ -23,6 +24,7 @@ describe('useCatalogDraftActions', () => {
         draft,
         selectedType: 'class',
         selectedIndex: selected.current,
+        latestVersion: 2,
         setSelectedEntityId: () => undefined,
         setSelectedIndex: (index) => {
           selected.current = index ?? 0;
@@ -42,7 +44,10 @@ describe('useCatalogDraftActions', () => {
     );
 
     act(() => {
-      result.current.actions.handleAddEntity();
+      result.current.actions.handleAddEntity({
+        ...createDefaultClass(),
+        classId: 'warden',
+      });
     });
     expect((result.current.draft?.data as ClassDefinition[]).at(-1)?.displayName).toBe(
       'New Class',
@@ -85,13 +90,14 @@ describe('useCatalogDraftActions', () => {
         draft,
         selectedType: 'combat-constants',
         selectedIndex: null,
+        latestVersion: 1,
         setSelectedEntityId: () => undefined,
         setSelectedIndex: () => undefined,
       });
     });
 
     act(() => {
-      result.current.handleAddEntity();
+      result.current.handleAddEntity(createDefaultCombatConstants());
       result.current.handleConfirmDelete(0);
     });
 

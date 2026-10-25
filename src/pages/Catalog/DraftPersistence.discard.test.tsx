@@ -122,7 +122,7 @@ describe('Draft persistence (MMO-29)', { timeout: 15_000 }, () => {
     await user.click(await screen.findByRole('button', { name: /review & publish/i }));
     await user.click(await screen.findByRole('button', { name: /confirm publish/i }));
 
-    expect(await screen.findByText(/version conflict/i)).toBeInTheDocument();
+    expect(await screen.findByText(/this version already exists/i)).toBeInTheDocument();
     expect(localStorage.getItem(draftStorageKey('class', 2))).toBeTruthy();
     expect(screen.getByText('Keep Me')).toBeInTheDocument();
   });

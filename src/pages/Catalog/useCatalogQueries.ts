@@ -7,19 +7,30 @@ import {
   useStatusCatalog,
 } from '../../hooks/useCatalogData';
 import type { DraftStore } from '../../hooks/draftStore';
+import { publishedVersionOrNull } from '../../lib/catalogVersions';
 import type { CatalogType } from '../../types/catalog';
 import { catalogDataByType, type VersionSelections } from './catalogPageUtils';
 
 export function useCatalogQueries(drafts: DraftStore, versions: VersionSelections) {
-  const classQuery = useClassCatalog(drafts.class?.sourceVersion ?? versions.class);
-  const skillQuery = useSkillCatalog(drafts.skill?.sourceVersion ?? versions.skill);
-  const statusQuery = useStatusCatalog(drafts.status?.sourceVersion ?? versions.status);
-  const elementQuery = useElementCatalog(drafts.element?.sourceVersion ?? versions.element);
+  const classQuery = useClassCatalog(
+    publishedVersionOrNull(drafts.class?.sourceVersion ?? versions.class),
+  );
+  const skillQuery = useSkillCatalog(
+    publishedVersionOrNull(drafts.skill?.sourceVersion ?? versions.skill),
+  );
+  const statusQuery = useStatusCatalog(
+    publishedVersionOrNull(drafts.status?.sourceVersion ?? versions.status),
+  );
+  const elementQuery = useElementCatalog(
+    publishedVersionOrNull(drafts.element?.sourceVersion ?? versions.element),
+  );
   const resonanceQuery = useResonanceCatalog(
-    drafts.resonance?.sourceVersion ?? versions.resonance,
+    publishedVersionOrNull(drafts.resonance?.sourceVersion ?? versions.resonance),
   );
   const combatConstantsQuery = useCombatConstantsCatalog(
-    drafts['combat-constants']?.sourceVersion ?? versions['combat-constants'],
+    publishedVersionOrNull(
+      drafts['combat-constants']?.sourceVersion ?? versions['combat-constants'],
+    ),
   );
 
   const catalogQueryData = {

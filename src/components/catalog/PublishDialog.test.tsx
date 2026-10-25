@@ -84,7 +84,7 @@ describe('PublishDialog', () => {
       />,
     );
 
-    expect(screen.getByText(/version conflict/i)).toBeInTheDocument();
+    expect(screen.getByText(/this version already exists/i)).toBeInTheDocument();
     expect(screen.getByText(/retry/i)).toBeInTheDocument();
   });
   it('displays 401 auth error message', () => {

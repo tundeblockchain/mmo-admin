@@ -56,7 +56,11 @@ export function DraftToolbar({
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
       <Chip
-        label={`Editing Draft (from v${draftSourceVersion})`}
+        label={
+          draftSourceVersion !== null && draftSourceVersion > 0
+            ? `Editing Draft (from v${draftSourceVersion})`
+            : 'Editing Draft (new catalog)'
+        }
         color="warning"
         size="small"
       />

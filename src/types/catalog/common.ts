@@ -18,7 +18,7 @@ export interface CatalogVersionList {
 }
 
 export interface LatestVersions {
-  versions: Record<CatalogType, number>;
+  versions: Partial<Record<CatalogType, number>>;
   timestamp: string;
 }
 

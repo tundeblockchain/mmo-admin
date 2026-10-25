@@ -6,6 +6,13 @@ export const ADMIN_FORBIDDEN_PUBLISH_MESSAGE =
 export const BAD_REQUEST_PUBLISH_MESSAGE =
   'The server rejected this catalog. An empty data array cannot be published.';
 
+export function publishSourceMessage(sourceVersion: number): string {
+  if (sourceVersion > 0) {
+    return `Publishing will create a new immutable version based on your draft changes from version ${sourceVersion}.`;
+  }
+  return 'Publishing will create version 1 of this catalog.';
+}
+
 export function publishFailureMessage(
   error: Error,
   isConflictError: boolean,
@@ -14,7 +21,7 @@ export function publishFailureMessage(
   isBadRequestError: boolean,
 ): string {
   if (isConflictError) {
-    return 'Version conflict: Another version was published while you were editing. Please retry to publish as the next version.';
+    return 'This version already exists. Published versions were refreshed. Retry to publish as the next version.';
   }
 
   if (isAuthError) {

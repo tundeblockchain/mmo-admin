@@ -6,6 +6,7 @@ export function useCatalogWorkspaceUi() {
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [successSnackbar, setSuccessSnackbar] = useState<string | null>(null);
   const [dismissedRestoreNoticeId, setDismissedRestoreNoticeId] = useState<string | null>(null);
   const [dismissedStaleWarningId, setDismissedStaleWarningId] = useState<string | null>(null);
@@ -17,6 +18,8 @@ export function useCatalogWorkspaceUi() {
     setDiscardConfirmOpen,
     publishDialogOpen,
     setPublishDialogOpen,
+    addDialogOpen,
+    setAddDialogOpen,
     successSnackbar,
     setSuccessSnackbar,
     dismissedRestoreNoticeId,

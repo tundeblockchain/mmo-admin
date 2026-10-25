@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   createDefaultClass,
+  createDefaultCombatConstants,
   createDefaultSkill,
   createDefaultStatus,
   createDefaultElement,
@@ -78,5 +79,13 @@ describe('catalogDefaults', () => {
     expect(entry.resonanceId).toBe('');
     expect(entry.displayName).toBe('New Resonance');
     expect(entry.partyBonus).toEqual([{ stat: 'hp', bonusPercent: 0.1 }]);
+  });
+
+  it('creates combat constants with required seed fields', () => {
+    const entry = createDefaultCombatConstants();
+
+    expect(entry.powerScaling.physicalPower.strengthMultiplier).toBe(2);
+    expect(entry.critical.baseCritChance).toBe(0.05);
+    expect(entry.defense.maxArmorReduction).toBe(0.75);
   });
 });
