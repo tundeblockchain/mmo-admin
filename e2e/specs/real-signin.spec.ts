@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test';
-import {
-  missingRealAuthEnvNames,
-  readRealAuthEnv,
-  realAuthSkipMessage,
-} from '../lib/realAuthEnv';
+import { missingRealAuthEnvNames, realAuthSkipMessage } from '../lib/realAuthEnv';
 
 const missing = missingRealAuthEnvNames();
-const email = readRealAuthEnv('E2E_TEST_EMAIL');
-const password = readRealAuthEnv('E2E_TEST_PASSWORD');
+const email = process.env.E2E_TEST_EMAIL;
+const password = process.env.E2E_TEST_PASSWORD;
 
 test.describe('Real Firebase email/password sign-in', () => {
   test.skip(missing.length > 0, realAuthSkipMessage(missing));

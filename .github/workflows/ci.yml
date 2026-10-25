@@ -103,7 +103,6 @@ jobs:
               E2E_FIREBASE_PROJECT_ID) value="$E2E_FIREBASE_PROJECT_ID" ;;
               E2E_FIREBASE_APP_ID) value="$E2E_FIREBASE_APP_ID" ;;
             esac
-            value="$(printf '%s' "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
             if [ -z "$value" ]; then
               missing="$missing $name"
             fi
