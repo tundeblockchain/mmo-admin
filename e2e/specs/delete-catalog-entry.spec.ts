@@ -1,5 +1,25 @@
+import { type Locator, type Page } from '@playwright/test';
 import { test, expect, openCatalogDraft, openClassDraft } from '../fixtures/test';
 import { COLOR_SCHEME_STORAGE_KEY } from '../../src/theme/colorSchemeStore';
+
+async function screenshotDialog(page: Page, dialog: Locator, path: string): Promise<void> {
+  await expect(dialog).toBeVisible();
+  const box = await dialog.evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  });
+
+  await page.screenshot({
+    path,
+    animations: 'disabled',
+    clip: {
+      x: Math.max(0, box.x - 12),
+      y: Math.max(0, box.y - 12),
+      width: box.width + 24,
+      height: box.height + 24,
+    },
+  });
+}
 
 test.describe('Delete catalog entries via draft', () => {
   test('confirms delete, blocks dependents, and blocks the last entry', async ({ page }) => {
@@ -56,39 +76,27 @@ test.describe('Delete catalog entries via draft', () => {
     await openClassDraft(page);
 
     await page.getByRole('button', { name: /delete ranger/i }).click();
-    await expect(page.getByRole('dialog', { name: /delete class/i })).toBeVisible();
-    await page.screenshot({
-      path: 'test-results/delete-confirm-light.png',
-      fullPage: true,
-    });
+    const confirmLight = page.getByRole('dialog', { name: /delete class/i });
+    await screenshotDialog(page, confirmLight, 'test-results/delete-confirm-light.png');
     await page.getByRole('button', { name: /cancel/i }).click();
 
     await page.getByRole('button', { name: /delete vanguard/i }).click();
-    await expect(page.getByRole('dialog', { name: /cannot delete class/i })).toBeVisible();
-    await expect(page.getByText('Cleaving Strike')).toBeVisible();
-    await page.screenshot({
-      path: 'test-results/delete-dependents-light.png',
-      fullPage: true,
-    });
+    const dependentsLight = page.getByRole('dialog', { name: /cannot delete class/i });
+    await expect(dependentsLight.getByText('Cleaving Strike')).toBeVisible();
+    await screenshotDialog(page, dependentsLight, 'test-results/delete-dependents-light.png');
     await page.getByRole('button', { name: /close/i }).click();
 
     await page.getByRole('button', { name: /switch to dark mode/i }).click();
     await expect(page.getByRole('button', { name: /switch to light mode/i })).toBeVisible();
 
     await page.getByRole('button', { name: /delete ranger/i }).click();
-    await expect(page.getByRole('dialog', { name: /delete class/i })).toBeVisible();
-    await page.screenshot({
-      path: 'test-results/delete-confirm-dark.png',
-      fullPage: true,
-    });
+    const confirmDark = page.getByRole('dialog', { name: /delete class/i });
+    await screenshotDialog(page, confirmDark, 'test-results/delete-confirm-dark.png');
     await page.getByRole('button', { name: /cancel/i }).click();
 
     await page.getByRole('button', { name: /delete vanguard/i }).click();
-    await expect(page.getByRole('dialog', { name: /cannot delete class/i })).toBeVisible();
-    await expect(page.getByText('Cleaving Strike')).toBeVisible();
-    await page.screenshot({
-      path: 'test-results/delete-dependents-dark.png',
-      fullPage: true,
-    });
+    const dependentsDark = page.getByRole('dialog', { name: /cannot delete class/i });
+    await expect(dependentsDark.getByText('Cleaving Strike')).toBeVisible();
+    await screenshotDialog(page, dependentsDark, 'test-results/delete-dependents-dark.png');
   });
 });

@@ -40,6 +40,8 @@ export function ConfirmDialog({
       onClose={onClose}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
+      maxWidth="sm"
+      fullWidth
     >
       <DialogTitle id={titleId}>{title}</DialogTitle>
       <DialogContent>
