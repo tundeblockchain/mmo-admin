@@ -29,11 +29,16 @@ export async function submitAddEntryForm(
     dialogName: string | RegExp;
     idLabel: string;
     idValue: string;
+    select?: { label: string; option: string };
   },
 ) {
   await user.click(screen.getByRole('button', { name: options.openName }));
   const dialog = await screen.findByRole('dialog', { name: options.dialogName });
   await user.type(within(dialog).getByRole('textbox', { name: options.idLabel }), options.idValue);
+  if (options.select) {
+    await user.click(within(dialog).getByRole('combobox', { name: options.select.label }));
+    await user.click(await screen.findByRole('option', { name: options.select.option }));
+  }
   await user.click(within(dialog).getByRole('button', { name: /add entry/i }));
   await waitFor(() => {
     expect(screen.queryByRole('dialog', { name: options.dialogName })).not.toBeInTheDocument();

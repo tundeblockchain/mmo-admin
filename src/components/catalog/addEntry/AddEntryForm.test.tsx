@@ -75,4 +75,32 @@ describe('AddEntryForm', () => {
     expect(screen.getByRole('spinbutton', { name: 'Base Crit Chance' })).toHaveValue(0.05);
     expect(screen.getByRole('button', { name: /add entry/i })).toBeEnabled();
   });
+
+  it('populates the skill class dropdown from the catalog', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(
+      <AddEntryForm
+        catalogType="skill"
+        existingIds={[]}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.type(screen.getByRole('textbox', { name: 'Skill ID' }), 'cleave');
+    expect(screen.getByRole('button', { name: /add entry/i })).toBeDisabled();
+
+    const classField = await screen.findByRole('combobox', { name: 'Class' });
+    await user.click(classField);
+    expect(await screen.findByRole('option', { name: 'Vanguard' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Ranger' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'arcanist' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('option', { name: 'Vanguard' }));
+    await user.click(screen.getByRole('button', { name: /add entry/i }));
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ classId: 'vanguard' }));
+  });
 });

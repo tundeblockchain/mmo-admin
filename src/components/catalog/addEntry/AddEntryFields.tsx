@@ -1,5 +1,5 @@
 import { Box, Chip, FormControlLabel, Checkbox, TextField } from '@mui/material';
-import { NumberField, SelectField } from '../../form';
+import { CatalogReferenceSelect, NumberField, SelectField } from '../../form';
 import type { AddEntryField, AddEntryValue, AddEntryValues } from '../../../lib/addEntry';
 import type { FieldErrors } from '../../../lib/validation/fieldRules';
 
@@ -37,6 +37,20 @@ function AddEntryFieldControl({
   error?: string;
   onChange: (key: string, value: AddEntryValue) => void;
 }) {
+  if (field.kind === 'catalog-select') {
+    return (
+      <CatalogReferenceSelect
+        catalogType={field.catalogType}
+        label={field.label}
+        labelId={`add-entry-${field.key}-label`}
+        value={typeof value === 'string' ? value : ''}
+        onChange={(next) => onChange(field.key, next)}
+        error={error !== undefined}
+        helperText={error}
+      />
+    );
+  }
+
   if (field.kind === 'select') {
     return (
       <SelectField

@@ -1,7 +1,13 @@
 import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import type { FieldErrors } from '../../../lib/catalogValidation';
 import type { SkillDefinition, StaggerCoefficients } from '../../../types/catalog';
-import { EditorAccordion, NumberField, OptionalNumberField, OptionalPercentField } from '../../form';
+import {
+  CatalogReferenceSelect,
+  EditorAccordion,
+  NumberField,
+  OptionalNumberField,
+  OptionalPercentField,
+} from '../../form';
 
 interface SkillStaggerSectionProps {
   skillData: SkillDefinition;
@@ -98,20 +104,21 @@ export function SkillStaggerSection({ skillData, onUpdate, fieldErrors }: SkillS
           />
         </Grid>
         <Grid size={{ xs: 6, md: 4 }}>
-          <TextField
+          <CatalogReferenceSelect
+            catalogType="status"
             label="Status Buildup"
+            labelId="skill-status-buildup-label"
             value={stagger.statusBuildup?.status ?? ''}
-            onChange={(event) =>
+            onChange={(value) =>
               updateStagger({
                 ...stagger,
                 statusBuildup: {
-                  status: event.target.value,
+                  status: value,
                   value: stagger.statusBuildup?.value ?? 0,
                 },
               })
             }
-            size="small"
-            fullWidth
+            includeEmpty
             error={fieldErrors['stagger.statusBuildup.status'] !== undefined}
             helperText={fieldErrors['stagger.statusBuildup.status']}
           />

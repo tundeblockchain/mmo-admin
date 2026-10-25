@@ -1,8 +1,8 @@
 import { Grid, TextField } from '@mui/material';
-import { CLASS_IDS, SKILL_KINDS } from '../../../lib/catalogSchema';
+import { SKILL_KINDS } from '../../../lib/catalogSchema';
 import type { FieldErrors } from '../../../lib/catalogValidation';
-import type { ClassId, SkillDefinition, SkillKind } from '../../../types/catalog';
-import { IdentityFields, NumberField, SelectField } from '../../form';
+import type { SkillDefinition, SkillKind } from '../../../types/catalog';
+import { CatalogReferenceSelect, IdentityFields, NumberField, SelectField } from '../../form';
 
 interface SkillIdentitySectionProps {
   skillData: SkillDefinition;
@@ -17,10 +17,6 @@ export function SkillIdentitySection({
   idError,
   fieldErrors,
 }: SkillIdentitySectionProps) {
-  const classOptions = CLASS_IDS.includes(skillData.classId as (typeof CLASS_IDS)[number])
-    ? CLASS_IDS
-    : [...CLASS_IDS, skillData.classId];
-
   return (
     <IdentityFields
       idLabel="Skill ID"
@@ -53,12 +49,12 @@ export function SkillIdentitySection({
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <SelectField
+          <CatalogReferenceSelect
+            catalogType="class"
             label="Class"
             labelId="skill-class-label"
             value={skillData.classId}
-            onChange={(value) => onUpdate({ ...skillData, classId: value as ClassId })}
-            options={classOptions}
+            onChange={(value) => onUpdate({ ...skillData, classId: value })}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
