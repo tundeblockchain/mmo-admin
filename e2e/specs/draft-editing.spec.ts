@@ -15,9 +15,12 @@ test.describe('Draft editing', () => {
     await expect(page.getByRole('spinbutton', { name: 'Strength' })).toHaveValue('15');
 
     await page.getByRole('button', { name: /add class/i }).click();
-    await expect(page.getByText('New Class').first()).toBeVisible();
-    await page.getByRole('textbox', { name: 'Class ID' }).fill('warden');
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('Warden');
+    const addDialog = page.getByRole('dialog', { name: /add class/i });
+    await expect(addDialog).toBeVisible();
+    await addDialog.getByRole('textbox', { name: 'Class ID' }).fill('warden');
+    await addDialog.getByRole('textbox', { name: 'Display Name' }).fill('Warden');
+    await addDialog.getByRole('button', { name: /add entry/i }).click();
+    await expect(addDialog).toHaveCount(0);
     await expect(page.getByText('Warden')).toBeVisible();
 
     await page.getByRole('button', { name: /delete ranger/i }).click();
