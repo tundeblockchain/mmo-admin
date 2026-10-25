@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, userEvent } from '../../../test/test-utils';
+import { render, screen, userEvent, waitFor } from '../../../test/test-utils';
 import { AddEntryForm } from './AddEntryForm';
 
 describe('AddEntryForm', () => {
@@ -87,7 +87,9 @@ describe('AddEntryForm', () => {
     );
 
     const classField = await screen.findByRole('combobox', { name: 'Class' });
-    expect(classField).toHaveTextContent('Select…');
+    await waitFor(() => {
+      expect(classField).toHaveTextContent('Select…');
+    });
     expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, userEvent } from '../../test/test-utils';
+import { render, screen, userEvent, waitFor } from '../../test/test-utils';
 import { createDraft } from '../../hooks/useDraftCatalog';
 import { mockEmptyCatalogApi } from '../../test/emptyCatalogTestUtils';
 import { mockClassCatalog } from '../../test/mocks/catalog-fixtures';
@@ -64,7 +64,9 @@ describe('CatalogReferenceSelect', () => {
     renderClassSelect();
 
     const field = await screen.findByRole('combobox', { name: 'Class' });
-    expect(field).toHaveTextContent('Select…');
+    await waitFor(() => {
+      expect(field).toHaveTextContent('Select…');
+    });
     expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 
@@ -73,7 +75,9 @@ describe('CatalogReferenceSelect', () => {
     renderClassSelect();
 
     const field = await screen.findByRole('combobox', { name: 'Class' });
-    expect(field).toHaveTextContent('Select…');
+    await waitFor(() => {
+      expect(field).toHaveTextContent('Select…');
+    });
     expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 });
