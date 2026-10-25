@@ -6,8 +6,8 @@ import { useLatestCatalogVersions } from '../../hooks/useLatestCatalogVersions';
 import { useDraftStore, restorePersistedDraft } from '../../hooks/useDraftCatalog';
 import { useCatalogDraftActions } from '../../hooks/useCatalogDraftActions';
 import { collectEntityIds } from '../../lib/catalogIds';
-import { entityKindLabel } from '../../lib/catalogLabels';
 import { emptyOriginalData } from '../../lib/emptyCatalog';
+import { useCatalogDependencySnapshot } from '../../hooks/useLatestCatalogEntries';
 import {
   latestPublishedVersion,
   latestVersionFromMap,
@@ -20,6 +20,7 @@ import { emptyVersionSelections, type VersionSelections } from './catalogPageUti
 import { useCatalogQueries } from './useCatalogQueries';
 import { draftNoticeFlags, useCatalogWorkspaceUi } from './useCatalogWorkspaceUi';
 import { useCatalogWorkspaceActions } from './useCatalogWorkspaceActions';
+import { useCatalogDelete } from './useCatalogDelete';
 
 export function useCatalogWorkspace() {
   const { catalogSection } = useParams<{ catalogSection: string }>();
@@ -70,6 +71,19 @@ export function useCatalogWorkspace() {
     setSelectedEntityId,
     setSelectedIndex,
   });
+  const dependencySnapshot = useCatalogDependencySnapshot(
+    drafts,
+    latestQuery.data,
+    latestQuery.isSuccess,
+  );
+  const catalogDelete = useCatalogDelete({
+    selectedType,
+    draft,
+    snapshot: dependencySnapshot.snapshot,
+    ready: dependencySnapshot.ready,
+    draftActions,
+    ui,
+  });
 
   const handleVersionChange = useCallback((type: CatalogType, version: number) => {
     setVersions((prev) => ({ ...prev, [type]: version }));
@@ -94,7 +108,7 @@ export function useCatalogWorkspace() {
     selectedType,
     selectedEntityId,
     selectedIndex,
-    pendingDelete: ui.pendingDelete,
+    ...catalogDelete,
     discardConfirmOpen: ui.discardConfirmOpen,
     publishDialogOpen: ui.publishDialogOpen,
     addDialogOpen: ui.addDialogOpen,
@@ -143,20 +157,6 @@ export function useCatalogWorkspace() {
     handleRequestAdd: actions.handleRequestAdd,
     handleCloseAdd: actions.handleCloseAdd,
     handleCloseSnackbar: ui.handleCloseSnackbar,
-    handleRequestDelete: (_id: string, index: number, displayName: string) => {
-      ui.setPendingDelete({
-        index,
-        displayName,
-        kindLabel: entityKindLabel(selectedType),
-      });
-    },
-    handleCancelDelete: ui.handleCancelDelete,
-    handleConfirmDelete: () => {
-      if (ui.pendingDelete) {
-        draftActions.handleConfirmDelete(ui.pendingDelete.index);
-      }
-      ui.setPendingDelete(null);
-    },
     dismissRestoreNotice: () => ui.setDismissedRestoreNoticeId(
       draft ? `${draft.catalogType}:${draft.sourceVersion}` : null,
     ),

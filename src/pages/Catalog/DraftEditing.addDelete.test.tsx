@@ -55,7 +55,7 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       render(<CatalogPage />);
       await enterClassDraft(user);
 
-      await user.click(screen.getByRole('button', { name: /delete vanguard/i }));
+      await user.click(screen.getByRole('button', { name: /delete ranger/i }));
 
       const dialog = await screen.findByRole('dialog', { name: /delete class/i });
       expect(dialog).toBeInTheDocument();
@@ -66,16 +66,16 @@ describe('Draft Editing and Publishing', { timeout: 15_000 }, () => {
       await waitFor(() => {
         expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
       });
-      expect(screen.getByText('Vanguard')).toBeInTheDocument();
+      expect(screen.getByText('Ranger')).toBeInTheDocument();
 
-      await user.click(screen.getByRole('button', { name: /delete vanguard/i }));
+      await user.click(screen.getByRole('button', { name: /delete ranger/i }));
       await user.click(screen.getByRole('button', { name: /^delete$/i }));
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog', { name: /delete class/i })).not.toBeInTheDocument();
-        expect(screen.queryByText('Vanguard')).not.toBeInTheDocument();
+        expect(screen.queryByText('Ranger')).not.toBeInTheDocument();
       });
-      expect(screen.getByText('Ranger')).toBeInTheDocument();
+      expect(screen.getByText('Vanguard')).toBeInTheDocument();
       expect(screen.getByText(/unsaved changes/i)).toBeInTheDocument();
     });
 

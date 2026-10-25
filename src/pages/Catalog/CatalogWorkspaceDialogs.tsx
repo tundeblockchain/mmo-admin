@@ -1,6 +1,7 @@
 import { Alert, Snackbar } from '@mui/material';
 import { AddEntryDialog } from '../../components/catalog/addEntry/AddEntryDialog';
-import { ConfirmDeleteDialog } from '../../components/catalog/ConfirmDeleteDialog';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { DeleteEntryDialog } from '../../components/catalog/DeleteEntryDialog';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
 import type { CatalogWorkspace } from './panelShared';
 
@@ -34,23 +35,23 @@ export function CatalogWorkspaceDialogs({ workspace }: { workspace: CatalogWorks
         />
       )}
 
-      {workspace.pendingDelete && (
-        <ConfirmDeleteDialog
-          open
-          title={`Delete ${workspace.pendingDelete.kindLabel}?`}
-          description={`Delete "${workspace.pendingDelete.displayName || 'this entry'}" from this draft? This only affects the working copy.`}
-          onCancel={workspace.handleCancelDelete}
+      {workspace.pendingDelete && workspace.deleteEvaluation && (
+        <DeleteEntryDialog
+          pending={workspace.pendingDelete}
+          evaluation={workspace.deleteEvaluation}
+          onClose={workspace.handleCancelDelete}
           onConfirm={workspace.handleConfirmDelete}
         />
       )}
 
       {workspace.discardConfirmOpen && (
-        <ConfirmDeleteDialog
+        <ConfirmDialog
           open
           title="Discard draft?"
           description="Discard this draft and revert to the published source version? Unsaved changes will be removed from this browser."
           confirmLabel="Discard"
-          onCancel={workspace.handleCancelDiscard}
+          confirmColor="error"
+          onClose={workspace.handleCancelDiscard}
           onConfirm={workspace.handleConfirmDiscard}
         />
       )}
