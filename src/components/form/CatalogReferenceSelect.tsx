@@ -59,13 +59,16 @@ export function CatalogReferenceSelect({
       error={error && !isEmpty}
       disabled={isLoading || isEmpty}
     >
-      <InputLabel id={labelId}>{label}</InputLabel>
+      <InputLabel id={labelId} shrink>
+        {label}
+      </InputLabel>
       <Select
         labelId={labelId}
         value={selectValue}
         label={label}
         onChange={handleChange}
         displayEmpty
+        notched
         aria-describedby={isEmpty || helperText ? helperId : undefined}
       >
         {showEmptyOption && (

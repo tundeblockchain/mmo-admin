@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, userEvent } from '../../test/test-utils';
+import { render, screen, userEvent, waitFor } from '../../test/test-utils';
 import { createDraft } from '../../hooks/useDraftCatalog';
 import { mockEmptyCatalogApi } from '../../test/emptyCatalogTestUtils';
 import { mockClassCatalog } from '../../test/mocks/catalog-fixtures';
@@ -58,5 +58,26 @@ describe('CatalogReferenceSelect', () => {
 
     const link = screen.getByRole('link', { name: 'Classes' });
     expect(link).toHaveAttribute('href', '/catalog/classes');
+  });
+
+  it('shrinks the floating label when the empty placeholder is shown', async () => {
+    renderClassSelect();
+
+    const field = await screen.findByRole('combobox', { name: 'Class' });
+    await waitFor(() => {
+      expect(field).toHaveTextContent('Select…');
+    });
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
+  });
+
+  it('keeps the empty-catalog placeholder from covering the label', async () => {
+    mockEmptyCatalogApi();
+    renderClassSelect();
+
+    const field = await screen.findByRole('combobox', { name: 'Class' });
+    await waitFor(() => {
+      expect(field).toHaveTextContent('Select…');
+    });
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 });

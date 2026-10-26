@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, userEvent } from '../../../test/test-utils';
+import { render, screen, userEvent, waitFor } from '../../../test/test-utils';
 import { AddEntryForm } from './AddEntryForm';
 
 describe('AddEntryForm', () => {
@@ -74,6 +74,23 @@ describe('AddEntryForm', () => {
 
     expect(screen.getByRole('spinbutton', { name: 'Base Crit Chance' })).toHaveValue(0.05);
     expect(screen.getByRole('button', { name: /add entry/i })).toBeEnabled();
+  });
+
+  it('shrinks catalog-select labels when the placeholder is shown', async () => {
+    render(
+      <AddEntryForm
+        catalogType="skill"
+        existingIds={[]}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const classField = await screen.findByRole('combobox', { name: 'Class' });
+    await waitFor(() => {
+      expect(classField).toHaveTextContent('Select…');
+    });
+    expect(screen.getByText('Class', { selector: 'label' })).toHaveAttribute('data-shrink', 'true');
   });
 
   it('populates the skill class dropdown from the catalog', async () => {
