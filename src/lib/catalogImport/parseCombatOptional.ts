@@ -1,5 +1,6 @@
+import { NUMBER_ERROR, REQUIRED_ERROR } from '../catalogSchema';
 import type { CombatConstantsData } from '../../types/catalog';
-import { readBoolean, readOptionalNumber, readOptionalObject } from './parseHelpers';
+import { pushError, readBoolean, readOptionalNumber, readOptionalObject } from './parseHelpers';
 import type { FieldError } from './types';
 
 export function parseOptionalCombat(
@@ -33,8 +34,9 @@ export function parseOptionalCombat(
     errors,
   );
   const pvp = parsePvp(record, `${path}.pvp`, errors);
+  const additionalConstants = parseAdditionalConstants(record, `${path}.additionalConstants`, errors);
 
-  if (glancingHit === undefined || pvp === undefined) {
+  if (glancingHit === undefined || pvp === undefined || additionalConstants === undefined) {
     return undefined;
   }
 
@@ -45,6 +47,7 @@ export function parseOptionalCombat(
     ...(resistanceConstant !== undefined ? { status: { resistanceConstant } } : {}),
     ...(globalCooldown !== undefined ? { timing: { globalCooldown } } : {}),
     ...(pvp ? { pvp } : {}),
+    ...(additionalConstants ? { additionalConstants } : {}),
   };
 }
 
@@ -126,4 +129,37 @@ function parsePvp(
     ...(globalDamageMultiplier !== undefined ? { globalDamageMultiplier } : {}),
     ...(globalHealingMultiplier !== undefined ? { globalHealingMultiplier } : {}),
   };
+}
+
+function parseAdditionalConstants(
+  record: Record<string, unknown>,
+  path: string,
+  errors: FieldError[],
+): CombatConstantsData['additionalConstants'] | null | undefined {
+  const value = readOptionalObject(record, 'additionalConstants', path, errors);
+  if (value === undefined) {
+    return null;
+  }
+
+  const parsed: Record<string, number | boolean | string> = {};
+  let valid = true;
+  Object.entries(value).forEach(([key, entryValue]) => {
+    if (key.trim() === '') {
+      pushError(errors, `${path}.key`, REQUIRED_ERROR);
+      valid = false;
+      return;
+    }
+    if (typeof entryValue === 'number' && Number.isFinite(entryValue)) {
+      parsed[key] = entryValue;
+      return;
+    }
+    if (typeof entryValue === 'boolean' || typeof entryValue === 'string') {
+      parsed[key] = entryValue;
+      return;
+    }
+    pushError(errors, `${path}.${key}`, NUMBER_ERROR);
+    valid = false;
+  });
+
+  return valid ? parsed : undefined;
 }

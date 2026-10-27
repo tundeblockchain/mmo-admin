@@ -187,6 +187,30 @@ const combatConstants = {
   status: { resistanceConstant: 100 },
   timing: { globalCooldown: 0.75 },
   pvp: { globalDamageMultiplier: 0.80, globalHealingMultiplier: 0.75 },
+  // COMBAT_CONSTANTS_V2 additionalConstants (MMO-Infrastructure). ZoneServer will not boot without these keys.
+  additionalConstants: {
+    defaultAttackRange: 2.5,
+    targetRange: 30,
+    defaultAttackDamage: 10,
+    defaultAttackCooldown: 1.5,
+    defaultMonsterHp: 100,
+    defaultMonsterSp: 50,
+    defaultMonsterMoveSpeed: 3.0,
+    defaultMonsterDamage: 10,
+    defaultMonsterAggroRange: 10,
+    defaultMonsterAttackRange: 2.0,
+    defaultMonsterXp: 25,
+    defaultMonsterMoney: 5,
+    defaultMonsterAttackCooldown: 2.0,
+    defaultMonsterLeashRange: 20,
+    monsterSpellRollChance: 0.01,
+    aoiRadius: 30,
+    lootDespawnSeconds: 60,
+    lootPickupRadius: 2.5,
+    lootVisibilityRadius: 30,
+    playerRespawnSeconds: 4,
+    monsterRespawnSeconds: 4,
+  },
 };
 
 const skills = [

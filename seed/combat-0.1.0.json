@@ -3149,6 +3149,29 @@
     "pvp": {
       "globalDamageMultiplier": 0.8,
       "globalHealingMultiplier": 0.75
+    },
+    "additionalConstants": {
+      "defaultAttackRange": 2.5,
+      "targetRange": 30,
+      "defaultAttackDamage": 10,
+      "defaultAttackCooldown": 1.5,
+      "defaultMonsterHp": 100,
+      "defaultMonsterSp": 50,
+      "defaultMonsterMoveSpeed": 3,
+      "defaultMonsterDamage": 10,
+      "defaultMonsterAggroRange": 10,
+      "defaultMonsterAttackRange": 2,
+      "defaultMonsterXp": 25,
+      "defaultMonsterMoney": 5,
+      "defaultMonsterAttackCooldown": 2,
+      "defaultMonsterLeashRange": 20,
+      "monsterSpellRollChance": 0.01,
+      "aoiRadius": 30,
+      "lootDespawnSeconds": 60,
+      "lootPickupRadius": 2.5,
+      "lootVisibilityRadius": 30,
+      "playerRespawnSeconds": 4,
+      "monsterRespawnSeconds": 4
     }
   }
 }

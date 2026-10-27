@@ -7,6 +7,31 @@ import { validateCatalogBundle, validateCatalogJson } from './validateBundle';
 
 const seedPath = resolve(process.cwd(), 'seed/combat-0.1.0.json');
 
+/** COMBAT_CONSTANTS_V2 additionalConstants from MMO-Infrastructure. ZoneServer requires all 21. */
+const COMBAT_CONSTANTS_V2_ADDITIONAL = {
+  defaultAttackRange: 2.5,
+  targetRange: 30,
+  defaultAttackDamage: 10,
+  defaultAttackCooldown: 1.5,
+  defaultMonsterHp: 100,
+  defaultMonsterSp: 50,
+  defaultMonsterMoveSpeed: 3,
+  defaultMonsterDamage: 10,
+  defaultMonsterAggroRange: 10,
+  defaultMonsterAttackRange: 2,
+  defaultMonsterXp: 25,
+  defaultMonsterMoney: 5,
+  defaultMonsterAttackCooldown: 2,
+  defaultMonsterLeashRange: 20,
+  monsterSpellRollChance: 0.01,
+  aoiRadius: 30,
+  lootDespawnSeconds: 60,
+  lootPickupRadius: 2.5,
+  lootVisibilityRadius: 30,
+  playerRespawnSeconds: 4,
+  monsterRespawnSeconds: 4,
+} as const;
+
 function validClass() {
   return { ...createDefaultClass(), classId: 'vanguard' };
 }
@@ -18,6 +43,28 @@ describe('validateCatalogBundle', () => {
     if (result.ok) {
       expect(result.bundle.skill).toHaveLength(48);
       expect(result.bundle.class).toHaveLength(6);
+    }
+  });
+
+  it('includes every COMBAT_CONSTANTS_V2 additionalConstants key required by ZoneServer', () => {
+    const expectedKeys = Object.keys(COMBAT_CONSTANTS_V2_ADDITIONAL);
+    expect(expectedKeys).toHaveLength(21);
+
+    const seed = JSON.parse(readFileSync(seedPath, 'utf8')) as {
+      'combat-constants': { additionalConstants?: Record<string, unknown> };
+    };
+    const additional = seed['combat-constants'].additionalConstants;
+    expect(additional).toBeDefined();
+    for (const [key, value] of Object.entries(COMBAT_CONSTANTS_V2_ADDITIONAL)) {
+      expect(additional).toHaveProperty(key, value);
+    }
+
+    const result = validateCatalogJson(readFileSync(seedPath, 'utf8'));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.bundle['combat-constants']?.additionalConstants).toMatchObject(
+        COMBAT_CONSTANTS_V2_ADDITIONAL,
+      );
     }
   });
 
