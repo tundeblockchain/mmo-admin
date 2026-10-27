@@ -1,4 +1,11 @@
-import type { CatalogEntityData, CatalogType } from '../../types/catalog';
+import { CATALOG_TYPES } from '../../lib/draftKeys';
+import { resolvePublishedVersion } from '../../lib/catalogVersions';
+import type {
+  CatalogEntityData,
+  CatalogType,
+  CatalogVersionSummary,
+  LatestVersions,
+} from '../../types/catalog';
 
 export function selectByIndexOrId<T>(
   items: T[] | undefined,
@@ -60,4 +67,21 @@ export function latestVersionsByType(
     element: latest?.element ?? null,
     resonance: latest?.resonance ?? null,
   };
+}
+
+export function resolveVersionSelections(
+  overrides: VersionSelections,
+  versions: CatalogVersionSummary[],
+  latest: LatestVersions | undefined,
+): VersionSelections {
+  const resolved = emptyVersionSelections();
+  for (const catalogType of CATALOG_TYPES) {
+    resolved[catalogType] = resolvePublishedVersion(
+      overrides[catalogType],
+      versions,
+      latest,
+      catalogType,
+    );
+  }
+  return resolved;
 }

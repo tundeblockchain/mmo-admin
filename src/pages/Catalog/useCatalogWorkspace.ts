@@ -1,31 +1,26 @@
 import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { catalogTypeFromSection } from '../../lib/catalogRoutes';
-import { useCatalogVersions } from '../../hooks/useCatalogVersions';
-import { useLatestCatalogVersions } from '../../hooks/useLatestCatalogVersions';
 import { useDraftStore, restorePersistedDraft } from '../../hooks/useDraftCatalog';
 import { useCatalogDraftActions } from '../../hooks/useCatalogDraftActions';
 import { collectEntityIds } from '../../lib/catalogIds';
 import { emptyOriginalData } from '../../lib/emptyCatalog';
 import { useCatalogDependencySnapshot } from '../../hooks/useLatestCatalogEntries';
-import {
-  latestPublishedVersion,
-  latestVersionFromMap,
-  publishedVersionOrNull,
-} from '../../lib/catalogVersions';
+import { publishedVersionOrNull } from '../../lib/catalogVersions';
 import { draftHasValidationErrors } from '../../lib/catalogValidation';
 import { supportsAddEntry } from '../../lib/addEntry';
 import type { CatalogType } from '../../types/catalog';
-import { emptyVersionSelections, latestVersionsByType, type VersionSelections } from './catalogPageUtils';
+import { latestVersionsByType } from './catalogPageUtils';
 import { useCatalogQueries } from './useCatalogQueries';
 import { draftNoticeFlags, useCatalogWorkspaceUi } from './useCatalogWorkspaceUi';
 import { useCatalogWorkspaceActions } from './useCatalogWorkspaceActions';
 import { useCatalogDelete } from './useCatalogDelete';
+import { usePublishedCatalogSelection } from './usePublishedCatalogSelection';
 
 export function useCatalogWorkspace() {
   const { catalogSection } = useParams<{ catalogSection: string }>();
   const selectedType = catalogTypeFromSection(catalogSection) ?? 'class';
-  const [versions, setVersions] = useState<VersionSelections>(emptyVersionSelections);
+  const selection = usePublishedCatalogSelection();
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [selectionType, setSelectionType] = useState<CatalogType>(selectedType);
@@ -43,26 +38,22 @@ export function useCatalogWorkspace() {
     }
   }
 
-  const versionsQuery = useCatalogVersions();
-  const latestQuery = useLatestCatalogVersions();
   const drafts = useDraftStore();
   const draft = drafts[selectedType];
-  const queries = useCatalogQueries(drafts, versions);
+  const queries = useCatalogQueries(drafts, selection.selections);
   const originalData = queries.originalDataFor(selectedType);
+  const latestVersion = selection.latestFor(selectedType);
+  const hasPublishedVersion = selection.hasPublishedVersion(selectedType);
   const actions = useCatalogWorkspaceActions({
     selectedType,
     draft,
-    versions,
+    versions: selection.selections,
     originalData,
     ui,
-    setVersions,
+    setVersions: selection.setOverrides,
     setSelectedEntityId,
     setSelectedIndex,
   });
-  const allVersions = versionsQuery.data?.versions ?? [];
-  const latestVersion =
-    latestPublishedVersion(allVersions, selectedType) ??
-    latestVersionFromMap(latestQuery.data, selectedType);
   const draftActions = useCatalogDraftActions({
     draft,
     selectedType,
@@ -73,8 +64,8 @@ export function useCatalogWorkspace() {
   });
   const dependencySnapshot = useCatalogDependencySnapshot(
     drafts,
-    latestQuery.data,
-    latestQuery.isSuccess,
+    selection.latestQuery.data,
+    selection.latestQuery.isSuccess,
   );
   const catalogDelete = useCatalogDelete({
     selectedType,
@@ -85,22 +76,19 @@ export function useCatalogWorkspace() {
     ui,
   });
 
+  const selectPublishedVersion = selection.handleVersionChange;
   const handleVersionChange = useCallback((type: CatalogType, version: number) => {
-    setVersions((prev) => ({ ...prev, [type]: version }));
+    selectPublishedVersion(type, version);
     setSelectedEntityId(null);
     setSelectedIndex(null);
     restorePersistedDraft(type, version);
-  }, []);
+  }, [selectPublishedVersion]);
 
-  const typeVersionCount = allVersions.filter((item) => item.catalogType === selectedType).length;
-  const hasPublishedVersion = latestVersion !== null || typeVersionCount > 0;
-  const publishedSelection = publishedVersionOrNull(draft?.sourceVersion ?? versions[selectedType]);
-  const currentVersion = draft ? draft.sourceVersion : versions[selectedType];
-  const showEmptyCatalog =
-    !versionsQuery.isPending &&
-    versionsQuery.error == null &&
-    !draft &&
-    !hasPublishedVersion;
+  const publishedSelection = publishedVersionOrNull(
+    draft?.sourceVersion ?? selection.selections[selectedType],
+  );
+  const currentVersion = draft ? draft.sourceVersion : selection.selections[selectedType];
+  const showEmptyCatalog = selection.showEmptyCatalog(selectedType) && !draft;
   const existingIds =
     draft && selectedType !== 'combat-constants' ? collectEntityIds(draft.data, selectedType) : [];
 
@@ -113,9 +101,9 @@ export function useCatalogWorkspace() {
     publishDialogOpen: ui.publishDialogOpen,
     addDialogOpen: ui.addDialogOpen,
     successSnackbar: ui.successSnackbar,
-    versionData: versionsQuery.data,
-    versionsLoading: versionsQuery.isPending,
-    versionsError: versionsQuery.error,
+    versionData: selection.versionData,
+    versionsLoading: selection.versionsLoading,
+    versionsError: selection.versionsError,
     drafts,
     draft,
     classQuery: queries.classQuery,
@@ -125,7 +113,7 @@ export function useCatalogWorkspace() {
     resonanceQuery: queries.resonanceQuery,
     combatConstantsQuery: queries.combatConstantsQuery,
     publishCatalog: actions.publishCatalog,
-    allVersions,
+    allVersions: selection.allVersions,
     currentVersion,
     publishedSelection,
     latestVersion,
@@ -142,7 +130,7 @@ export function useCatalogWorkspace() {
     canPublish: actions.canPublish,
     originalData: originalData ?? emptyOriginalData(selectedType),
     catalogQueryData: queries.catalogQueryData,
-    latestByType: latestVersionsByType(latestQuery.data?.versions),
+    latestByType: latestVersionsByType(selection.latestQuery.data?.versions),
     draftActions,
     handleVersionChange,
     handleSelectEntity: (id: string, index: number) => {

@@ -4,6 +4,7 @@ import {
   latestPublishedVersion,
   latestVersionFromMap,
   publishedVersionOrNull,
+  resolvePublishedVersion,
 } from './catalogVersions';
 import type { CatalogVersionSummary, LatestVersions } from '../types/catalog';
 
@@ -31,5 +32,19 @@ describe('unpublished version helpers', () => {
     expect(isPublishedVersion(0)).toBe(false);
     expect(publishedVersionOrNull(0)).toBeNull();
     expect(publishedVersionOrNull(2)).toBe(2);
+  });
+});
+
+describe('resolvePublishedVersion', () => {
+  const latest: LatestVersions = { versions: { class: 2, skill: 1 }, timestamp: '' };
+
+  it('prefers an explicit override over the latest published version', () => {
+    expect(resolvePublishedVersion(1, versions, latest, 'class')).toBe(1);
+  });
+
+  it('defaults to the latest list entry, then the latest-versions map', () => {
+    expect(resolvePublishedVersion(null, versions, latest, 'class')).toBe(2);
+    expect(resolvePublishedVersion(null, [], latest, 'class')).toBe(2);
+    expect(resolvePublishedVersion(null, [], latest, 'status')).toBeNull();
   });
 });

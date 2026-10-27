@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   catalogDataByType,
   emptyVersionSelections,
+  resolveVersionSelections,
   selectByIndexOrId,
 } from './catalogPageUtils';
-import type { CatalogEntityData } from '../../types/catalog';
+import type { CatalogEntityData, CatalogVersionSummary, LatestVersions } from '../../types/catalog';
 
 const items = [
   { id: 'a', name: 'Alpha' },
@@ -48,6 +49,30 @@ describe('emptyVersionSelections', () => {
       skill: null,
       'combat-constants': null,
       status: null,
+      element: null,
+      resonance: null,
+    });
+  });
+});
+
+describe('resolveVersionSelections', () => {
+  const versions: CatalogVersionSummary[] = [
+    { catalogType: 'class', version: 2, status: 'published', publishedAt: '2024-06-15T10:30:00.000Z' },
+    { catalogType: 'skill', version: 1, status: 'published', publishedAt: '2024-06-01T00:00:00.000Z' },
+  ];
+  const latest: LatestVersions = {
+    versions: { class: 2, skill: 1, status: 4 },
+    timestamp: '',
+  };
+
+  it('defaults each type to latest and keeps overrides', () => {
+    const overrides = { ...emptyVersionSelections(), class: 1 };
+
+    expect(resolveVersionSelections(overrides, versions, latest)).toEqual({
+      class: 1,
+      skill: 1,
+      'combat-constants': null,
+      status: 4,
       element: null,
       resonance: null,
     });

@@ -25,8 +25,9 @@ export async function selectCatalogVersion(
   versionLabel: string | RegExp,
   optionName: string | RegExp,
 ): Promise<void> {
-  await expect(page.getByLabel(versionLabel)).toBeVisible();
-  await page.getByLabel(versionLabel).click();
+  const picker = page.getByRole('combobox', { name: versionLabel });
+  await expect(picker).toBeVisible();
+  await picker.click();
   await page.getByRole('option', { name: optionName }).click();
 }
 
