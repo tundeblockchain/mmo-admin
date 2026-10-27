@@ -12,7 +12,7 @@ test.describe('Catalog version list and view', () => {
       'page',
     );
     await expect(page.getByRole('tab')).toHaveCount(0);
-    await expect(page.getByLabel(/Classes Version/)).toContainText('v2');
+    await expect(page.getByRole('combobox', { name: /Classes Version/ })).toContainText('v2');
     await expect(page.getByText('Viewing version 2')).toBeVisible();
     await expect(page.getByText('Vanguard')).toBeVisible();
     await expect(page.getByText('Ranger')).toBeVisible();
@@ -40,13 +40,13 @@ test.describe('Catalog version list and view', () => {
       'aria-current',
       'page',
     );
-    await expect(page.getByLabel(/Skills Version/)).toContainText('v1');
+    await expect(page.getByRole('combobox', { name: /Skills Version/ })).toContainText('v1');
     await expect(page.getByText('Cleaving Strike')).toBeVisible();
 
     await page.getByRole('link', { name: 'Resonance' }).click();
     await expect(page).toHaveURL(/\/catalog\/resonance$/);
     await expect(page.getByRole('heading', { name: catalogLabelForType('resonance'), level: 1 })).toBeVisible();
-    await expect(page.getByLabel(/Resonance Version/)).toContainText('v1');
+    await expect(page.getByRole('combobox', { name: /Resonance Version/ })).toContainText('v1');
     await expect(page.getByText('Valor')).toBeVisible();
 
     await page.goBack();
@@ -59,14 +59,14 @@ test.describe('Catalog version list and view', () => {
 
     await page.goto('/catalog/elements');
     await expect(page.getByRole('heading', { name: catalogLabelForType('element'), level: 1 })).toBeVisible();
-    await expect(page.getByLabel(/Elements Version/)).toContainText('v1');
+    await expect(page.getByRole('combobox', { name: /Elements Version/ })).toContainText('v1');
     await expect(page.getByRole('link', { name: 'Elements' })).toHaveAttribute(
       'aria-current',
       'page',
     );
 
     await page.goto('/catalog/combat-constants');
-    await expect(page.getByLabel(/Combat Constants Version/)).toContainText('v1');
+    await expect(page.getByRole('combobox', { name: /Combat Constants Version/ })).toContainText('v1');
     await expect(page.getByText('Viewing version 1')).toBeVisible();
     await expect(page.getByText('Power Scaling')).toBeVisible();
   });
