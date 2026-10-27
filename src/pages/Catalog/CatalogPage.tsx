@@ -2,9 +2,11 @@ import { Alert, Box, Paper, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { AccountNotice } from '../../components/account/AccountNotice';
 import { CatalogEmptyState } from '../../components/catalog/addEntry/CatalogEmptyState';
+import { ImportExportToolbar } from '../../components/catalog/importExport/ImportExportToolbar';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
 import { StaleDraftWarning } from '../../components/catalog/StaleDraftWarning';
 import { VersionPicker } from '../../components/catalog/VersionPicker';
+import { useCatalogImportExport } from '../../hooks/useCatalogImportExport';
 import {
   CATALOG_DEFAULT_PATH,
   catalogLabelForType,
@@ -26,6 +28,10 @@ export function CatalogPage() {
 
 function CatalogWorkspacePage() {
   const workspace = useCatalogWorkspace();
+  const importExport = useCatalogImportExport({
+    published: workspace.catalogQueryData,
+    latestVersions: workspace.latestByType,
+  });
   const showToolbar = workspace.draft !== null || isPublishedVersion(workspace.currentVersion);
 
   return (
@@ -35,6 +41,14 @@ function CatalogWorkspacePage() {
       </Typography>
 
       <AccountNotice />
+
+      <ImportExportToolbar
+        canPublishAll={importExport.canPublishAll}
+        dirtyCount={importExport.pendingPublish.length}
+        onImport={importExport.openImport}
+        onExport={importExport.openExport}
+        onPublishAll={importExport.openPublishAll}
+      />
 
       <Box sx={{ mb: 3 }}>
         <VersionPicker
@@ -107,7 +121,7 @@ function CatalogWorkspacePage() {
         <CatalogTypeContent workspace={workspace} />
       )}
 
-      <CatalogWorkspaceDialogs workspace={workspace} />
+      <CatalogWorkspaceDialogs workspace={workspace} importExport={importExport} />
     </Box>
   );
 }

@@ -1,0 +1,48 @@
+{
+  "versionTag": "e2e-invalid",
+  "skill": [
+    {
+      "skillId": "orphan_skill",
+      "classId": "missing_class",
+      "displayName": "Orphan",
+      "description": "",
+      "kind": "active",
+      "resourceId": null,
+      "resourceCost": 0,
+      "cooldownSeconds": 0,
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "coefficients": { "basePower": 1, "scaling": [] },
+      "unlockLevel": 1,
+      "iconPath": ""
+    }
+  ],
+  "class": [
+    {
+      "classId": "vanguard",
+      "displayName": "Vanguard",
+      "description": "",
+      "primaryResource": "resolve",
+      "startingStats": {
+        "strength": 12,
+        "finesse": 7,
+        "vitality": 12,
+        "intellect": 4,
+        "precision": 6,
+        "luck": 5,
+        "tech": 4,
+        "hp": 150,
+        "resourcePool": 100,
+        "armor": 20,
+        "attackPower": 26,
+        "spellPower": 9,
+        "movementSpeed": 5
+      },
+      "resonance": "valor",
+      "roles": ["tank"]
+    }
+  ]
+}
