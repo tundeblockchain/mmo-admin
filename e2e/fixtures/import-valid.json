@@ -1,0 +1,15 @@
+{
+  "versionTag": "e2e-valid",
+  "status": [
+    {
+      "statusId": "imported_burn",
+      "displayName": "Imported Burn",
+      "description": "E2E imported status.",
+      "category": "dot",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/imported_burn.png"
+    }
+  ]
+}

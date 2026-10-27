@@ -16,7 +16,7 @@ import {
 import { draftHasValidationErrors } from '../../lib/catalogValidation';
 import { supportsAddEntry } from '../../lib/addEntry';
 import type { CatalogType } from '../../types/catalog';
-import { emptyVersionSelections, type VersionSelections } from './catalogPageUtils';
+import { emptyVersionSelections, latestVersionsByType, type VersionSelections } from './catalogPageUtils';
 import { useCatalogQueries } from './useCatalogQueries';
 import { draftNoticeFlags, useCatalogWorkspaceUi } from './useCatalogWorkspaceUi';
 import { useCatalogWorkspaceActions } from './useCatalogWorkspaceActions';
@@ -141,6 +141,8 @@ export function useCatalogWorkspace() {
     hasValidationErrors: draft ? draftHasValidationErrors(draft.data, selectedType) : false,
     canPublish: actions.canPublish,
     originalData: originalData ?? emptyOriginalData(selectedType),
+    catalogQueryData: queries.catalogQueryData,
+    latestByType: latestVersionsByType(latestQuery.data?.versions),
     draftActions,
     handleVersionChange,
     handleSelectEntity: (id: string, index: number) => {

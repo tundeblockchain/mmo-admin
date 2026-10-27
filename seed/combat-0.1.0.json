@@ -1,0 +1,3154 @@
+{
+  "versionTag": "combat-0.1.0",
+  "class": [
+    {
+      "classId": "vanguard",
+      "displayName": "Vanguard",
+      "description": "A stalwart frontline defender who protects allies and controls the battlefield through sheer resilience and powerful melee strikes.",
+      "primaryResource": "resolve",
+      "startingStats": {
+        "strength": 12,
+        "finesse": 7,
+        "vitality": 12,
+        "intellect": 4,
+        "precision": 6,
+        "luck": 5,
+        "tech": 4,
+        "hp": 150,
+        "resourcePool": 100,
+        "armor": 20,
+        "attackPower": 26,
+        "spellPower": 9,
+        "movementSpeed": 5
+      },
+      "resonance": "valor",
+      "roles": [
+        "tank",
+        "dps"
+      ]
+    },
+    {
+      "classId": "ranger",
+      "displayName": "Ranger",
+      "description": "A precise marksman who excels at ranged combat, using keen senses and deadly accuracy to eliminate targets from a distance.",
+      "primaryResource": "focus",
+      "startingStats": {
+        "strength": 6,
+        "finesse": 11,
+        "vitality": 6,
+        "intellect": 4,
+        "precision": 13,
+        "luck": 7,
+        "tech": 3,
+        "hp": 100,
+        "resourcePool": 100,
+        "armor": 8,
+        "attackPower": 14,
+        "spellPower": 9,
+        "movementSpeed": 5.5
+      },
+      "resonance": "precision",
+      "roles": [
+        "dps"
+      ]
+    },
+    {
+      "classId": "arcanist",
+      "displayName": "Arcanist",
+      "description": "A master of elemental magic who wields fire, frost, and storm to devastate enemies with powerful spells and arcane combinations.",
+      "primaryResource": "mana",
+      "startingStats": {
+        "strength": 3,
+        "finesse": 6,
+        "vitality": 5,
+        "intellect": 14,
+        "precision": 8,
+        "luck": 7,
+        "tech": 7,
+        "hp": 90,
+        "resourcePool": 120,
+        "armor": 5,
+        "attackPower": 8,
+        "spellPower": 29,
+        "movementSpeed": 5
+      },
+      "resonance": "arcana",
+      "roles": [
+        "dps"
+      ]
+    },
+    {
+      "classId": "machinist",
+      "displayName": "Machinist",
+      "description": "A technological genius who deploys autonomous devices and drones to control the battlefield, providing support and sustained damage.",
+      "primaryResource": "charge",
+      "startingStats": {
+        "strength": 4,
+        "finesse": 7,
+        "vitality": 6,
+        "intellect": 8,
+        "precision": 10,
+        "luck": 5,
+        "tech": 14,
+        "hp": 100,
+        "resourcePool": 100,
+        "armor": 10,
+        "attackPower": 10,
+        "spellPower": 17,
+        "movementSpeed": 5
+      },
+      "resonance": "innovation",
+      "roles": [
+        "dps",
+        "support"
+      ]
+    },
+    {
+      "classId": "warden",
+      "displayName": "Warden",
+      "description": "A divine guardian who balances offensive judgment and protective radiance, healing allies while smiting foes with holy power.",
+      "primaryResource": "radiance",
+      "secondaryResource": "judgement",
+      "startingStats": {
+        "strength": 5,
+        "finesse": 6,
+        "vitality": 10,
+        "intellect": 12,
+        "precision": 6,
+        "luck": 6,
+        "tech": 5,
+        "hp": 120,
+        "resourcePool": 100,
+        "armor": 12,
+        "attackPower": 12,
+        "spellPower": 25,
+        "movementSpeed": 5
+      },
+      "resonance": "sanctuary",
+      "roles": [
+        "healer",
+        "support"
+      ]
+    },
+    {
+      "classId": "shade",
+      "displayName": "Shade",
+      "description": "A swift assassin who strikes from the shadows, building momentum through relentless attacks to unleash devastating finishing blows.",
+      "primaryResource": "momentum",
+      "startingStats": {
+        "strength": 7,
+        "finesse": 13,
+        "vitality": 5,
+        "intellect": 4,
+        "precision": 9,
+        "luck": 10,
+        "tech": 2,
+        "hp": 90,
+        "resourcePool": 5,
+        "armor": 6,
+        "attackPower": 16,
+        "spellPower": 9,
+        "movementSpeed": 6
+      },
+      "resonance": "subterfuge",
+      "roles": [
+        "dps"
+      ]
+    }
+  ],
+  "skill": [
+    {
+      "skillId": "vanguard_cleaving_strike",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/vanguard/cleaving_strike.png",
+      "displayName": "Cleaving Strike",
+      "description": "1.50 P + 0.60 STR, 120° arc. +8 Resolve per target; max +16.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "resolve",
+          "amount": 8,
+          "isPercentOfMax": false,
+          "perTargetBonus": 8
+        }
+      ],
+      "cooldownSeconds": 0,
+      "coefficients": {
+        "basePower": 1.5,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.5
+          },
+          {
+            "stat": "strength",
+            "coefficient": 0.6
+          }
+        ],
+        "element": "physical"
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 350,
+        "recoveryMs": 300
+      },
+      "stagger": {
+        "staggerPower": 20,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9,
+        "resourceOverride": {
+          "resourceId": "resolve",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "skillId": "vanguard_shield_breaker",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/vanguard/shield_breaker.png",
+      "displayName": "Shield Breaker",
+      "description": "1.90 P + 1.20 STR; +25% Armor Break vs guard/armor.",
+      "kind": "active",
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 1.9,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.9
+          },
+          {
+            "stat": "strength",
+            "coefficient": 1.2
+          }
+        ],
+        "element": "physical",
+        "appliesStatus": "armor_break"
+      },
+      "timing": {
+        "castMs": 200,
+        "activeMs": 250,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 55,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "armor_break",
+          "value": 35
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9,
+        "staggerMultiplier": 0.7
+      }
+    },
+    {
+      "skillId": "vanguard_brace",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/vanguard/brace.png",
+      "displayName": "Brace",
+      "description": "60% block reduction; -30% move; +10 Resolve/block, +25 perfect. Channeled.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "resolve",
+          "amount": 10,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 0.6,
+        "scaling": [],
+        "conditionals": [
+          {
+            "condition": "perfect_timing",
+            "basePower": 0
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 200,
+        "activePhaseType": "hold"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "staggerResist": 0.5,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "blockReduction": 0.5
+        },
+        "resourceOverride": {
+          "resourceId": "resolve",
+          "amount": 8
+        }
+      }
+    },
+    {
+      "skillId": "vanguard_counterblow",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": "resolve",
+      "resourceCost": 20,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/vanguard/counterblow.png",
+      "displayName": "Counterblow",
+      "description": "2.40 P + 1.00 STR; after perfect block 3.20 P + 1.40 STR.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "resolve",
+          "amount": -20,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 4,
+      "coefficients": {
+        "basePower": 2.4,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 2.4
+          },
+          {
+            "stat": "strength",
+            "coefficient": 1
+          }
+        ],
+        "element": "physical",
+        "conditionals": [
+          {
+            "condition": "perfect_timing",
+            "basePower": 3.2
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 220,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 45,
+        "canStagger": true,
+        "bonusStagger": {
+          "condition": "perfect_timing",
+          "value": 70
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.85,
+        "staggerMultiplier": 0.6
+      }
+    },
+    {
+      "skillId": "vanguard_war_cry",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 8,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/vanguard/war_cry.png",
+      "displayName": "War Cry",
+      "description": "8m taunt 6s; PvE threat 8×.",
+      "kind": "active",
+      "cooldownSeconds": 20,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "taunt",
+        "effectDuration": 6
+      },
+      "timing": {
+        "castMs": 300,
+        "activeMs": 100,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 4,
+        "effectOverrides": {
+          "weaken": -0.1
+        }
+      }
+    },
+    {
+      "skillId": "vanguard_earthshatter",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 5,
+      "resourceId": "resolve",
+      "resourceCost": 35,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/vanguard/earthshatter.png",
+      "displayName": "Earthshatter",
+      "description": "2.10 P + 1.00 STR; 5m radius. Center hit 1.5× stagger.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "resolve",
+          "amount": -35,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 10,
+      "coefficients": {
+        "basePower": 2.1,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 2.1
+          },
+          {
+            "stat": "strength",
+            "coefficient": 1
+          }
+        ],
+        "element": "physical"
+      },
+      "timing": {
+        "castMs": 500,
+        "activeMs": 250,
+        "recoveryMs": 650
+      },
+      "stagger": {
+        "staggerPower": 65,
+        "canStagger": true,
+        "bonusStagger": {
+          "condition": "center",
+          "value": 97
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "staggerMultiplier": 0.65
+      }
+    },
+    {
+      "skillId": "vanguard_unbreakable",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/vanguard/unbreakable.png",
+      "displayName": "Unbreakable",
+      "description": "Passive: Below 30% HP: -15% dmg taken, +40% stagger resist 8s. 30s internal CD.",
+      "kind": "passive",
+      "cooldownSeconds": 0,
+      "internalCooldownSeconds": 30,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 8,
+        "conditionals": [
+          {
+            "condition": "below_hp_threshold",
+            "threshold": 0.3,
+            "damageMultiplier": 0.85
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "staggerResist": 0.4,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 6,
+        "effectOverrides": {
+          "damageReduction": 0.1
+        }
+      }
+    },
+    {
+      "skillId": "vanguard_overrun",
+      "classId": "vanguard",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 10,
+      "resourceId": "resolve",
+      "resourceCost": 15,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/vanguard/overrun.png",
+      "displayName": "Overrun",
+      "description": "1.30 P + 0.50 STR; travel up to 10m.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "resolve",
+          "amount": -15,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 12,
+      "coefficients": {
+        "basePower": 1.3,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.3
+          },
+          {
+            "stat": "strength",
+            "coefficient": 0.5
+          }
+        ],
+        "element": "physical"
+      },
+      "timing": {
+        "castMs": 100,
+        "activeMs": 600,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 30,
+        "canStagger": true,
+        "bonusStagger": {
+          "condition": "elite_boss",
+          "value": 65
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.85,
+        "effectOverrides": {
+          "knockbackToFlinch": 1
+        }
+      }
+    },
+    {
+      "skillId": "ranger_quickshot",
+      "classId": "ranger",
+      "charges": 2,
+      "chargeRechargeSeconds": 5,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 30,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/ranger/quickshot.png",
+      "displayName": "Quickshot",
+      "description": "1.10 P + 0.50 PRE; two charges; while moving.",
+      "kind": "active",
+      "cooldownSeconds": 5,
+      "coefficients": {
+        "basePower": 1.1,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.1
+          },
+          {
+            "stat": "precision",
+            "coefficient": 0.5
+          }
+        ],
+        "element": "physical"
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 150,
+        "recoveryMs": 250
+      },
+      "stagger": {
+        "staggerPower": 8,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9
+      }
+    },
+    {
+      "skillId": "ranger_hunters_mark",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 40,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/ranger/hunters_mark.png",
+      "displayName": "Hunter's Mark",
+      "description": "One Mark; reveal within 25m. Mark lasts 8s.",
+      "kind": "active",
+      "cooldownSeconds": 10,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "mark",
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 150,
+        "activeMs": 50,
+        "recoveryMs": 250
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 6,
+        "effectOverrides": {
+          "revealRange": 15
+        }
+      }
+    },
+    {
+      "skillId": "ranger_piercing_shot",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.55,
+      "castableWhileMoving": false,
+      "range": 35,
+      "resourceId": "focus",
+      "resourceCost": 40,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/ranger/piercing_shot.png",
+      "displayName": "Piercing Shot",
+      "description": "2.10 P + 1.00 PRE; Mark III 3.00 P + 1.40 PRE. Consumes Marks.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": -40,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 2.1,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 2.1
+          },
+          {
+            "stat": "precision",
+            "coefficient": 1
+          }
+        ],
+        "element": "physical",
+        "conditionals": [
+          {
+            "condition": "marked",
+            "basePower": 3
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 550,
+        "activeMs": 100,
+        "recoveryMs": 600
+      },
+      "stagger": {
+        "staggerPower": 25,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "effectOverrides": {
+          "markIIICoeff": 2.7
+        }
+      }
+    },
+    {
+      "skillId": "ranger_scattershot",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 12,
+      "resourceId": "focus",
+      "resourceCost": 25,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/ranger/scattershot.png",
+      "displayName": "Scattershot",
+      "description": "Six projectiles totaling 2.70 P + 0.90 FIN; 12m cone. Max 4 hits/target.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": -25,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 7,
+      "coefficients": {
+        "basePower": 2.7,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 2.7
+          },
+          {
+            "stat": "finesse",
+            "coefficient": 0.9
+          }
+        ],
+        "element": "physical"
+      },
+      "timing": {
+        "castMs": 200,
+        "activeMs": 250,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 5,
+        "staggerPerHit": 5,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.85,
+        "maxHitsPerTarget": 3
+      }
+    },
+    {
+      "skillId": "ranger_evade",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 6,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/ranger/evade.png",
+      "displayName": "Evade",
+      "description": "6m dodge; 300ms i-frames; next ranged +15% crit. +10 Focus on perfect.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": 10,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 2
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 300,
+        "recoveryMs": 200
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "iFramesMs": 250,
+          "critBonus": 0.1
+        }
+      }
+    },
+    {
+      "skillId": "ranger_pinning_arrow",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 35,
+      "resourceId": "focus",
+      "resourceCost": 20,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/ranger/pinning_arrow.png",
+      "displayName": "Pinning Arrow",
+      "description": "1.40 P + 0.70 PRE; 40% slow 4s. Mark III 1.5s root + consume.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": -20,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 12,
+      "coefficients": {
+        "basePower": 1.4,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.4
+          },
+          {
+            "stat": "precision",
+            "coefficient": 0.7
+          }
+        ],
+        "element": "physical",
+        "appliesStatus": "slow",
+        "effectDuration": 4
+      },
+      "timing": {
+        "castMs": 250,
+        "activeMs": 100,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 30,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "root",
+          "value": 30
+        }
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "rootDuration": 1,
+          "slowPercent": 0.3,
+          "slowDuration": 3
+        }
+      }
+    },
+    {
+      "skillId": "ranger_dead_focus",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": "focus",
+      "resourceCost": 0,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/ranger/dead_focus.png",
+      "displayName": "Dead Focus",
+      "description": "+20% range, +25% crit dmg, +30% weak-point. Drains 10 Focus/sec. CD after exit.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": -10,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 4,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "dead_focus"
+      },
+      "timing": {
+        "castMs": 350,
+        "activeMs": 0,
+        "recoveryMs": 250,
+        "activePhaseType": "stance"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "rangeBonus": 0.15,
+          "critDmgBonus": 0.15,
+          "weakPointBonus": 0.2
+        }
+      }
+    },
+    {
+      "skillId": "ranger_predators_instinct",
+      "classId": "ranger",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/ranger/predators_instinct.png",
+      "displayName": "Predator's Instinct",
+      "description": "Passive: Weak points +12 Focus; at 100 next offensive costs 0 and +20%. 1s gain lockout.",
+      "kind": "passive",
+      "resourceEffects": [
+        {
+          "resourceId": "focus",
+          "amount": 12,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 0,
+      "internalCooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "resourceOverride": {
+          "resourceId": "focus",
+          "amount": 8
+        },
+        "effectOverrides": {
+          "empoweredBonus": 0.12
+        }
+      }
+    },
+    {
+      "skillId": "arcanist_ember_lance",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.35,
+      "castableWhileMoving": false,
+      "range": 30,
+      "resourceId": "mana",
+      "resourceCost": 12,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/arcanist/ember_lance.png",
+      "displayName": "Ember Lance",
+      "description": "1.70 P + 0.80 INT; applies Flame. -12% base Mana.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": -0.12,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 2,
+      "coefficients": {
+        "basePower": 1.7,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.7
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.8
+          }
+        ],
+        "element": "fire",
+        "appliesStatus": "flame"
+      },
+      "timing": {
+        "castMs": 350,
+        "activeMs": 100,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 15,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "burn",
+          "value": 15
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9,
+        "effectOverrides": {
+          "burnBuildup": 10
+        }
+      }
+    },
+    {
+      "skillId": "arcanist_frostbind",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.25,
+      "castableWhileMoving": false,
+      "range": 25,
+      "resourceId": "mana",
+      "resourceCost": 14,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/arcanist/frostbind.png",
+      "displayName": "Frostbind",
+      "description": "1.20 P + 0.60 INT; applies Frost; 30% slow 3s. -14% base Mana.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": -0.14,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 6,
+      "coefficients": {
+        "basePower": 1.2,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.2
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.6
+          }
+        ],
+        "element": "ice",
+        "appliesStatus": "frost",
+        "effectDuration": 3
+      },
+      "timing": {
+        "castMs": 250,
+        "activeMs": 150,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 25,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "freeze",
+          "value": 25
+        }
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "slowPercent": 0.2,
+          "slowDuration": 2,
+          "freezeBuildup": 15
+        }
+      }
+    },
+    {
+      "skillId": "arcanist_arc_surge",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.45,
+      "castableWhileMoving": false,
+      "range": 20,
+      "resourceId": "mana",
+      "resourceCost": 18,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/arcanist/arc_surge.png",
+      "displayName": "Arc Surge",
+      "description": "Up to 4 targets 1.40 P + 0.50 INT each; Storm. -18% base Mana.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": -0.18,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 1.4,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.4
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.5
+          }
+        ],
+        "element": "lightning",
+        "appliesStatus": "shock"
+      },
+      "timing": {
+        "castMs": 450,
+        "activeMs": 250,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 20,
+        "staggerPerHit": 20,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "shock",
+          "value": 20
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "maxTargets": 3
+      }
+    },
+    {
+      "skillId": "arcanist_aether_bolt",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.3,
+      "castableWhileMoving": false,
+      "range": 35,
+      "resourceId": "mana",
+      "resourceCost": 10,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/arcanist/aether_bolt.png",
+      "displayName": "Aether Bolt",
+      "description": "1.60 P + 0.70 INT; +20% if target has Resonance. -10% base Mana.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": -0.1,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 1.6,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.6
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.7
+          }
+        ],
+        "element": "arcane",
+        "appliesStatus": "aether"
+      },
+      "timing": {
+        "castMs": 300,
+        "activeMs": 100,
+        "recoveryMs": 300
+      },
+      "stagger": {
+        "staggerPower": 10,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "resonanceBonus": 0.12
+        }
+      }
+    },
+    {
+      "skillId": "arcanist_thermal_shock",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 30,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/arcanist/thermal_shock.png",
+      "displayName": "Thermal Shock",
+      "description": "REACTION: 2.30 P + 1.00 INT; consumes Flame+Frost. 1s/target internal CD.",
+      "kind": "reaction",
+      "cooldownSeconds": 0,
+      "internalCooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 2.3,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 2.3
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 1
+          }
+        ],
+        "element": "arcane"
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0,
+        "activePhaseType": "reaction"
+      },
+      "stagger": {
+        "staggerPower": 55,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.75,
+        "staggerMultiplier": 0.5
+      }
+    },
+    {
+      "skillId": "arcanist_phase_step",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 8,
+      "resourceId": "mana",
+      "resourceCost": 8,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/arcanist/phase_step.png",
+      "displayName": "Phase Step",
+      "description": "Teleport 8m; next spell in 3s costs 30% less Mana. 200ms i-frames. -8% base Mana.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": -0.08,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 10,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 3
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 150,
+        "recoveryMs": 250
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "range": 7,
+          "noArrivalIframes": 1
+        }
+      }
+    },
+    {
+      "skillId": "arcanist_mana_conduit",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/arcanist/mana_conduit.png",
+      "displayName": "Mana Conduit",
+      "description": "Channel: Restore 30% max Mana over 2s. Interruptible.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "mana",
+          "amount": 0.3,
+          "isPercentOfMax": true
+        }
+      ],
+      "cooldownSeconds": 18,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": []
+      },
+      "timing": {
+        "castMs": 200,
+        "activeMs": 2000,
+        "recoveryMs": 350,
+        "activePhaseType": "channel"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "manaRestore": 0.2
+        },
+        "cooldownSeconds": 22
+      }
+    },
+    {
+      "skillId": "arcanist_elemental_mastery",
+      "classId": "arcanist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/arcanist/elemental_mastery.png",
+      "displayName": "Elemental Mastery",
+      "description": "Passive: Reaction +4% Spell Power 8s, max 5 stacks. 0.5s lockout.",
+      "kind": "passive",
+      "cooldownSeconds": 0,
+      "internalCooldownSeconds": 0.5,
+      "coefficients": {
+        "basePower": 0.04,
+        "scaling": [],
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "stackBonus": 0.03,
+          "maxStacks": 4
+        }
+      }
+    },
+    {
+      "skillId": "machinist_auto_turret",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.45,
+      "castableWhileMoving": false,
+      "range": 20,
+      "resourceId": "charge",
+      "resourceCost": 30,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/machinist/auto_turret.png",
+      "displayName": "Auto-Turret",
+      "description": "15s; 15 shots at 0.45 Device Power + 0.15 PRE. -30 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -30,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 12,
+      "coefficients": {
+        "basePower": 0.45,
+        "scaling": [
+          {
+            "stat": "devicePower",
+            "coefficient": 0.45
+          },
+          {
+            "stat": "precision",
+            "coefficient": 0.15
+          }
+        ],
+        "element": "physical",
+        "effectDuration": 15
+      },
+      "timing": {
+        "castMs": 450,
+        "activeMs": 200,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 3,
+        "staggerPerHit": 3,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.75,
+        "durationSeconds": 12
+      }
+    },
+    {
+      "skillId": "machinist_assault_drone",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.5,
+      "castableWhileMoving": true,
+      "range": 30,
+      "resourceId": "charge",
+      "resourceCost": 35,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/machinist/assault_drone.png",
+      "displayName": "Assault Drone",
+      "description": "20s; shot every 1.25s at 0.38 Device Power + 0.12 PRE. -35 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -35,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 18,
+      "coefficients": {
+        "basePower": 0.38,
+        "scaling": [
+          {
+            "stat": "devicePower",
+            "coefficient": 0.38
+          },
+          {
+            "stat": "precision",
+            "coefficient": 0.12
+          }
+        ],
+        "element": "physical",
+        "effectDuration": 20
+      },
+      "timing": {
+        "castMs": 500,
+        "activeMs": 200,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 3,
+        "staggerPerHit": 3,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "durationSeconds": 14
+      }
+    },
+    {
+      "skillId": "machinist_pulse_mine",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 15,
+      "resourceId": "charge",
+      "resourceCost": 20,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/machinist/pulse_mine.png",
+      "displayName": "Pulse Mine",
+      "description": "2.20 Tech Power + 0.80 TEC; arms 0.75s; max 3. -20 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -20,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 6,
+      "coefficients": {
+        "basePower": 2.2,
+        "scaling": [
+          {
+            "stat": "techPower",
+            "coefficient": 2.2
+          },
+          {
+            "stat": "tech",
+            "coefficient": 0.8
+          }
+        ],
+        "element": "lightning"
+      },
+      "timing": {
+        "castMs": 350,
+        "activeMs": 0,
+        "recoveryMs": 300,
+        "activePhaseType": "deploy"
+      },
+      "stagger": {
+        "staggerPower": 60,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "shock",
+          "value": 20
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "staggerMultiplier": 0.5
+      }
+    },
+    {
+      "skillId": "machinist_overclock",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 0,
+      "resourceId": "charge",
+      "resourceCost": 20,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/machinist/overclock.png",
+      "displayName": "Overclock",
+      "description": "Devices +35% atk speed +20% dmg 8s then -20 durability. -20 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -20,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 20,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "overclock",
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 250,
+        "activeMs": 100,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 6,
+        "effectOverrides": {
+          "atkSpeedBonus": 0.25,
+          "dmgBonus": 0.12
+        }
+      }
+    },
+    {
+      "skillId": "machinist_repair_protocol",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 20,
+      "resourceId": "charge",
+      "resourceCost": 15,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/machinist/repair_protocol.png",
+      "displayName": "Repair Protocol",
+      "description": "Player 0.60 Healing Power + 0.30 TEC; device 35% max durability. -15 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -15,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 0.6,
+        "scaling": [
+          {
+            "stat": "healingPower",
+            "coefficient": 0.6
+          },
+          {
+            "stat": "tech",
+            "coefficient": 0.3
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 400,
+        "activeMs": 100,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "healingMultiplier": 0.75,
+        "effectOverrides": {
+          "deviceDurability": 0.25
+        }
+      }
+    },
+    {
+      "skillId": "machinist_shock_net",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 25,
+      "resourceId": "charge",
+      "resourceCost": 25,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/machinist/shock_net.png",
+      "displayName": "Shock Net",
+      "description": "5m field 5s; 35% slow; 12 Shock/sec. Stun at threshold. -25 Charge.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": -25,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 14,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "shock",
+        "effectDuration": 5
+      },
+      "timing": {
+        "castMs": 400,
+        "activeMs": 0,
+        "recoveryMs": 400,
+        "activePhaseType": "deploy"
+      },
+      "stagger": {
+        "staggerPower": 12,
+        "staggerPerHit": 12,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "shock",
+          "value": 12
+        }
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 4,
+        "effectOverrides": {
+          "slowPercent": 0.25
+        }
+      }
+    },
+    {
+      "skillId": "machinist_salvage",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/machinist/salvage.png",
+      "displayName": "Salvage",
+      "description": "Passive: Natural expiry refunds 25%; manual 40%.",
+      "kind": "passive",
+      "resourceEffects": [
+        {
+          "resourceId": "charge",
+          "amount": 25,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 0,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": []
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "manualRefund": 0.3
+        }
+      }
+    },
+    {
+      "skillId": "machinist_remote_detonation",
+      "classId": "machinist",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 40,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/machinist/remote_detonation.png",
+      "displayName": "Remote Detonation",
+      "description": "Turret 1.10, drone 1.40, mine 2.40 Device Power. Stagger: 25/35/65.",
+      "kind": "active",
+      "cooldownSeconds": 10,
+      "coefficients": {
+        "basePower": 1.1,
+        "scaling": [
+          {
+            "stat": "devicePower",
+            "coefficient": 1.1
+          }
+        ],
+        "element": "fire"
+      },
+      "timing": {
+        "castMs": 150,
+        "activeMs": 100,
+        "recoveryMs": 500
+      },
+      "stagger": {
+        "staggerPower": 25,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.7,
+        "maxTargets": 2
+      }
+    },
+    {
+      "skillId": "warden_radiant_strike",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/warden/radiant_strike.png",
+      "displayName": "Radiant Strike",
+      "description": "1.30 Spell Power + 0.50 INT. +15 Radiance.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "radiance",
+          "amount": 15,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 2,
+      "coefficients": {
+        "basePower": 1.3,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.3
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.5
+          }
+        ],
+        "element": "radiant"
+      },
+      "timing": {
+        "castMs": 150,
+        "activeMs": 250,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 15,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9,
+        "resourceOverride": {
+          "resourceId": "radiance",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "skillId": "warden_mend",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.45,
+      "castableWhileMoving": false,
+      "range": 30,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/warden/mend.png",
+      "displayName": "Mend",
+      "description": "1.70 Healing Power + 0.50 INT. +15 Judgement.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "judgement",
+          "amount": 15,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 3,
+      "coefficients": {
+        "basePower": 1.7,
+        "scaling": [
+          {
+            "stat": "healingPower",
+            "coefficient": 1.7
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.5
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 450,
+        "activeMs": 100,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "healingMultiplier": 0.8,
+        "resourceOverride": {
+          "resourceId": "judgement",
+          "amount": 12
+        }
+      }
+    },
+    {
+      "skillId": "warden_sanctuary",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.6,
+      "castableWhileMoving": false,
+      "range": 20,
+      "resourceId": "radiance",
+      "resourceCost": 30,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/warden/sanctuary.png",
+      "displayName": "Sanctuary",
+      "description": "8s field; eight ticks totaling 2.40 Healing Power + 0.80 INT. -30 Radiance.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "radiance",
+          "amount": -30,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 18,
+      "coefficients": {
+        "basePower": 2.4,
+        "scaling": [
+          {
+            "stat": "healingPower",
+            "coefficient": 2.4
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.8
+          }
+        ],
+        "appliesStatus": "sanctuary",
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 600,
+        "activeMs": 0,
+        "recoveryMs": 500,
+        "activePhaseType": "deploy"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "healingMultiplier": 0.7,
+        "durationSeconds": 6,
+        "effectOverrides": {
+          "noEnemyDebuff": 1
+        }
+      }
+    },
+    {
+      "skillId": "warden_condemn",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0.35,
+      "castableWhileMoving": false,
+      "range": 25,
+      "resourceId": "judgement",
+      "resourceCost": 25,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/warden/condemn.png",
+      "displayName": "Condemn",
+      "description": "1.90 Spell Power + 0.70 INT; target -10% dmg 5s. -25 Judgement.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "judgement",
+          "amount": -25,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 10,
+      "coefficients": {
+        "basePower": 1.9,
+        "scaling": [
+          {
+            "stat": "spellPower",
+            "coefficient": 1.9
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 0.7
+          }
+        ],
+        "element": "radiant",
+        "appliesStatus": "weaken",
+        "effectDuration": 5
+      },
+      "timing": {
+        "castMs": 350,
+        "activeMs": 150,
+        "recoveryMs": 450
+      },
+      "stagger": {
+        "staggerPower": 20,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "weaken",
+          "value": 20
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.85,
+        "effectOverrides": {
+          "weakenPercent": 0.08,
+          "weakenDuration": 3
+        }
+      }
+    },
+    {
+      "skillId": "warden_guardian_light",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 30,
+      "resourceId": "radiance",
+      "resourceCost": 25,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/warden/guardian_light.png",
+      "displayName": "Guardian Light",
+      "description": "10% target Max HP + 0.70 Healing Power; 8s. -25 Radiance; -15 Judgement.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "radiance",
+          "amount": -25,
+          "isPercentOfMax": false
+        },
+        {
+          "resourceId": "judgement",
+          "amount": -15,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 12,
+      "coefficients": {
+        "basePower": 0.1,
+        "scaling": [
+          {
+            "stat": "maxHp",
+            "coefficient": 0.1
+          },
+          {
+            "stat": "healingPower",
+            "coefficient": 0.7
+          }
+        ],
+        "appliesStatus": "guardian_light",
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 300,
+        "activeMs": 100,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "maxHpPercent": 0.07
+        },
+        "durationSeconds": 6
+      }
+    },
+    {
+      "skillId": "warden_equilibrium",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 0,
+      "resourceId": "radiance",
+      "resourceCost": 50,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/warden/equilibrium.png",
+      "displayName": "Equilibrium",
+      "description": "+20% dmg/heal 10s; cross-effects 15% of triggering result. -50 Radiance; -50 Judgement.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "radiance",
+          "amount": -50,
+          "isPercentOfMax": false
+        },
+        {
+          "resourceId": "judgement",
+          "amount": -50,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 45,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "appliesStatus": "equilibrium",
+        "effectDuration": 10
+      },
+      "timing": {
+        "castMs": 500,
+        "activeMs": 100,
+        "recoveryMs": 400
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 8,
+        "effectOverrides": {
+          "dmgHealBonus": 0.12,
+          "crossEffectPercent": 0.1
+        }
+      }
+    },
+    {
+      "skillId": "warden_divine_intervention",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 40,
+      "resourceId": "judgement",
+      "resourceCost": 40,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/warden/divine_intervention.png",
+      "displayName": "Divine Intervention",
+      "description": "Cannot fall below 1 HP for 2s, then 2.50 Healing Power + 1.00 INT. Exhausted 90s. -40 Judgement.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "judgement",
+          "amount": -40,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 120,
+      "coefficients": {
+        "basePower": 2.5,
+        "scaling": [
+          {
+            "stat": "healingPower",
+            "coefficient": 2.5
+          },
+          {
+            "stat": "intellect",
+            "coefficient": 1
+          }
+        ],
+        "appliesStatus": "divine_intervention"
+      },
+      "antiDeathDurationSeconds": 2,
+      "exhaustedDurationSeconds": 90,
+      "timing": {
+        "castMs": 250,
+        "activeMs": 100,
+        "recoveryMs": 350
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "healingMultiplier": 0.7,
+        "durationSeconds": 1,
+        "effectOverrides": {
+          "exhaustedDurationSeconds": 120
+        }
+      }
+    },
+    {
+      "skillId": "warden_balance_within",
+      "classId": "warden",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/warden/balance_within.png",
+      "displayName": "Balance Within",
+      "description": "Passive: Harmony +2% dmg/heal per stack, max 5. Same-type resets.",
+      "kind": "passive",
+      "cooldownSeconds": 0,
+      "coefficients": {
+        "basePower": 0.02,
+        "scaling": [],
+        "appliesStatus": "harmony"
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "stackBonus": 0.015,
+          "maxStacks": 4
+        }
+      }
+    },
+    {
+      "skillId": "shade_razor_cut",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 1,
+      "iconPath": "icons/skills/shade/razor_cut.png",
+      "displayName": "Razor Cut",
+      "description": "1.20 P + 0.50 FIN; +30% from behind. +1 Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": 1,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 1.2,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.2
+          },
+          {
+            "stat": "finesse",
+            "coefficient": 0.5
+          }
+        ],
+        "element": "physical",
+        "conditionals": [
+          {
+            "condition": "flanking",
+            "damageMultiplier": 1.3
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 220,
+        "recoveryMs": 280
+      },
+      "stagger": {
+        "staggerPower": 8,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.9,
+        "effectOverrides": {
+          "rearBonus": 0.2
+        }
+      }
+    },
+    {
+      "skillId": "shade_shadowstep",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 10,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 4,
+      "iconPath": "icons/skills/shade/shadowstep.png",
+      "displayName": "Shadowstep",
+      "description": "Teleport behind within 10m; next atk +20% crit 3s.",
+      "kind": "active",
+      "cooldownSeconds": 8,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 3
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 150,
+        "recoveryMs": 250
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "range": 8,
+          "critBonus": 0.15
+        }
+      }
+    },
+    {
+      "skillId": "shade_venom_edge",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": "momentum",
+      "resourceCost": 1,
+      "unlockLevel": 8,
+      "iconPath": "icons/skills/shade/venom_edge.png",
+      "displayName": "Venom Edge",
+      "description": "10s weapon buff; 5th stack 1.80 P + 0.80 LCK over 6s. -1 Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": -1,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 14,
+      "coefficients": {
+        "basePower": 1.8,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.8
+          },
+          {
+            "stat": "luck",
+            "coefficient": 0.8
+          }
+        ],
+        "element": "nature",
+        "appliesStatus": "venom",
+        "effectDuration": 10
+      },
+      "timing": {
+        "castMs": 200,
+        "activeMs": 0,
+        "recoveryMs": 300,
+        "activePhaseType": "buff"
+      },
+      "stagger": {
+        "staggerPower": 15,
+        "staggerPerHit": 15,
+        "canStagger": true,
+        "statusBuildup": {
+          "status": "poison",
+          "value": 15
+        }
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.75,
+        "durationSeconds": 4
+      }
+    },
+    {
+      "skillId": "shade_smoke_veil",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 5,
+      "resourceId": "momentum",
+      "resourceCost": 2,
+      "unlockLevel": 12,
+      "iconPath": "icons/skills/shade/smoke_veil.png",
+      "displayName": "Smoke Veil",
+      "description": "5m field 6s; +20% glance inside. -2 Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": -2,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 20,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": [],
+        "effectDuration": 6
+      },
+      "timing": {
+        "castMs": 250,
+        "activeMs": 0,
+        "recoveryMs": 350,
+        "activePhaseType": "deploy"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 4,
+        "effectOverrides": {
+          "glanceBonus": 0.12,
+          "noLockOnBreak": 8
+        }
+      }
+    },
+    {
+      "skillId": "shade_sever",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": "momentum",
+      "resourceCost": 1,
+      "unlockLevel": 16,
+      "iconPath": "icons/skills/shade/sever.png",
+      "displayName": "Sever",
+      "description": "1.50/2.00/2.60/3.30/4.20 P + 0.40 FIN per stack. Spend all Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": -5,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 6,
+      "coefficients": {
+        "basePower": 1.5,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 1.5
+          },
+          {
+            "stat": "finesse",
+            "coefficient": 0.4
+          }
+        ],
+        "element": "physical",
+        "perStack": {
+          "basePowerPerStack": [
+            1.5,
+            2,
+            2.6,
+            3.3,
+            4.2
+          ]
+        }
+      },
+      "timing": {
+        "castMs": 250,
+        "activeMs": 200,
+        "recoveryMs": 550
+      },
+      "stagger": {
+        "staggerPower": 15,
+        "perStackStagger": 15,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.8,
+        "effectOverrides": {
+          "fiveStackCoeff": 3.6
+        }
+      }
+    },
+    {
+      "skillId": "shade_execution",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": "momentum",
+      "resourceCost": 3,
+      "unlockLevel": 22,
+      "iconPath": "icons/skills/shade/execution.png",
+      "displayName": "Execution",
+      "description": "Below 25% HP: 2.00 P + 2.00 P × MissingHealthPercent; bosses cap 3.25 P. -3 Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": -3,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 18,
+      "coefficients": {
+        "basePower": 2,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 2
+          },
+          {
+            "stat": "missingHpPercent",
+            "coefficient": 2
+          }
+        ],
+        "element": "shadow",
+        "conditionals": [
+          {
+            "condition": "below_hp_threshold",
+            "threshold": 0.25
+          },
+          {
+            "condition": "boss_target",
+            "basePower": 3.25
+          }
+        ]
+      },
+      "timing": {
+        "castMs": 400,
+        "activeMs": 150,
+        "recoveryMs": 600
+      },
+      "stagger": {
+        "staggerPower": 30,
+        "canStagger": true
+      },
+      "pvpMultipliers": {
+        "damageMultiplier": 0.75,
+        "effectOverrides": {
+          "missingHealthCap": 1
+        }
+      }
+    },
+    {
+      "skillId": "shade_phantom_double",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": true,
+      "range": 0,
+      "resourceId": "momentum",
+      "resourceCost": 2,
+      "unlockLevel": 30,
+      "iconPath": "icons/skills/shade/phantom_double.png",
+      "displayName": "Phantom Double",
+      "description": "8s duplicate; 30% basic attacks; 15% owner Max HP. -2 Momentum.",
+      "kind": "active",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": -2,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 24,
+      "coefficients": {
+        "basePower": 0.3,
+        "scaling": [
+          {
+            "stat": "attackPower",
+            "coefficient": 0.3
+          }
+        ],
+        "element": "shadow",
+        "effectDuration": 8
+      },
+      "timing": {
+        "castMs": 350,
+        "activeMs": 0,
+        "recoveryMs": 400,
+        "activePhaseType": "summon"
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "durationSeconds": 6,
+        "effectOverrides": {
+          "effectiveness": 0.2,
+          "noBodyBlock": 1
+        }
+      }
+    },
+    {
+      "skillId": "shade_relentless",
+      "classId": "shade",
+      "charges": 1,
+      "chargeRechargeSeconds": 0,
+      "castTimeSeconds": 0,
+      "castableWhileMoving": false,
+      "range": 0,
+      "resourceId": null,
+      "resourceCost": 0,
+      "unlockLevel": 40,
+      "iconPath": "icons/skills/shade/relentless.png",
+      "displayName": "Relentless",
+      "description": "Passive: Crits 20% chance Momentum; perfect dodge guarantees one. 1s crit lockout.",
+      "kind": "passive",
+      "resourceEffects": [
+        {
+          "resourceId": "momentum",
+          "amount": 1,
+          "isPercentOfMax": false
+        }
+      ],
+      "cooldownSeconds": 0,
+      "internalCooldownSeconds": 1,
+      "coefficients": {
+        "basePower": 0,
+        "scaling": []
+      },
+      "timing": {
+        "castMs": 0,
+        "activeMs": 0,
+        "recoveryMs": 0
+      },
+      "stagger": {
+        "staggerPower": 0,
+        "canStagger": false
+      },
+      "pvpMultipliers": {
+        "effectOverrides": {
+          "critProcChance": 0.15
+        },
+        "cooldownSeconds": 1.5
+      }
+    }
+  ],
+  "status": [
+    {
+      "statusId": "flame",
+      "displayName": "Flame",
+      "description": "Burning from fire damage, taking damage over time.",
+      "category": "dot",
+      "maxStacks": 3,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/flame.png"
+    },
+    {
+      "statusId": "burn",
+      "displayName": "Burn",
+      "description": "Severely burning, taking increased fire damage over time.",
+      "category": "dot",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/burn.png"
+    },
+    {
+      "statusId": "venom",
+      "displayName": "Venom",
+      "description": "Poisoned, taking nature damage over time. Stacks to 5.",
+      "category": "dot",
+      "maxStacks": 5,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/venom.png"
+    },
+    {
+      "statusId": "poison",
+      "displayName": "Poison",
+      "description": "A general poison effect dealing nature damage over time.",
+      "category": "dot",
+      "maxStacks": 3,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/poison.png"
+    },
+    {
+      "statusId": "bleed",
+      "displayName": "Bleed",
+      "description": "Bleeding, taking physical damage over time.",
+      "category": "dot",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/bleed.png"
+    },
+    {
+      "statusId": "frost",
+      "displayName": "Frost",
+      "description": "Chilled by ice, movement and attack speed reduced.",
+      "category": "control",
+      "maxStacks": 3,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/frost.png"
+    },
+    {
+      "statusId": "freeze",
+      "displayName": "Freeze",
+      "description": "Frozen solid, unable to move or act.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/freeze.png"
+    },
+    {
+      "statusId": "shock",
+      "displayName": "Shock",
+      "description": "Shocked by electricity, periodically interrupted.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/shock.png"
+    },
+    {
+      "statusId": "stagger",
+      "displayName": "Stagger",
+      "description": "Staggered, briefly unable to act.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/stagger.png"
+    },
+    {
+      "statusId": "immobilize",
+      "displayName": "Immobilize",
+      "description": "Rooted in place, unable to move but can still attack.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/immobilize.png"
+    },
+    {
+      "statusId": "snare",
+      "displayName": "Snare",
+      "description": "Movement speed greatly reduced.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/snare.png"
+    },
+    {
+      "statusId": "slow",
+      "displayName": "Slow",
+      "description": "Movement speed reduced.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/slow.png"
+    },
+    {
+      "statusId": "root",
+      "displayName": "Root",
+      "description": "Rooted in place.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/root.png"
+    },
+    {
+      "statusId": "taunt",
+      "displayName": "Taunt",
+      "description": "Forced to attack the taunting enemy.",
+      "category": "control",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/taunt.png"
+    },
+    {
+      "statusId": "armor_break",
+      "displayName": "Armor Break",
+      "description": "Armor reduced, taking increased physical damage.",
+      "category": "debuff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/armor_break.png"
+    },
+    {
+      "statusId": "weaken",
+      "displayName": "Weaken",
+      "description": "Weakened, dealing reduced damage.",
+      "category": "debuff",
+      "maxStacks": 3,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/weaken.png"
+    },
+    {
+      "statusId": "exhausted",
+      "displayName": "Exhausted",
+      "description": "Exhausted, resource regeneration greatly reduced.",
+      "category": "debuff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/exhausted.png"
+    },
+    {
+      "statusId": "mark",
+      "displayName": "Mark",
+      "description": "Hunter's Mark - taking increased damage from the marking enemy.",
+      "category": "debuff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/mark.png"
+    },
+    {
+      "statusId": "aether",
+      "displayName": "Aether",
+      "description": "Marked by aether.",
+      "category": "debuff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/aether.png"
+    },
+    {
+      "statusId": "stealth",
+      "displayName": "Stealth",
+      "description": "Hidden from enemies, next attack deals bonus damage.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/stealth.png"
+    },
+    {
+      "statusId": "dead_focus",
+      "displayName": "Dead Focus",
+      "description": "Perfectly focused, increased damage and accuracy.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/dead_focus.png"
+    },
+    {
+      "statusId": "overclock",
+      "displayName": "Overclock",
+      "description": "Devices overclocked, increased attack speed and damage.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/overclock.png"
+    },
+    {
+      "statusId": "guardian_light",
+      "displayName": "Guardian Light",
+      "description": "Protected by divine light, absorbing incoming damage.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/guardian_light.png"
+    },
+    {
+      "statusId": "equilibrium",
+      "displayName": "Equilibrium",
+      "description": "In perfect balance, next ability greatly empowered.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/equilibrium.png"
+    },
+    {
+      "statusId": "phantom_double",
+      "displayName": "Phantom Double",
+      "description": "A shadowy duplicate mimics your attacks.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/phantom_double.png"
+    },
+    {
+      "statusId": "unbreakable",
+      "displayName": "Unbreakable",
+      "description": "Cannot be brought below 1 HP, damage reduction active.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/unbreakable.png"
+    },
+    {
+      "statusId": "sanctuary",
+      "displayName": "Sanctuary",
+      "description": "Within a sanctuary field, healing over time.",
+      "category": "hot",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/sanctuary.png"
+    },
+    {
+      "statusId": "harmony",
+      "displayName": "Harmony",
+      "description": "In harmony with allies, increased healing received.",
+      "category": "hot",
+      "maxStacks": 5,
+      "dispellable": true,
+      "persistsThroughDeath": false,
+      "iconPath": "icons/statuses/harmony.png"
+    },
+    {
+      "statusId": "divine_intervention",
+      "displayName": "Divine Intervention",
+      "description": "Protected by divine power, cannot die for the duration.",
+      "category": "buff",
+      "maxStacks": 1,
+      "dispellable": false,
+      "persistsThroughDeath": true,
+      "iconPath": "icons/statuses/divine_intervention.png"
+    }
+  ],
+  "element": [
+    {
+      "elementId": "physical",
+      "displayName": "Physical",
+      "color": "#C0C0C0",
+      "strongAgainst": {},
+      "weakAgainst": {}
+    },
+    {
+      "elementId": "fire",
+      "displayName": "Fire",
+      "color": "#FF4500",
+      "strongAgainst": {
+        "ice": 1.25,
+        "nature": 1.25
+      },
+      "weakAgainst": {
+        "fire": 0.5
+      }
+    },
+    {
+      "elementId": "ice",
+      "displayName": "Ice",
+      "color": "#00BFFF",
+      "strongAgainst": {
+        "lightning": 1.25,
+        "nature": 1.15
+      },
+      "weakAgainst": {
+        "fire": 0.75,
+        "ice": 0.5
+      }
+    },
+    {
+      "elementId": "lightning",
+      "displayName": "Lightning",
+      "color": "#FFD700",
+      "strongAgainst": {
+        "arcane": 1.25
+      },
+      "weakAgainst": {
+        "ice": 0.75,
+        "lightning": 0.5
+      }
+    },
+    {
+      "elementId": "arcane",
+      "displayName": "Arcane",
+      "color": "#9932CC",
+      "strongAgainst": {
+        "shadow": 1.25,
+        "radiant": 1.15
+      },
+      "weakAgainst": {
+        "lightning": 0.75,
+        "arcane": 0.5
+      }
+    },
+    {
+      "elementId": "nature",
+      "displayName": "Nature",
+      "color": "#228B22",
+      "strongAgainst": {
+        "lightning": 1.15,
+        "shadow": 1.15
+      },
+      "weakAgainst": {
+        "fire": 0.75,
+        "ice": 0.85,
+        "nature": 0.5
+      }
+    },
+    {
+      "elementId": "shadow",
+      "displayName": "Shadow",
+      "color": "#4B0082",
+      "strongAgainst": {
+        "radiant": 1.25
+      },
+      "weakAgainst": {
+        "arcane": 0.75,
+        "nature": 0.85,
+        "shadow": 0.5
+      }
+    },
+    {
+      "elementId": "radiant",
+      "displayName": "Radiant",
+      "color": "#FFFACD",
+      "strongAgainst": {
+        "shadow": 1.25
+      },
+      "weakAgainst": {
+        "arcane": 0.85,
+        "radiant": 0.5
+      }
+    }
+  ],
+  "resonance": [
+    {
+      "resonanceId": "valor",
+      "displayName": "Valor",
+      "description": "The resonance of the Vanguard. Party members gain increased health and damage resistance when valor is high.",
+      "partyBonus": [
+        {
+          "stat": "hp",
+          "bonusPercent": 0.1
+        },
+        {
+          "stat": "armor",
+          "bonusPercent": 0.08
+        }
+      ]
+    },
+    {
+      "resonanceId": "precision",
+      "displayName": "Precision",
+      "description": "The resonance of the Ranger. Party members gain increased critical hit chance and accuracy when precision is focused.",
+      "partyBonus": [
+        {
+          "stat": "attackPower",
+          "bonusPercent": 0.06
+        },
+        {
+          "stat": "movementSpeed",
+          "bonusPercent": 0.05
+        }
+      ]
+    },
+    {
+      "resonanceId": "arcana",
+      "displayName": "Arcana",
+      "description": "The resonance of the Arcanist. Party members gain increased spell power and elemental damage when arcana flows.",
+      "partyBonus": [
+        {
+          "stat": "spellPower",
+          "bonusPercent": 0.1
+        },
+        {
+          "stat": "resourcePool",
+          "bonusPercent": 0.05
+        }
+      ]
+    },
+    {
+      "resonanceId": "innovation",
+      "displayName": "Innovation",
+      "description": "The resonance of the Machinist. Party members gain increased tech power and resource regeneration when innovation sparks.",
+      "partyBonus": [
+        {
+          "stat": "resourcePool",
+          "bonusPercent": 0.08
+        },
+        {
+          "stat": "armor",
+          "bonusPercent": 0.05
+        }
+      ]
+    },
+    {
+      "resonanceId": "sanctuary",
+      "displayName": "Sanctuary",
+      "description": "The resonance of the Warden. Party members gain increased healing received and damage reduction when sanctuary prevails.",
+      "partyBonus": [
+        {
+          "stat": "hp",
+          "bonusPercent": 0.08
+        },
+        {
+          "stat": "spellPower",
+          "bonusPercent": 0.05
+        }
+      ]
+    },
+    {
+      "resonanceId": "subterfuge",
+      "displayName": "Subterfuge",
+      "description": "The resonance of the Shade. Party members gain increased critical damage and movement speed when shadows gather.",
+      "partyBonus": [
+        {
+          "stat": "attackPower",
+          "bonusPercent": 0.08
+        },
+        {
+          "stat": "movementSpeed",
+          "bonusPercent": 0.08
+        }
+      ]
+    }
+  ],
+  "combat-constants": {
+    "powerScaling": {
+      "physicalPower": {
+        "strengthMultiplier": 2,
+        "levelMultiplier": 1.5
+      },
+      "spellPower": {
+        "intellectMultiplier": 2,
+        "levelMultiplier": 1
+      },
+      "techPower": {
+        "techMultiplier": 2,
+        "levelMultiplier": 1
+      },
+      "devicePower": {
+        "techDivisor": 100
+      }
+    },
+    "vitality": {
+      "healingReceived": {
+        "vitalityDivisor": 1000
+      }
+    },
+    "accuracy": {
+      "weakPoint": {
+        "precisionMultiplier": 0.0015
+      }
+    },
+    "critical": {
+      "baseCritChance": 0.05,
+      "critChance": {
+        "luckConstant": 500,
+        "maxLuckCritBonus": 0.3
+      },
+      "procChance": {
+        "luckDivisor": 500
+      },
+      "criticalDamageMultiplier": 1.5
+    },
+    "defense": {
+      "defenseConstant": {
+        "baseConstant": 200,
+        "levelMultiplier": 15
+      },
+      "armorReductionPerPoint": 0.001,
+      "maxArmorReduction": 0.75,
+      "blockDamageReduction": 0.6
+    },
+    "glancingHit": {
+      "damageMultiplier": 0.5,
+      "canCrit": false,
+      "canStagger": false
+    },
+    "status": {
+      "resistanceConstant": 100
+    },
+    "timing": {
+      "globalCooldown": 0.75
+    },
+    "pvp": {
+      "globalDamageMultiplier": 0.8,
+      "globalHealingMultiplier": 0.75
+    }
+  }
+}

@@ -48,3 +48,16 @@ export function emptyVersionSelections(): VersionSelections {
     resonance: null,
   };
 }
+
+export function latestVersionsByType(
+  latest: Partial<Record<CatalogType, number>> | undefined,
+): VersionSelections {
+  return {
+    class: latest?.class ?? null,
+    skill: latest?.skill ?? null,
+    'combat-constants': latest?.['combat-constants'] ?? null,
+    status: latest?.status ?? null,
+    element: latest?.element ?? null,
+    resonance: latest?.resonance ?? null,
+  };
+}

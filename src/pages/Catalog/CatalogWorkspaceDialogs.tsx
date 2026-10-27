@@ -2,10 +2,28 @@ import { Alert, Snackbar } from '@mui/material';
 import { AddEntryDialog } from '../../components/catalog/addEntry/AddEntryDialog';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { DeleteEntryDialog } from '../../components/catalog/DeleteEntryDialog';
+import { ExportDialog } from '../../components/catalog/importExport/ExportDialog';
+import { ImportDialog } from '../../components/catalog/importExport/ImportDialog';
+import { PublishAllDialog } from '../../components/catalog/importExport/PublishAllDialog';
 import { PublishDialog } from '../../components/catalog/PublishDialog';
+import type { useCatalogImportExport } from '../../hooks/useCatalogImportExport';
+import { CATALOG_TYPES } from '../../lib/draftKeys';
 import type { CatalogWorkspace } from './panelShared';
 
-export function CatalogWorkspaceDialogs({ workspace }: { workspace: CatalogWorkspace }) {
+interface CatalogWorkspaceDialogsProps {
+  workspace: CatalogWorkspace;
+  importExport: ReturnType<typeof useCatalogImportExport>;
+}
+
+export function CatalogWorkspaceDialogs({
+  workspace,
+  importExport,
+}: CatalogWorkspaceDialogsProps) {
+  const hasDraft = CATALOG_TYPES.some((type) => workspace.drafts[type] !== null);
+  const hasPublished = CATALOG_TYPES.some(
+    (type) => workspace.catalogQueryData[type] !== undefined,
+  );
+
   return (
     <>
       <AddEntryDialog
@@ -34,6 +52,31 @@ export function CatalogWorkspaceDialogs({ workspace }: { workspace: CatalogWorks
           hasValidationErrors={workspace.hasValidationErrors}
         />
       )}
+
+      <ImportDialog
+        open={importExport.importOpen}
+        errors={importExport.importErrors}
+        appliedTypes={importExport.importApplied}
+        onClose={importExport.closeImport}
+        onFile={importExport.handleImportFile}
+      />
+
+      <ExportDialog
+        open={importExport.exportOpen}
+        hasDraft={hasDraft}
+        hasPublished={hasPublished}
+        onClose={importExport.closeExport}
+        onExport={importExport.handleExport}
+      />
+
+      <PublishAllDialog
+        open={importExport.publishAllOpen}
+        items={importExport.pendingPublish}
+        results={importExport.publishResults}
+        isPending={importExport.isPublishingAll}
+        onClose={importExport.closePublishAll}
+        onPublish={importExport.handlePublishAll}
+      />
 
       {workspace.pendingDelete && workspace.deleteEvaluation && (
         <DeleteEntryDialog
