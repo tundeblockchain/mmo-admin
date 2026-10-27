@@ -22,15 +22,16 @@ describe('CatalogPage', () => {
     });
   });
 
-  it('shows prompt to select version when none selected', async () => {
+  it('loads the latest published class version without a manual selection', async () => {
     render(<CatalogPage />);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Select a version above/)).toBeInTheDocument();
-    });
+    expect(await screen.findByLabelText(/Classes Version/)).toHaveTextContent('v2');
+    expect(await screen.findByText('Vanguard')).toBeInTheDocument();
+    expect(screen.getByText('Viewing version 2')).toBeInTheDocument();
+    expect(screen.queryByText(/Select a version above/)).not.toBeInTheDocument();
   });
 
-  it('loads class list after selecting version', async () => {
+  it('loads class list after selecting an older version', async () => {
     const user = userEvent.setup();
     render(<CatalogPage />);
 
@@ -41,11 +42,12 @@ describe('CatalogPage', () => {
     const select = screen.getByRole('combobox');
     await user.click(select);
 
-    const option = await screen.findByRole('option', { name: /v2/ });
+    const option = await screen.findByRole('option', { name: /v1/ });
     await user.click(option);
 
     await waitFor(() => {
       expect(screen.getByText('Vanguard')).toBeInTheDocument();
+      expect(screen.getByText('Viewing version 1')).toBeInTheDocument();
     });
   });
 

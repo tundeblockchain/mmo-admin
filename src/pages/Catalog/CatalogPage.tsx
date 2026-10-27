@@ -1,4 +1,4 @@
-import { Alert, Box, Paper, Typography } from '@mui/material';
+import { Alert, Box, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { AccountNotice } from '../../components/account/AccountNotice';
 import { CatalogEmptyState } from '../../components/catalog/addEntry/CatalogEmptyState';
@@ -111,12 +111,6 @@ function CatalogWorkspacePage() {
           catalogType={workspace.selectedType}
           onAdd={workspace.handleRequestAdd}
         />
-      ) : workspace.draft === null && workspace.publishedSelection === null ? (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">
-            Select a version above to browse catalog entities.
-          </Typography>
-        </Paper>
       ) : (
         <CatalogTypeContent workspace={workspace} />
       )}

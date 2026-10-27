@@ -36,3 +36,16 @@ export function latestVersionFromMap(
   const value = latest?.versions[catalogType];
   return typeof value === 'number' ? value : null;
 }
+
+export function resolvePublishedVersion(
+  override: number | null,
+  versions: CatalogVersionSummary[],
+  latest: LatestVersions | undefined,
+  catalogType: CatalogType,
+): number | null {
+  return (
+    publishedVersionOrNull(override) ??
+    latestPublishedVersion(versions, catalogType) ??
+    latestVersionFromMap(latest, catalogType)
+  );
+}
