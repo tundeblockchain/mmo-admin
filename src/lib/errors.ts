@@ -1,3 +1,5 @@
+export const ADMIN_ACCESS_REQUIRED_MESSAGE = 'Admin access required.';
+
 export class ApiError extends Error {
   readonly status: number;
   readonly response?: unknown;
@@ -15,6 +17,14 @@ export class AdminForbiddenError extends ApiError {
     super(message, 403, response);
     this.name = 'AdminForbiddenError';
   }
+}
+
+export function isUnauthorizedError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 401;
+}
+
+export function isAdminForbiddenStatus(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 403;
 }
 
 export function logError(error: unknown, context?: string): void {

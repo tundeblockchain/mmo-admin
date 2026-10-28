@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '../test/test-utils';
 import {
   mockUser,
   mockUnverifiedUser,
+  mockSignOut,
   setMockAuthState,
   resetMockAuth,
 } from '../test/mocks/firebase-auth';
@@ -112,5 +113,26 @@ describe('useAccount', () => {
     });
 
     expect(screen.queryByText('Admin access')).not.toBeInTheDocument();
+  });
+
+  it('signs out when /users/me returns 401', async () => {
+    server.use(
+      http.post('*/users/me', () => {
+        return HttpResponse.json(
+          { error: 'Valid Firebase ID token required' },
+          { status: 401 },
+        );
+      }),
+    );
+
+    setMockAuthState(mockUser);
+    render(<AccountProbe />);
+
+    await waitFor(() => {
+      expect(mockSignOut).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByText('Admin access')).not.toBeInTheDocument();
+    expect(screen.queryByText('Account error')).not.toBeInTheDocument();
   });
 });

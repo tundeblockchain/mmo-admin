@@ -42,13 +42,12 @@ test.describe('Publish gating', () => {
 test.describe('Publish gating as player', () => {
   test.use({ e2eAuth: 'player' });
 
-  test('player account cannot open Publish and sees a non-admin notice', async ({ page }) => {
-    await openClassDraft(page);
+  test('player account never reaches catalog write actions', async ({ page }) => {
+    await page.goto('/catalog/classes');
 
-    await expect(
-      page.getByRole('status', { name: /account is not an admin/i }),
-    ).toBeVisible();
-    await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
+    await expect(page.getByRole('heading', { name: /this account has no admin access/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /publish class/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /edit as draft/i })).toHaveCount(0);
   });
 });
 
@@ -67,16 +66,16 @@ test.describe('Publish gating with expired auth', () => {
   });
 });
 
-test.describe('Account-based publish gating (MMO-30)', () => {
-  test.use({ e2eAuth: 'player', catalogApi: { accountType: 'player' } });
+test.describe('Catalog write 403', () => {
+  test.use({ catalogApi: { publishStatus: 403 } });
 
-  test('disables Publish for a player from POST /users/me', async ({ page }) => {
+  test('shows admin access required when a catalog write returns 403', async ({ page }) => {
     await openClassDraft(page);
+    await makeClassDraftDirty(page);
+    await reviewPublish(page);
+    await page.getByRole('button', { name: /confirm publish/i }).click();
 
-    await expect(
-      page.getByRole('status', { name: /account is not an admin/i }),
-    ).toBeVisible();
-    await expect(page.getByRole('button', { name: /publish class/i })).toBeDisabled();
+    await expect(page.getByText(/admin access required/i)).toBeVisible();
   });
 });
 

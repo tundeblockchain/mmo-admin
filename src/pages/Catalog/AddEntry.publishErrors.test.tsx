@@ -6,7 +6,6 @@ import { CatalogPage } from './CatalogPage';
 import { clearDraftStoreForTesting } from '../../hooks/useDraftCatalog';
 import { submitAddClassEntry } from '../../test/draftEditingTestUtils';
 import { mockEmptyCatalogApi } from '../../test/emptyCatalogTestUtils';
-import { mockPlayerUser } from '../../test/mocks/user-handlers';
 import { setupSignedInAuth } from '../../test/signedInAuth';
 
 setupSignedInAuth();
@@ -57,20 +56,5 @@ describe('Empty catalog publish errors (MMO-39)', { timeout: 15_000 }, () => {
     await waitFor(() => {
       expect(versionListCalls).toBeGreaterThan(1);
     });
-  });
-
-  it('keeps publish disabled for a non-admin account', async () => {
-    server.use(
-      http.post('*/users/me', () => HttpResponse.json(mockPlayerUser)),
-    );
-
-    const user = userEvent.setup();
-    render(<CatalogPage />);
-
-    expect(await screen.findByRole('button', { name: /add class/i })).toBeEnabled();
-    await submitAddClassEntry(user, 'warden');
-
-    expect(screen.getByRole('status', { name: /account is not an admin/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /publish class/i })).toBeDisabled();
   });
 });

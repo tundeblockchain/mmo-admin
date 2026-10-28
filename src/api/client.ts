@@ -5,7 +5,11 @@ import axios, {
 } from 'axios';
 import { getIdToken } from '../auth';
 import { env } from '../config/env';
-import { AdminForbiddenError, ApiError } from '../lib/errors';
+import {
+  ADMIN_ACCESS_REQUIRED_MESSAGE,
+  AdminForbiddenError,
+  ApiError,
+} from '../lib/errors';
 
 declare module 'axios' {
   interface InternalAxiosRequestConfig {
@@ -42,7 +46,10 @@ function toApiError(error: AxiosError<{ error?: string }>): AdminForbiddenError 
   const message = error.response?.data?.error ?? error.message ?? 'Network error';
 
   if (status === 403) {
-    return new AdminForbiddenError(message, error.response?.data);
+    return new AdminForbiddenError(
+      ADMIN_ACCESS_REQUIRED_MESSAGE,
+      error.response?.data,
+    );
   }
 
   return new ApiError(message, status, error.response?.data);

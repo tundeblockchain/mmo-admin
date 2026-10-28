@@ -1,7 +1,10 @@
-import { AdminForbiddenError, ApiError } from '../../../lib/errors';
+import {
+  ADMIN_ACCESS_REQUIRED_MESSAGE,
+  AdminForbiddenError,
+  ApiError,
+} from '../../../lib/errors';
 
-export const ADMIN_FORBIDDEN_PUBLISH_MESSAGE =
-  "Your account isn't an admin, so it can't publish catalogs.";
+export const ADMIN_FORBIDDEN_PUBLISH_MESSAGE = ADMIN_ACCESS_REQUIRED_MESSAGE;
 
 export const BAD_REQUEST_PUBLISH_MESSAGE =
   'The server rejected this catalog. An empty data array cannot be published.';

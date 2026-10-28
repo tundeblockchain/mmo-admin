@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { useAuth, signOutUser } from '../../auth';
-import { useAccount } from '../../hooks/useAccount';
 import { ThemeToggle } from '../../theme';
 import { SidebarNav } from './SidebarNav';
 
@@ -21,7 +20,6 @@ const DRAWER_WIDTH = 240;
 
 export function Layout() {
   const authState = useAuth();
-  useAccount();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpen = anchorEl !== null;
 

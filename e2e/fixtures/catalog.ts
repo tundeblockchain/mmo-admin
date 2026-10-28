@@ -26,6 +26,7 @@ export interface CatalogRouteOptions {
   publishStatus?: 201 | 400 | 401 | 403;
   accountType?: 'admin' | 'player';
   emptyCatalog?: boolean;
+  usersMeStatus?: 200 | 401 | 503;
 }
 
 const CORS_HEADERS = {
@@ -65,6 +66,8 @@ export async function installCatalogRoutes(
   const publishStatus = options.publishStatus ?? 201;
   const defaultAccountType = options.accountType ?? 'admin';
   const emptyCatalog = options.emptyCatalog === true;
+  const usersMeStatus = options.usersMeStatus ?? 200;
+  let usersMeCalls = 0;
 
   await page.route((url) => url.origin === E2E_API_ORIGIN, async (route) => {
     const request = route.request();
@@ -79,8 +82,14 @@ export async function installCatalogRoutes(
     }
 
     if (method === 'POST' && path === '/users/me') {
-      if (!authorization.startsWith('Bearer ')) {
+      if (!authorization.startsWith('Bearer ') || usersMeStatus === 401) {
         await json(route, 401, { error: 'Valid Firebase ID token required' });
+        return;
+      }
+
+      usersMeCalls += 1;
+      if (usersMeStatus === 503 && usersMeCalls === 1) {
+        await json(route, 503, { error: 'Catalog unavailable' });
         return;
       }
 
