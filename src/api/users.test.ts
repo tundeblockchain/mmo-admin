@@ -51,6 +51,25 @@ describe('syncCurrentUser', () => {
     expect(result.accountType).not.toBe('admin');
   });
 
+  it('surfaces 401 as ApiError without reading the error body for gating', async () => {
+    server.use(
+      http.post('*/users/me', () => {
+        return HttpResponse.json(
+          { error: 'Valid Firebase ID token required' },
+          { status: 401 },
+        );
+      }),
+    );
+
+    try {
+      await syncCurrentUser();
+      expect.fail('Should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(401);
+    }
+  });
+
   it('surfaces network and 5xx failures as ApiError', async () => {
     server.use(
       http.post('*/users/me', () => {

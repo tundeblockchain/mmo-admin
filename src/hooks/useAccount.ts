@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { syncCurrentUser } from '../api/users';
-import { useAuth } from '../auth';
+import { signOutUser, useAuth } from '../auth';
+import { isUnauthorizedError } from '../lib/errors';
 import { isAdminAccountType } from '../types/account';
 import { queryKeys } from './queryKeys';
 
@@ -10,7 +11,19 @@ export interface AccountState {
   isAdmin: boolean;
   isPending: boolean;
   isError: boolean;
+  isUnauthorized: boolean;
   retry: () => void;
+}
+
+async function loadCurrentUser() {
+  try {
+    return await syncCurrentUser();
+  } catch (error) {
+    if (isUnauthorizedError(error)) {
+      await signOutUser();
+    }
+    throw error;
+  }
 }
 
 export function useAccount(): AccountState {
@@ -21,9 +34,10 @@ export function useAccount(): AccountState {
 
   const query = useQuery({
     queryKey: queryKeys.account.me(uid ?? 'anonymous'),
-    queryFn: syncCurrentUser,
+    queryFn: loadCurrentUser,
     enabled: uid !== null,
     staleTime: Infinity,
+    retry: false,
   });
 
   return {
@@ -31,7 +45,8 @@ export function useAccount(): AccountState {
     accountType: query.data?.accountType ?? null,
     isAdmin: isAdminAccountType(query.data?.accountType),
     isPending: uid !== null && query.isPending,
-    isError: query.isError,
+    isError: uid !== null && query.isError,
+    isUnauthorized: uid !== null && isUnauthorizedError(query.error),
     retry: () => {
       void query.refetch();
     },

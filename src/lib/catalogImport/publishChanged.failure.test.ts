@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CatalogType } from '../../types/catalog';
 import { createDefaultClass } from '../catalogDefaults';
+import { ADMIN_ACCESS_REQUIRED_MESSAGE, AdminForbiddenError } from '../errors';
 import { publishChangedCatalogs } from './publishChanged';
 
 const vanguard = { ...createDefaultClass(), classId: 'vanguard' };
@@ -73,4 +74,24 @@ describe('publishChangedCatalogs failures', () => {
     ]);
     expect(publish).toHaveBeenCalledTimes(3);
   });
+
+  it('maps a 403 catalog write to admin access required', async () => {
+    const publish = vi.fn(async () => {
+      throw new AdminForbiddenError('Admin only');
+    });
+
+    const results = await publishChangedCatalogs(
+      [{ catalogType: 'class', data: [vanguard] }],
+      publish,
+    );
+
+    expect(results).toEqual([
+      {
+        catalogType: 'class',
+        status: 'failed',
+        message: ADMIN_ACCESS_REQUIRED_MESSAGE,
+      },
+    ]);
+  });
 });
+

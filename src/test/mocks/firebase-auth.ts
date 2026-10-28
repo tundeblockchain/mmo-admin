@@ -25,7 +25,10 @@ const hoisted = vi.hoisted(() => {
     }),
     mockSendEmailVerification: vi.fn().mockResolvedValue(undefined),
     mockSendPasswordResetEmail: vi.fn().mockResolvedValue(undefined),
-    mockSignOut: vi.fn().mockResolvedValue(undefined),
+    mockSignOut: vi.fn(async () => {
+      state.currentUser = null;
+      state.authStateCallback?.(null);
+    }),
     mockOnAuthStateChanged: vi.fn(),
   };
 });

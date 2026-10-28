@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installCatalogRoutes } from '../fixtures/catalog';
 import { missingRealAuthEnvNames, realAuthSkipMessage } from '../lib/realAuthEnv';
 
 const missing = missingRealAuthEnvNames();
@@ -15,6 +16,7 @@ test.describe('Real Firebase email/password sign-in', () => {
       return;
     }
 
+    await installCatalogRoutes(page);
     await page.goto('/');
     await expect(page.getByTestId('auth-email')).toBeVisible();
     await expect(page.getByTestId('auth-password')).toBeVisible();

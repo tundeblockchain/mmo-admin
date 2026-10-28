@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../test/mocks/server';
 import { publishCatalog } from './catalog';
-import { AdminForbiddenError, ApiError } from '../lib/errors';
+import {
+  ADMIN_ACCESS_REQUIRED_MESSAGE,
+  AdminForbiddenError,
+  ApiError,
+} from '../lib/errors';
 import { mockClassCatalog } from '../test/mocks/catalog-fixtures';
 
 vi.mock('../auth', () => ({
@@ -64,7 +68,9 @@ describe('publishCatalog', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(AdminForbiddenError);
       expect((error as AdminForbiddenError).status).toBe(403);
-      expect((error as AdminForbiddenError).message).toBe('Admin only');
+      expect((error as AdminForbiddenError).message).toBe(
+        ADMIN_ACCESS_REQUIRED_MESSAGE,
+      );
     }
 
     expect(getIdToken).not.toHaveBeenCalledWith(true);

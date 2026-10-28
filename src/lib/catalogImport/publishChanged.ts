@@ -1,4 +1,8 @@
 import { EMPTY_LIST_PUBLISH_MESSAGE } from '../catalogSchema';
+import {
+  ADMIN_ACCESS_REQUIRED_MESSAGE,
+  isAdminForbiddenStatus,
+} from '../errors';
 import type {
   CatalogEntityData,
   CatalogType,
@@ -44,7 +48,11 @@ export async function publishChangedCatalogs(
       results.push({
         catalogType: item.catalogType,
         status: 'failed',
-        message: error instanceof Error ? error.message : 'Publish failed',
+        message: isAdminForbiddenStatus(error)
+          ? ADMIN_ACCESS_REQUIRED_MESSAGE
+          : error instanceof Error
+            ? error.message
+            : 'Publish failed',
       });
     }
   }

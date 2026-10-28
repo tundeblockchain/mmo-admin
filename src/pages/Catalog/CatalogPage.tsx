@@ -1,6 +1,5 @@
 import { Alert, Box, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
-import { AccountNotice } from '../../components/account/AccountNotice';
 import { CatalogEmptyState } from '../../components/catalog/addEntry/CatalogEmptyState';
 import { ImportExportToolbar } from '../../components/catalog/importExport/ImportExportToolbar';
 import { DraftToolbar } from '../../components/catalog/DraftToolbar';
@@ -39,8 +38,6 @@ function CatalogWorkspacePage() {
       <Typography variant="h4" component="h1" gutterBottom>
         {catalogLabelForType(workspace.selectedType)}
       </Typography>
-
-      <AccountNotice />
 
       <ImportExportToolbar
         canPublishAll={importExport.canPublishAll}
